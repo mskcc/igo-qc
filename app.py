@@ -38,7 +38,16 @@ def data_table():
         sumDict[i['qc']['sampleName']] += i['qc']['meanTargetCoverage']
     for i in samples:
         i['qc']['sumMtc'] = sumDict[i['qc']['sampleName']]
-    
+    #format of 'run'
+    for i in samples:
+	l = i['qc']['run'].split('_')
+	i['qc']['run'] = l[0] + '_' + l[1]
+    #format of 'concentration'
+    for i in samples:
+	l = i['concentration'].split()
+	if l[1] == 'pM':
+		l[0] = float(l[0]) / 1000
+	i['concentration'] = float(l[0])
 
     requester = {'id': data['requestId'], 'investigator': data['investigator'], 'pi': data['pi'], 'projectManager': data['projectManager'], \
 		'pipelinable': data['pipelinable'], 'analysisRequested': data['analysisRequested'], 'cmoProject': data['cmoProject']}
