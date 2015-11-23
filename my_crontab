@@ -1,0 +1,3 @@
+# Minute   Hour   Day of Month       Month          Day of Week        Command    
+# (0-59)  (0-23)     (1-31)    (1-12 or Jan-Dec)  (0-6 or Sun-Sat)                
+    0,5,10,15,20,25,30,35,40,45,50,55        *          *             *                *            touch /home/charris/example_crontab/foo
