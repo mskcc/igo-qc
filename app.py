@@ -49,7 +49,7 @@ def navbarForm(func):
 # This function validates the shape of the project ID
 def is_project_id_valid(project_id):
     """Validate the project_id using a regex."""
-    if not re.match("^[a-zA-Z0-9]+$", project_id):
+    if not re.match("^[a-zA-Z0-9_]+$", project_id):
         return False
     return True
 
@@ -57,8 +57,11 @@ def is_project_id_valid(project_id):
 @app.route('/<pId>', methods=['GET', 'POST'])
 @navbarForm
 def data_table(pId):
+    #define variables
+    data = {}
+    qcStatusLabel = []
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getPmProject?project="+pId, auth=("qc","funball"), verify=False)
+    r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
     t = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=("qc","funball"), verify=False)
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
@@ -67,18 +70,28 @@ def data_table(pId):
     samples = data['samples']
     #compute the sum of the 'readDuped' by 'sampleName'
     sumDict = {}
+    l = {}
     for sample in samples:
 	if not sumDict.has_key(sample['qc']['sampleName']):
 		sumDict[sample['qc']['sampleName']] = 0
 	sumDict[sample['qc']['sampleName']] += sample['qc']['readsDuped']
-    for sample in samples:   	
-	sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
+    for sample in samples:
+	if not sample['qc']['sampleName'] in l:
+	    sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
+        #else:
+        #    sample['qc']['sumReads'] = null
+        l[sample['qc']['sampleName']] = 1
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     sumDict = dict.fromkeys( sumDict.iterkeys(), 0 )
+    l = {}
     for sample in samples:
         sumDict[sample['qc']['sampleName']] += sample['qc']['meanTargetCoverage']
     for sample in samples:
-        sample['qc']['sumMtc'] = sumDict[sample['qc']['sampleName']]
+        if not sample['qc']['sampleName'] in l:
+            sample['qc']['sumMtc'] = sumDict[sample['qc']['sampleName']]
+	#else:
+	#    sample['qc']['sumMtc'] = null
+        l[sample['qc']['sampleName']] = 1
     #format of 'run'
     for sample in samples:
 	l = sample['qc']['run'].split('_')
@@ -105,7 +118,11 @@ def data_table(pId):
 	pType['baitSet'] = samples[0]['qc']['baitSet']
     else:
 	pType['table'] = 'md'
-    
+    #fill sampleQCStatus
+    sampleQCStatus = {}
+    for sample in samples:
+	if 'qcStatus' in sample['qc']:
+	    sampleQCStatus[sample['qc']['sampleName']] = sample['qc']['qcStatus']
 
     #fill status dict
     status = {}
@@ -113,12 +130,12 @@ def data_table(pId):
     for i in qcStatusLabel:
         status[i] = 0
     for sample in samples:
-	if not sample['cmoId'] in l:
+	if not sample['qc']['sampleName'] in l:
 	    if 'qcStatus' in sample['qc']:
   	        status[sample['qc']['qcStatus']] += 1
 	    else:
-	        sample['qc']['qcStatus'] = 'Passed'
-	        status['Passed'] += 1
+	        sample['qc']['qcStatus'] = 'Under-Review'
+	        status['Under-Review'] += 1
 	    l.append(sample['cmoId'])
 
     #fill 'requester' dict
@@ -138,14 +155,9 @@ def data_table(pId):
     return render_template("data_table.html", **locals())
 
 
-# /error/<int:error> route and its view. This render '404.html' template
-@app.route('/error/<int:error_id><txt>', methods=['GET', 'POST'])
-@navbarForm
-def error(error_id, txt):
-    return render_template('404.html', error_id=error_id, txt=txt)
-
 # We raise an error and display it. This render '404.html' template
 @app.errorhandler(404)
+@navbarForm
 def page_not_found(e):
     return render_template('404.html', error=e), 404
 
