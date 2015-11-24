@@ -155,6 +155,12 @@ def data_table(pId):
     return render_template("data_table.html", **locals())
 
 
+#add route to display the charts
+@app.route('/Pie')
+def get_charts():
+    return render_template('KIM_0379_AH5HG7ADXX_pie_MCM27.bam_vs_nt.pdf')
+
+
 # We raise an error and display it. This render '404.html' template
 @app.errorhandler(404)
 @navbarForm
