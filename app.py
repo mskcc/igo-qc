@@ -33,14 +33,14 @@ def navbarForm(func):
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-                    errors = errors + "Please enter a valid project ID"
-                    return redirect(url_for('error', error_id=404, txt=errors))
-            if not errors:
-                # If there are no errors, create a dictionary containing all the entered
-                # data and pass it to the template to be displayed
-                data = {'project_id': project_id}
-                # Since the form data is valid, render the success template
-                return redirect(url_for('data_table', pId=project_id))
+                    errors = errors + "\nPlease enter a valid project ID"
+                    return redirect(url_for('page_not_found', error_id=404, txt=errors))
+                else:
+		    # If there are no errors, create a dictionary containing all the entered
+                    # data and pass it to the template to be displayed
+                    data = {'project_id': project_id}
+                    # Since the form data is valid, render the success template
+                    return redirect(url_for('data_table', pId=project_id))
     return inner
 
 
@@ -52,6 +52,13 @@ def is_project_id_valid(project_id):
     if not re.match("^[a-zA-Z0-9_]+$", project_id):
         return False
     return True
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
+@navbarForm
+def index():
+    return render_template("index.html", **locals())
 
 
 @app.route('/<pId>', methods=['GET', 'POST'])
@@ -74,7 +81,7 @@ def data_table(pId):
     for sample in samples:
 	if not sumDict.has_key(sample['qc']['sampleName']):
 		sumDict[sample['qc']['sampleName']] = 0
-	sumDict[sample['qc']['sampleName']] += sample['qc']['readsDuped']
+	sumDict[sample['qc']['sampleName']] += sample['qc']['unpairedReadsExamined']
     for sample in samples:
 	if not sample['qc']['sampleName'] in l:
 	    sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
@@ -155,10 +162,22 @@ def data_table(pId):
     return render_template("data_table.html", **locals())
 
 
-#add route to display the charts
-@app.route('/Pie')
-def get_charts():
-    return render_template('KIM_0379_AH5HG7ADXX_pie_MCM27.bam_vs_nt.pdf')
+#route for display the JSON
+@app.route('/JSON_<pId>')
+def displayJSON(pId):
+    r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
+    data = json.loads(r.content)
+    data2 = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+    return render_template('json.html', **locals())
+
+
+#route to post the qc status
+@app.route('/post_<pId>_<recordId>_<qcStatus>')
+def post_qcStatus(pId, recordId, qcStatus):
+	url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
+	headers = {'Content-Type': 'application/json'}
+	r = requests.post(url, headers=headers)
+	return redirect(url_for('data_table', pId=pId))
 
 
 # We raise an error and display it. This render '404.html' template

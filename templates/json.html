@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--[if IE 8]> 				 
 <html class="lt-ie9" lang="en" > <![endif]-->
@@ -8,9 +9,10 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
+    	<link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
 
-		<title>404 error</title>
+
+		<title>QC Stats</title>
         
 		<!-- Bootstrap core CSS -->
         <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
@@ -36,44 +38,45 @@
 	<body>
 		<!-- Main Container starts here -->
 		<div class="container">
-            
-            <div class="row navbar-fixed-top" id="top-navigation">
+			<div class="row navbar-fixed-top" id="top-navigation">
 				<!-- Navigation header starts here -->
 		  		<header class=" col-sm-12 col-md-10">
 			  		<div class="navbar navbar-default">
-			        <div class="navbar-header">
-			          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			          </button>
-			          <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
-			        </div>
-			        <div class="navbar-collapse collapse">
-                        <form class="navbar-form navbar-center" role="search" action="" method="post">
+			          <div class="navbar-header">
+			            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+			          </div>
+
+                      <div class="navbar-collapse collapse">
+                        <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
                             <div class="form-group">
                                 <input type="text" class="form-control" placeholder="Project ID" name="project_id">
                             </div>
                             <button type="submit" class="btn btn-default">Go!</button>
                         </form>
-			        </div><!--/.nav-collapse -->
+			          </div><!--/.nav-collapse -->
 			      </div>
 		      </header>
 		      <!-- Navigation header ends here -->
-		      <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
+              <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
+				  <ul class="nav navbar-nav pull-right">
+				  	<a href="{{ url_for('data_table', pId=data.requestId) }}" class="btn btn-secondary btn-lg active" role="button">Pretty Print</a>
+			      </ul>
 		      </div>
-      	  	</div>
-
-            <div class="jumbotron">
-                <div class="container">
-                    <h1>Ooops, 404!</h1>
-                    <p>Page not found !</p>
-                    <p>{{ txt }}</p>
-                </div>
             </div>
+            
+            
+		    <div class="col-sm-14 col-md-14 col-lg-14">
+                <div class="widget-box">
+                  <div class="widget-title">
+                    <h2><i class="glyphicon glyphicon-stats"></i>JSON</h2>
+                  </div>
+                  <div class="widget-container project-JSON">
+                    {{ data2 }}
+                  </div>
+              </div>
+	      </div>
         </div>
-        
-        <!-- Main Container ends here -->
+		<!-- Main Container ends here -->
 		
 		
 
@@ -96,8 +99,7 @@
 		<!-- Init plugins and custom javascript-->
 		<script src="{{ url_for('static', filename="js/custom.js") }}"></script>
             
-        <!-- Data table custom javascript -->
-        
-		 
+        		 
 	</body>
 </html>
+

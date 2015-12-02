@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
-<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if IE 8]> 				 
+<html class="lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!-->
 <html lang="en" >
 	<!--<![endif]-->
@@ -7,18 +9,20 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-		<link rel="shortcut icon" href="favicon.png">
+    	<link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
 
-		<title>Dashboard</title>
+
+		<title>QC Stats</title>
         
 		<!-- Bootstrap core CSS -->
         <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
 		
 		<!-- Data-Table style -->
         <link href="{{ url_for('static', filename="css/jquery.dataTables.css") }}" rel="stylesheet">
+        <link href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
 
 		<!-- Custom styles for this template -->
-        <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet"> 
 
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -28,7 +32,7 @@
 
         <script src="{{ url_for('static', filename="js/custom.modernizr.js")}}" type="text/javascript" ></script>
 		
-        
+
 	</head>
 
 	<body>
@@ -38,688 +42,28 @@
 				<!-- Navigation header starts here -->
 		  		<header class=" col-sm-12 col-md-10">
 			  		<div class="navbar navbar-default">
-			        <div class="navbar-header">
-			          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			          </button>
-			          <a class="navbar-brand" href="index.html"><i class="glyphicon glyphicon-signal"></i>Flato-Admin</a>
-			        </div>
-			        <div class="navbar-collapse collapse">
-			          <ul class="nav navbar-nav navbar-right">
-									<li class="active"><a href="index.html">Dashboard</a></li>
-									<li class="dropdown"> 
-									   <a href="#" class="dropdown-toggle" data-toggle="dropdown">UI Elements<b class="caret"></b></a>
-							           <ul class="dropdown-menu">
-							        		<li><a href="ui_elements_general.html">General</a></li>
-							        		<li><a href="ui_elements_buttons.html">Buttons</a></li>
-							        		<li><a href="ui_elements_tabs_accordions.html">Tabs &amp; Accordions</a></li>
-							        		<li><a href="ui_elements_typography.html">Typography</a></li>
-									   </ul>
-									</li>
-							        <li class="dropdown"> 
-							        	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Components<b class="caret"></b></a>
-							        	<ul class="dropdown-menu">
-							        		<li><a href="calendar.html">Calendar</a></li>
-							                <li><a href="data_table.html">Data Table</a></li>
-							                <li><a href="grids.html">Grids</a></li>
-							                <li><a href="widget_grids.html">Widget Grids</a></li>
-							                <li><a href="charts.html">Flot Charts</a></li>
-							                <li><a href="messengers.html">Conversations</a></li>
-							                <li><a href="gallery.html"> Gallery</a></li>
-											<li><a href="google_maps.html">Google Maps</a></li>				        		
-				                      	</ul>
-				                    </li>
-				                    <li class="dropdown"> 
-							        	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Form Stuff<b class="caret"></b></a>
-							        	<ul class="dropdown-menu">	
-							        		<li><a href="form_layout.html">Form Layouts</a></li>
-							                <li><a href="form_component.html">Form Components</a></li> 
-							                <li><a href="form_validation.html">Form Validation</a></li>
-							                <li><a href="icons.html">Icons</a></li>	        		
-				                      	</ul>
-				                    </li>
-				                    
-				                    <li class="dropdown"> 
-							        	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Sample Pages<b class="caret"></b></a>
-							        	<ul class="dropdown-menu">
-							        		<li><a href="blank.html">Blank Page</a></li>
-							                <li><a href="coming_soon.html">Coming Soon</a></li>
-							                <li><a href="blog.html">Blog</a></li>
-							                <li><a href="about_us.html">About Us</a></li>
-							                <li><a href="contact_us.html">Contact Us</a></li>
-							        	</ul>
-				                    </li>
-				                    <li class="dropdown"> 
-							        	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Extra<b class="caret"></b></a>
-							        	<ul class="dropdown-menu">
-							        		<li><a href="lock.html">Lock Screen</a></li> 
-							                <li><a href="invoice.html">Invoice</a></li>
-							                <li><a href="pricing_tables.html">Pricing Tables</a></li>
-							                <li><a href="faq.html">FAQ</a></li>
-							                <li><a href="404.html">404 Error</a></li>
-							                <li><a href="500.html">500 Error</a></li>
-							                <li><a href="Login.html">Login</a></li>
-							                <li><a href="registration.html">Registration</a></li>
-							                <li><a href="forgot-password.html">Forgot Password</a></li>
-							                <li><a href="profile.html">Profile</a></li>  
-							        	</ul>
-				                    </li>
-							   </ul>
-			        </div><!--/.nav-collapse -->
+			          <div class="navbar-header">
+			            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+			          </div>
+
+                      <div class="navbar-collapse collapse">
+                        <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Project ID" name="project_id">
+                            </div>
+                            <button type="submit" class="btn btn-default">Go!</button>
+                        </form>
+			          </div><!--/.nav-collapse -->
 			      </div>
 		      </header>
 		      <!-- Navigation header ends here -->
 		      <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
-				  <ul class="nav navbar-nav pull-right">
-				  	<li class="dropdown">
-				  		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> Mofarjul<b class="caret"></b></a>
-				  			<ul class="dropdown-menu">
-							  <li><a href="profile.html"><i class="glyphicon glyphicon-cog"></i> My Profile</a></li> 
-							  <li><a href="messengers.html"><i class="glyphicon glyphicon-comment"></i><span class="badge pull-right badge-primary">5</span>Chat</a></li>
-							  <li><a href="login.html"><i class="glyphicon glyphicon-log-out"></i>Logout</a></li>
-						</ul>
-				  	</li>
-			      </ul>
 		      </div>
-      	  </div>
-	      
-	      <!-- Page Header starts here -->
-      		<div class="row">
-				<div class="col-md-8" >
-					<div class="page-title"><h1>Dashboard</h1></div> 
-				</div>
-				<div class="col-md-4">
-					<ol class="breadcrumb pull-right">
-						<li><a href="#">Home</a></li>
-						<li><a href="#">Dashboard</a></li>
-					</ol>
-				</div>
-			</div>
-			<!-- Page Header starts here -->
-	      
-			<!-- Circle State Start here -->
-			<section class="row circle-block">
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats" >
-						<div class="circleStatsItem red">
-							<span class="percent">%</span>
-							<input type="text" value="70" class="orangeCircle dial" />
-						</div>
-						<div class="box-col-sm-title">
-							Percent adapter
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats">
-						<div class="circleStatsItem blue">
-							<span class="percent">%</span>
-							<input type="text" value="58" class="blueCircle" data-linecap="round" />
-						</div>
-						<div class="box-col-sm-title">
-							Mean target coverage
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats" >
-						<div class="circleStatsItem green">
-							<span class="percent">%</span>
-							<input type="text" value="72" class="greenCircle" />
-						</div>
-						<div class="box-col-sm-title">
-							Sales
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats" >
-						<div class="circleStatsItem lightorange">
-							<span class="percent">%</span>
-							<input type="text" value="38" class="lightOrangeCircle" />
-						</div>
-						<div class="box-col-sm-title">
-							Download
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats" >
-						<div class="circleStatsItem pink">
-							<span class="percent">%</span>
-							<input type="text" value="58" class="pinkCircle" />
-						</div>
-						<div class="box-col-sm-title">
-							Purchase
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-md-2">
-					<div class="circleStats" >
-						<div class="circleStatsItem lavender">
-							<span class="percent">%</span>
-							<input type="text" value="28" class="lavenderCircle" />
-						</div>
-						<div class="box-col-sm-title">
-							Online Users
-						</div>
-					</div>
-				</div>
-			</section>
-			<!-- Circle State End here -->
-			
-			
-			<div class="row">
-				<!-- chart starts here -->
-				<div class="col-sm-12 col-md-8">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-stats"></i>Stacking</h2>
-						</div>
-						<div class="chart-container">
-							<div class="stack-chart chart-placeholder"></div>
-						</div>
-					</div>
-				</div>
-				<!-- chart End here -->
-				
-				<!-- vital chart starts here -->
-				<div class="col-sm-12 col-md-4">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-align-left"></i>Vital Stats</h2>
-						</div>
-						<div class="widget-container vital-stats">
-							<label>40% Clicks</label>
-							<div class="progress progress-striped active">
-							  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-							    <span class="sr-only">40% Complete (success)</span>
-							  </div>
-							</div>
-							
-							<label>20% Unique Visitor</label>
-							<div class="progress progress-striped active">
-							  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-							    <span class="sr-only">20% Complete</span>
-							  </div>
-							</div>
-							
-							<label>60% Online User</label>
-							<div class="progress progress-striped active">
-							  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-							    <span class="sr-only">60% Complete (warning)</span>
-							  </div>
-							</div>
-							
-							<label>80% Offline User</label>
-							<div class="progress progress-striped active">
-							  <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-							    <span class="sr-only">80% Complete (danger)</span>
-							  </div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- vital chart end here -->
-			</div><!-- row End -->
-			
-			<!-- Custom badge Starts here -->
-			<section class="row">
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-user"></i>
-		                    Users
-		                    <span class="badge bagde-blue">2</span>
-	                    </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-barcode"></i>
-		                    Products
-		                    <span class="badge bagde-green">5</span>
-	                    </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-list-alt"></i>
-		                    Reports
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-						<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-calendar"></i>
-		                    Calender
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-th"></i>
-		                    Categories
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-tasks"></i>
-		                    Tasks
-		                    <span class="badge bagde-red">5</span>
-		                </a>
-					</div>
-				</div>
-				</section>
-				<section class="row">
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-dashboard"></i>
-		                    Uses
-		                    <span class="badge bagde-green">8</span>
-	                    </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-barcode"></i>
-		                    Targets
-	                    </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-tasks"></i>
-		                    Tasks
-		                    <span class="badge bagde-blue">6</span>
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-list-alt"></i>
-		                    Reports
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-						<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-calendar"></i>
-		                    Calender
-		                </a>
-					</div>
-				</div>
-				<div class="col-sm-4 col-md-2">
-					<div class="custom-badges">
-						<a href="#">
-		                    <i class="glyphicon glyphicon-th"></i>
-		                    Categories
-		                </a>
-					</div>
-				</div>
-			</section>
-			<!-- Custom badge ends here -->
-			
-			<!-- Order table Starts here -->
-			<section class="row">
-				<div class="col-sm-12 col-md-12">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-tasks"></i>Order List</h2>
-						</div>
-						<div class="widget-container table-responsive">
-							<table class="table table-hover table-striped order-table table-green">
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>Client Name</th>
-									<th>Contact</th>
-									<th>Cost</th>
-									<th>Status</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>Google</td>
-									<td>Mark Z</td>
-									<td>$ 9984.00</td>
-									<td><span class="label label-danger">Unpaid</span></td>
-									<td>
-										<button type="button" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-eye-open"></i>View</button>
-										<button type="button" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-pencil"></i>Edit</button>
-										<button type="button" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i>Delete</button>
-										
-									</td>
-								</tr>
-								<tr>
-									<td>2</td>
-									<td>Micro-soft</td>
-									<td>Nokia</td>
-									<td>$ 224.00</td>
-									<td><span class="label label-success">Paid</span></td>
-									<td>
-										<button type="button" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-eye-open"></i>View</button>
-										<button type="button" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-pencil"></i>Edit</button>
-										<button type="button" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i>Delete</button>
-										
-									</td>
-								</tr>
-								<tr>
-									<td>3</td>
-									<td>Samsung</td>
-									<td>John</td>
-									<td>$ 354.00</td>
-									<td><span class="label label-success">Paid</span></td>
-									<td>
-										<button type="button" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-eye-open"></i>View</button>
-										<button type="button" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-pencil"></i>Edit</button>
-										<button type="button" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i>Delete</button>
-										
-									</td>
-								</tr>
-								<tr>
-									<td>4</td>
-									<td>Apple</td>
-									<td>Jameson</td>
-									<td>$ 785.00</td>
-									<td><span class="label label-warning">On Hold</span></td>
-									<td>
-										<button type="button" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-eye-open"></i>View</button>
-										<button type="button" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-pencil"></i>Edit</button>
-										<button type="button" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i>Delete</button>
-										
-									</td>
-								</tr>
-							</tbody>
-						</table>	
-						</div>
-					</div>
-				</div>
-			</section>
-			<!-- Order Table ends here -->
-			
-			
-			<section class="row">
-				<div class="col-sm-12 col-md-6">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-bell"></i>Recent Activities</h2>
-						</div>
-						<div class="widget-container">
-							<ul class="feeds">
-								<li>
-									<i class="glyphicon glyphicon-check"></i>
-									You have 4 pending tasks.
-									<span class="label label-warning">
-									Take action<i class="glyphicon glyphicon-share-alt"></i>
-									</span>
-									<div class="pull-right">
-										Just now
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-list-alt"></i>
-									Finance Report for year 2013 has been released.
-									<div class="pull-right">
-										20 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-user"></i>
-									You have 5 pending membership that requires a quick review.
-									<div class="pull-right">
-										24 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-check"></i>
-									New order received with
-									<span class="label label-success">Reference Number: DR23923</span>
-									<div class="pull-right">
-										30 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-user"></i>
-									You have 5 pending membership that requires a quick review.
-									<div class="pull-right">
-										24 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-check"></i>
-									Web server hardware needs to be upgraded.
-									<span class="label label-default">Overdue</span>
-									<div class="pull-right">
-										2 hours
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-user"></i>
-									IPO Report for year 2013 has been released.
-									<div class="pull-right">
-										20 mins
-									</div>
-								</li>
-								<li class="feed-list">
-									<i class="glyphicon glyphicon-check"></i>
-									You have 4 pending tasks.
-									<span class="label label-warning">
-									Take action<i class="glyphicon glyphicon-share-alt"></i>
-									</span>
-									<div class="pull-right">
-										Just now
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-list-alt"></i>
-									Finance Report for year 2013 has been released.
-									<div class="pull-right">
-										20 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-user"></i>
-									You have 5 pending membership that requires a quick review.
-									<div class="pull-right">
-										24 mins
-									</div>
-								</li>
-								<li>
-									<i class="glyphicon glyphicon-check"></i>
-									New order received with
-									<span class="label label-success">Reference Number: DR23923</span>
-									<div class="pull-right">
-										30 mins
-									</div>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-12 col-md-6">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-check"></i>tasks</h2>
-						</div>
-						<div class="widget-container">
-							<ul class="tasks">
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>IPO Report for year 2013 has been released.</span>
-										  <span class="label label-success">Company</span>
-										  <i class="glyphicon glyphicon-bell"></i>
-									    </label>
-									    <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Hold An Interview for Marketing Manager Position</span>
-										  <span class="label label-danger">Marketing</span>
-										  <i class="glyphicon glyphicon-bell"></i>
-										</label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>AirAsia Intranet System Project Internal Meeting</span>
-										  <span class="label label-success">AirAsia</span>
-									    </label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Technical Management Meeting.</span>
-										  <span class="label label-warning">Company</span>
-									    </label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Kick-off Company CRM Mobile App Development</span>
-										  <span class="label label-info">Internal Products</span>
-									    </label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Prepare Commercial Offer For SmartVision Website</span>
-										  <span class="label label-danger">SmartVision</span>
-									    </label>
-										  <i class="glyphicon glyphicon-bell"></i>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Sign-Off The Comercial Agreement With AutoSmart</span>
-										  <span class="label label-primary">AutoSmart</span>
-									    </label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>Company Staff Meeting</span>
-										  <span class="label label-success">Cruise</span>
-									    </label>
-										  <i class="glyphicon glyphicon-bell"></i>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-								<li>
-									<div class="checkbox">
-									    <label>
-									      <input type="checkbox"><span>KeenThemes Investment Discussion</span>
-										  <span class="label label-warning">KeenThemes</span>
-										  <i class="glyphicon glyphicon-bell"></i>
-									    </label>
-										  <div class="pull-right dropdown hidden-xs">
-							        			<a href="#" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
-									        	<ul class="dropdown-menu">
-									        		<li><a href="#"><i class="glyphicon glyphicon-ok"></i> Complete</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-													<li><a href="#"><i class="glyphicon glyphicon-trash"></i> Cancel</a></li>
-									        	</ul>
-										  </div>
-								  	</div>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</section>
-			<footer class="footer">
-				<p> 
-                   	<!-- Copyright information. You can remove my site link. --> 
-                   	Copyright © <a href="#">Your Site</a> | Designed by <a href="http://ad-says.com">AdSays Creation Pvt. Ltd.</a>
-                   	</p>
-			</footer>
-		</div>
+      	  	</div>
+      	  	
+      	  	
+            
+        </div>
 		<!-- Main Container ends here -->
 		
 		
@@ -729,7 +73,6 @@
 		<!-- Placed at the end of the document so the pages load faster -->
 		
 		<!-- Important js put in all pages -->
-		<!-- Important js put in all pages -->
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script>
 			window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
@@ -738,9 +81,13 @@
 	 
 		<!-- Data table plugins -->
 		<script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
+            <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.0.3/js/buttons.colvis.min.js"></script>
 	    
 		<!-- Init plugins and custom javascript-->
 		<script src="{{ url_for('static', filename="js/custom.js") }}"></script>
+            
+        		 
 	</body>
 </html>
 

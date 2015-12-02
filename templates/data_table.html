@@ -9,7 +9,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-    	<link rel="shortcut icon" href="../static/images/msk.ico">
+    	<link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
 
 
 		<title>QC Stats</title>
@@ -43,7 +43,7 @@
 		  		<header class=" col-sm-12 col-md-10">
 			  		<div class="navbar navbar-default">
 			          <div class="navbar-header">
-			            <a class="navbar-brand" href="index.html"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+			            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
 			          </div>
                       <!-- <ul class="nav navbar-nav navbar-right">
                         <button name="b_json" type="button" class="btn btn-default btn-small btn-nav">JSON</button>
@@ -60,16 +60,9 @@
 		      </header>
 		      <!-- Navigation header ends here -->
 		      <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
-				  <!-- <ul class="nav navbar-nav pull-right">
-				  	<li class="dropdown">
-				  		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> Mofarjul<b class="caret"></b></a>
-				  			<ul class="dropdown-menu">
-							  <li><a href="profile.html"><i class="glyphicon glyphicon-cog"></i> My Profile</a></li> 
-							  <li><a href="messengers.html"><i class="glyphicon glyphicon-comment"></i><span class="badge pull-right badge-primary">5</span>Chat</a></li>
-							  <li><a href="login.html"><i class="glyphicon glyphicon-log-out"></i>Logout</a></li>
-						</ul>
-				  	</li>
-			      </ul> -->
+				  <ul class="nav navbar-nav pull-right">
+				  	<a href="{{ url_for('displayJSON', pId=requester.requestId) }}" class="btn btn-secondary btn-lg active" role="button">JSON</a>
+			      </ul>
 		      </div>
       	  	</div>
       	  	
@@ -80,7 +73,7 @@
 				</div>
 				<div class="col-md-4">
 					<ol class="breadcrumb pull-right">
-						<li><a href="#">Test</a></li>
+						<li><a href="{{ url_for('index') }}">Home</a></li>
 						<li><a href="#">Data Table</a></li>
 					</ol>
 				</div>
@@ -163,16 +156,16 @@
                             <div class="widget-title">
                                 <h2><i class="glyphicon glyphicon-stats"></i>Project Charts</h2>
                             </div>
-                            <div class="widget-container project-status">
+                            <div class="widget-container project-charts">
                                 Tree chart 
                                 <span class="pull-right">
-                                    <a href="./KIM_0379_AH5HG7ADXX_pie_MCM27.bam_vs_nt.pdf" target="_blank">
+                                    <a href="./static/html/PDF/JAX_0001_AH3Y3MBBXX_pie_IG-hpvscc-058-T.bam_vs_nt.pdf" target="_blank">
                                         <bf class="text-inverse">Click to open</bf>
                                     </a>
                                 </span><br>
                                 Pie charts
                                 <span class="pull-right">
-                                    <a href="./static/html/{{ requester.requestId }}/HeatMap.pdf" target="_blank">
+                                    <a href="./static/html/FASTQ/KIM_0386_BH5JTJADXX/Reports/html/index.html" target="_blank">
                                         <bf class="text-inverse">Click to open</bf>
                                     </a>
                                 </span>
@@ -186,7 +179,7 @@
             
             <!--Data Table Start here -->
 			<div class="row">
-				<div class="col-sm-12 col-md-12 col-lg-12">
+				<div class="col-sm-14 col-md-14 col-lg-14">
 					<div class="widget-box">
 						<div class="widget-title">
 							<h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
@@ -201,6 +194,7 @@
                                                     <th rowspan="2">Genome</th>
                                                     <th rowspan="2">Tumor or Normal</th>
                                                     <th rowspan="2">Concentr.  (nM)</th>
+                                                    <th rowspan="2">Yield</th>
                                                     <th colspan="1">AM</th>
                                                     <th colspan="5">MD</th>
                                                     {% if pType.table == 'rna' %}
@@ -248,9 +242,10 @@
                                                     <td><p class="text-primary">Normal</p></td>
                                                 {% endif %}
                                                 <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
+                                                <td align="right">N/A</td>
                                                 <td align="right">{{ "{:,.2f}".format(sample.qc.percentAdapters) }}</td>
                                                 <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
-                                                <td align="right">{{ "{:,d}".format(sample.qc.readsDuped) }}</td>
+                                                <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
                                                 {% if not sample.qc.sumReads is defined %}
                                                     <td></td>
                                                 {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
@@ -299,7 +294,7 @@
                                                               {% if i == sample.qc.qcStatus %}
                                                                 <li class="disabled"><a href="#">{{ i }}</a></li>
                                                               {% else %}
-                                                                <li><a href="#">{{ i }}</a></li>
+                                                                <li><a href="{{ url_for('post_qcStatus', pId=requester.requestId , recordId=sample.recordId, qcStatus=i) }}">{{ i }}</a></li>
                                                               {% endif %}
                                                           {% endfor %}
                                                         </ul>
@@ -315,6 +310,7 @@
                                                     <th>Genome</th>
                                                     <th>Tumor or Normal</th>
                                                     <th>Concentr.</th>
+                                                    <th>Yield</th>
 	                                                <th>Pct. Adapters</th>
 	                                                <th>Reads Examined</th>
 	                                                <th>Unpaired Reads</th>
