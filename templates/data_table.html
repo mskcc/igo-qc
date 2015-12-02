@@ -105,7 +105,7 @@
                             {% endif %}
                             <hr>
                             {% if pType.table == 'hs' %}
-                            Mean Target Coverage requested 
+                            Coverage requested 
                             <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
                             {% else %}
                             Number of Reads Requested <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
@@ -144,7 +144,14 @@
                             </div>
                             <div class="widget-container project-status">
                                 {% for i in status %}
-                                <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf><br>
+                                <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf>
+                                <span class="pull-right">
+                                    <form method="post" action="{{ url_for('post_all_qcStatus', qcStatus=i, pId=requester.requestId) }}" class="inline">
+                                        <input type="hidden" name="recordIds" value="{{ recordIds }}">
+                                        <a role="button" class="active">Set All</a>
+                                    </form>
+                                </span>
+                                <br>
                                 {% endfor %}
                             </div>
                         </div>
@@ -157,18 +164,13 @@
                                 <h2><i class="glyphicon glyphicon-stats"></i>Project Charts</h2>
                             </div>
                             <div class="widget-container project-charts">
-                                Tree chart 
-                                <span class="pull-right">
-                                    <a href="./static/html/PDF/JAX_0001_AH3Y3MBBXX_pie_IG-hpvscc-058-T.bam_vs_nt.pdf" target="_blank">
-                                        <bf class="text-inverse">Click to open</bf>
-                                    </a>
-                                </span><br>
-                                Pie charts
-                                <span class="pull-right">
-                                    <a href="./static/html/FASTQ/KIM_0386_BH5JTJADXX/Reports/html/index.html" target="_blank">
-                                        <bf class="text-inverse">Click to open</bf>
-                                    </a>
-                                </span>
+                                <a href="{{ url_for('static', filename="html/PDF/JAX_0001_AH3Y3MBBXX_pie_IG-hpvscc-058-T.bam_vs_nt.pdf") }}" target="_blank">
+                                    <bf class="text-inverse">Tree chart</bf>
+                                </a>
+                                -
+                                <a href="{{ url_for('static', filename="html/FASTQ/KIM_0386_BH5JTJADXX/Reports/html/index.html") }}" target="_blank">
+                                    <bf class="text-inverse">Pie charts</bf>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -248,7 +250,7 @@
                                                 <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
                                                 {% if not sample.qc.sumReads is defined %}
                                                     <td></td>
-                                                {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
+                                                {% elif pType.table != 'hs' and sample.qc.sumReads <= requester.requestedNumberOfReads %}
                                                     <td align="right" class="highlight">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
                                                 {% else %}
                                                     <td align="right">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
@@ -266,6 +268,8 @@
                                                     <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
                                                     {% if not sample.qc.sumMtc is defined %}
                                                     <td></td>
+                                                    {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
+                                                    <td align="right" class="highlight">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
                                                     {% else %}
                                                     <td align="right">{{ "{:,.2f}".format(sample.qc.sumMtc) }}</td>
                                                     {% endif %}
@@ -278,14 +282,14 @@
                                                 {% endif %}
                                                 <td>
                                                     <div class="btn-group">
-                                                        {% if not sampleQCStatus[sample.qc.sampleName] in ['Passed', 'Under-Review'] %}
+                                                        {% if not sample.qc.qcStatus in ['Passed', 'Under-Review'] %}
                                                         <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
-                                                            {{ sampleQCStatus[sample.qc.sampleName] }}
+                                                            {{ '{:.6}'.format(sample.qc.qcStatus) }}
                                                             <span class="caret"></span>
                                                         </button>
                                                         {% else %}
                                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                            {{ sampleQCStatus[sample.qc.sampleName] }}
+                                                            {{ '{:.6}'.format(sample.qc.qcStatus) }}
                                                             <span class="caret"></span>
                                                         </button>
                                                         {% endif %}

@@ -71,7 +71,7 @@
                     <h2><i class="glyphicon glyphicon-stats"></i>JSON</h2>
                   </div>
                   <div class="widget-container project-JSON">
-                    {{ data2 }}
+                    <pre id="json"></pre>
                   </div>
               </div>
 	      </div>
@@ -98,6 +98,7 @@
 	    
 		<!-- Init plugins and custom javascript-->
 		<script src="{{ url_for('static', filename="js/custom.js") }}"></script>
+        <script>document.getElementById("json").innerHTML = JSON.stringify({{ r.content|safe }}, undefined, 4)</script>
             
         		 
 	</body>

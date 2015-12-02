@@ -125,11 +125,6 @@ def data_table(pId):
 	pType['baitSet'] = samples[0]['qc']['baitSet']
     else:
 	pType['table'] = 'md'
-    #fill sampleQCStatus
-    sampleQCStatus = {}
-    for sample in samples:
-	if 'qcStatus' in sample['qc']:
-	    sampleQCStatus[sample['qc']['sampleName']] = sample['qc']['qcStatus']
 
     #fill status dict
     status = {}
@@ -143,7 +138,7 @@ def data_table(pId):
 	    else:
 	        sample['qc']['qcStatus'] = 'Under-Review'
 	        status['Under-Review'] += 1
-	    l.append(sample['cmoId'])
+	    l.append(sample['qc']['sampleName'])
 
     #fill 'requester' dict
     requester = {}
@@ -157,6 +152,11 @@ def data_table(pId):
     else:
 	requester['requestedNumberOfReads'] = 'N/A'
 
+    #list all recordId
+    recordIds = []
+    for sample in samples:
+        recordIds.append(sample['qc']['recordId'])
+
     #print samples
     #pass it to templates/data_table.html to render with jinja templates
     return render_template("data_table.html", **locals())
@@ -167,17 +167,26 @@ def data_table(pId):
 def displayJSON(pId):
     r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
     data = json.loads(r.content)
-    data2 = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
     return render_template('json.html', **locals())
 
 
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
-	url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
-	headers = {'Content-Type': 'application/json'}
-	r = requests.post(url, headers=headers)
-	return redirect(url_for('data_table', pId=pId))
+    url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post(url, headers=headers)
+    return redirect(url_for('data_table', pId=pId))
+
+
+#route to post all the qc status
+@app.route('/post_all_<qcStatus>_<pId>')
+def post_all_qcStatus(qcStatus, pId):
+    for recordId in recordIds:
+        url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
+        headers = {'Content-Type': 'application/json'}
+        r = requests.post(url, headers=headers)
+    return redirect(url_for('data_table', pId=pId))
 
 
 # We raise an error and display it. This render '404.html' template
