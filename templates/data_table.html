@@ -4,153 +4,155 @@
 <html class="lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!-->
 <html lang="en" >
-	<!--<![endif]-->
+    <!--<![endif]-->
 
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-    	<link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
 
 
-		<title>QC Stats</title>
-        
-		<!-- Bootstrap core CSS -->
+        <title>QC Stats</title>
+
+        <!-- Bootstrap core CSS -->
         <link href="{{ url_for('static', filename="css/bootstrap.css") }}" rel="stylesheet">
-		
-		<!-- Data-Table style -->
+
+        <!-- Data-Table style -->
         <link href="{{ url_for('static', filename="css/jquery.dataTables.css") }}" rel="stylesheet">
         <link href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
 
-		<!-- Custom styles for this template -->
+        <!-- Custom styles for this template -->
         <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet"> 
 
-		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-		<!--[if lt IE 9]>
-			<script src="js/html5shiv.js"></script>
-			<script src="js/respond.min.js"></script>
-		<![endif]-->
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="js/html5shiv.js"></script>
+            <script src="js/respond.min.js"></script>
+        <![endif]-->
 
         <script src="{{ url_for('static', filename="js/custom.modernizr.js")}}" type="text/javascript" ></script>
-		
 
-	</head>
 
-	<body>
-		<!-- Main Container starts here -->
-		<div class="container">
-			<div class="row navbar-fixed-top" id="top-navigation">
-				<!-- Navigation header starts here -->
-		  		<header class=" col-sm-12 col-md-10">
-			  		<div class="navbar navbar-default">
-			          <div class="navbar-header">
-			            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
-			          </div>
-                      <!-- <ul class="nav navbar-nav navbar-right">
-                        <button name="b_json" type="button" class="btn btn-default btn-small btn-nav">JSON</button>
-                      </ul> -->
-			          <div class="navbar-collapse collapse">
-                        <form class="navbar-form navbar-center" role="search" action="" method="post">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Project ID" name="project_id">
-                            </div>
-                            <button type="submit" class="btn btn-default">Go!</button>
-                        </form>
-			          </div><!--/.nav-collapse -->
-			      </div>
-		      </header>
-		      <!-- Navigation header ends here -->
-		      <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
-				  <ul class="nav navbar-nav pull-right">
-				  	<a href="{{ url_for('displayJSON', pId=requester.requestId) }}" class="btn btn-secondary btn-lg active" role="button">JSON</a>
-			      </ul>
-		      </div>
-      	  	</div>
-      	  	
-      	  	<!-- Page Header starts here -->
-      		<div class="row">
-				<div class="col-md-8" >
-					<div class="page-title"><h1>Data Table</h1></div> 
-				</div>
-				<div class="col-md-4">
-					<ol class="breadcrumb pull-right">
-						<li><a href="{{ url_for('index') }}">Home</a></li>
-						<li><a href="#">Data Table</a></li>
-					</ol>
-				</div>
-			</div>
-			<!-- Page Header ends here -->
-            
+    </head>
+
+    <body>
+        <!-- Main Container starts here -->
+        <div class="container">
+            <div class="row navbar-fixed-top" id="top-navigation">
+                <!-- Navigation header starts here -->
+                <header class=" col-sm-12 col-md-10">
+                    <div class="navbar navbar-default">
+                        <div class="navbar-header">
+                            <a class="navbar-brand" href="{{ url_for('index') }}">
+                                <i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i>
+                            </a>
+                        </div>
+                        <!-- <ul class="nav navbar-nav navbar-right">
+                          <button name="b_json" type="button" class="btn btn-default btn-small btn-nav">JSON</button>
+                        </ul> -->
+                        <div class="navbar-collapse collapse">
+                            <form class="navbar-form navbar-center" role="search" action="" method="post">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Project ID" name="project_id">
+                                </div>
+                                <button type="submit" class="btn btn-default">Go!</button>
+                            </form>
+                        </div><!--/.nav-collapse -->
+                    </div>
+                </header>
+                <!-- Navigation header ends here -->
+                <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
+                    <ul class="nav navbar-nav pull-right">
+                        <a href="{{ url_for('displayJSON', pId=requester.requestId) }}" class="btn btn-secondary btn-lg active" role="button">JSON</a>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Page Header starts here -->
+            <div class="row">
+                <div class="col-md-8" >
+                    <div class="page-title"><h1>Data Table</h1></div>
+                </div>
+                <div class="col-md-4">
+                    <ol class="breadcrumb pull-right">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="#">Data Table</a></li>
+                    </ol>
+                </div>
+            </div>
+            <!-- Page Header ends here -->
+
             <!-- Independant informations starts here -->
             <div class="row">
                 <!-- Requester informations ends here -->
-				<div class="col-sm-14 col-md-4">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-user"></i>Project Requester</h2>
-						</div>
-						<div class="widget-container project-requester">
+                <div class="col-sm-14 col-md-4">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h2><i class="glyphicon glyphicon-user"></i>Project Requester</h2>
+                        </div>
+                        <div class="widget-container project-requester">
                             Investigator <span class="pull-right"><bf class="text-info">{{ requester.investigator }}</bf></span><br>
                             PI <span class="pull-right"><bf class="text-info">{{ requester.pi }}</bf></span><br>
                             Project Manager <span class="pull-right"><bf class="text-info">{{ requester.projectManager }}</bf></span><br>
                             <hr>
                             {% if requester.pipelinable %}
-                                Pipelinable <span class="pull-right"><i class="glyphicon glyphicon-ok text-success"></i></span><br>
+                            Pipelinable <span class="pull-right"><i class="glyphicon glyphicon-ok text-success"></i></span><br>
                             {% else %}
-                                Pipelinable <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
+                            Pipelinable <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
                             {% endif %}
                             {% if requester.analysisRequested %}
-                                Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-ok text-success"></i></span><br>
+                            Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-ok text-success"></i></span><br>
                             {% else %}
-                                Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
+                            Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
                             {% endif %}
                             <hr>
                             {% if pType.table == 'hs' %}
-                            Coverage requested 
+                            Coverage requested
                             <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
                             {% else %}
                             Number of Reads Requested <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
                             {% endif %}
-						</div>
-					</div>
-				</div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Requester informations ends here -->
                 <!-- Project informations starts here -->
                 <div class="col-sm-14 col-md-4">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-barcode"></i>Project Identity</h2>
-						</div>
-						<div class="widget-container project-informations">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h2><i class="glyphicon glyphicon-barcode"></i>Project Identity</h2>
+                        </div>
+                        <div class="widget-container project-informations">
                             Project Id <span class="pull-right"><bf class="text-info">{{ requester.requestId }}</bf></span><br>
                             <hr>
                             Cmo Project <span class="pull-right"><bf class="text-info">{{ requester.cmoProject }}</bf></span><br>
                             <hr>
                             Recipe <span class="pull-right"><bf class="text-info">{{ pType.recipe }}</bf></span><br>
                             {% if pType['table'] == 'hs' %}
-                                Bait Set <span class="pull-right"><bf class="text-info">{{ pType.baitSet }}</bf></span><br>
+                            Bait Set <span class="pull-right"><bf class="text-info">{{ pType.baitSet }}</bf></span><br>
                             {% endif %}
                             <hr>
                             Number of samples <span class="pull-right"><bf class="text-info">{{ n }}</bf></span><br>
-						</div>
-					</div>
-				</div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Project informations ends here -->
                 <div class="row">
                     <!-- Project status starts here -->
                     <div class="col-sm-14 col-md-4">
                         <div class="widget-box">
                             <div class="widget-title">
-                              <h2><i class="glyphicon glyphicon-check"></i>Project Status</h2>
+                                <h2><i class="glyphicon glyphicon-check"></i>Project Status</h2>
                             </div>
                             <div class="widget-container project-status">
                                 {% for i in status %}
                                 <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf>
-                                <span class="pull-right">
-                                    <form method="post" action="{{ url_for('post_all_qcStatus', qcStatus=i, pId=requester.requestId) }}" class="inline">
-                                        <input type="hidden" name="recordIds" value="{{ recordIds }}">
-                                        <a role="button" class="active">Set All</a>
-                                    </form>
-                                </span>
+                                        <span class="pull-right">
+                                            <form method="post" action="{{ url_for('post_all_qcStatus', qcStatus=i, pId=requester.requestId) }}" class="inline">
+                                                <input type="hidden" name="recordIds" value="{{ recordIds }}">
+                                                <a role="button" class="active">Set All</a>
+                                            </form>
+                                        </span>
                                 <br>
                                 {% endfor %}
                             </div>
@@ -164,220 +166,232 @@
                                 <h2><i class="glyphicon glyphicon-stats"></i>Project Charts</h2>
                             </div>
                             <div class="widget-container project-charts">
-                                <a href="{{ url_for('static', filename="html/PDF/JAX_0001_AH3Y3MBBXX_pie_IG-hpvscc-058-T.bam_vs_nt.pdf") }}" target="_blank">
-                                    <bf class="text-inverse">Tree chart</bf>
+                                {% for chart_type in charts_links %}
+                                <a href="{{ url_for('static', filename=charts_links[chart_type]) }}" target="_blank">
+                                    <bf class="text-inverse">{{ chart_type }}</bf>
                                 </a>
-                                -
-                                <a href="{{ url_for('static', filename="html/FASTQ/KIM_0386_BH5JTJADXX/Reports/html/index.html") }}" target="_blank">
-                                    <bf class="text-inverse">Pie charts</bf>
-                                </a>
+                                &nbsp;&nbsp;&nbsp;
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                     <!-- Project charts ends here -->
                 </div>
-			</div>
+            </div>
             <!-- Independant informations ends here -->
-            
+
             <!--Data Table Start here -->
-			<div class="row">
-				<div class="col-sm-14 col-md-14 col-lg-14">
-					<div class="widget-box">
-						<div class="widget-title">
-							<h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
-						</div>
-						<div class="widget-container table-responsive">
-						     	<div class="content noPad clearfix">
-	                                    <table id="stats" class="responsive dynamicTable display table table-hover table-bordered">
-	                                        <thead>
-	                                            <tr>
-	                                                <th rowspan="2" style="width: 25%">Run</th>
-	                                                <th rowspan="2">Sample</th>
-                                                    <th rowspan="2">Genome</th>
-                                                    <th rowspan="2">Tumor or Normal</th>
-                                                    <th rowspan="2">Concentr.  (nM)</th>
-                                                    <th rowspan="2">Yield</th>
-                                                    <th colspan="1">AM</th>
-                                                    <th colspan="5">MD</th>
-                                                    {% if pType.table == 'rna' %}
-                                                        <th colspan="6">RNA</th>
-                                                    {% elif pType.table == 'hs' %}
-                                                        <th colspan="8">HS</th>
-                                                    {% endif %}
-                                                    <th rowspan="2">QC Status</th>
-                                                </tr>
-                                                <tr>
-	                                                <th>Pct. Adapters</th>
-	                                                <th>Reads Examined</th>
-	                                                <th>Unpaired Reads</th>
-                                                    <th>Sum Reads</th>
-                                                    <th>Unmapped</th>
-                                                    <th>Pct. Duplic.</th>
-                                                    {% if pType.table == 'rna' %}
-                                                        <th>Pct. Ribos.</th>
-                                                        <th>Pct. Coding</th>
-	                                                    <th>Pct. Utr</th>
-                                                        <th>Pct. Intron.</th>
-	                                                    <th>Pct. Intergen.</th>
-                                                        <th>Pct. Mnra</th>
-                                                    {% elif pType.table == 'hs' %}
-	                                                    <th>Mean Tgt Cvg</th>
-                                                        <th>Sum MTC</th>
-	                                                    <th>Pct. Zero Cvg</th>
-                                                        <th>Pct. Off Bait</th>
-	                                                    <th>Pct. 10x</th>
-                                                        <th>Pct. 30x</th>
-                                                        <th>Pct. 100x</th>
-	                                                    <th>Mskq</th>
-                                                    {% endif %}
-                                                </tr>
-                                            </thead>
-                                            
-                                            {% for sample in samples %}
-                                            <tr>
-                                                <td>{{ sample.qc.run}}</td>
-                                                <td><nobr>{{ sample.qc.sampleName }}</nobr></td>
-                                                <td>{{ sample.species }}</td>
-                                                {% if sample.tumorOrNormal == 'Tumor' %}
-                                                    <td><p class="text-danger">Tumor</p></td>
+            <div class="row">
+                <div class="col-sm-14 col-md-14 col-lg-14">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
+                        </div>
+                        <div class="widget-container table-responsive">
+                            <div class="content noPad clearfix">
+                                <table id="stats" class="responsive dynamicTable display table table-hover table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th rowspan="2" style="width: 25%">Run</th>
+                                        <th rowspan="2">Sample</th>
+                                        <th rowspan="2">Genome</th>
+                                        <th rowspan="2">Tumor or Normal</th>
+                                        <th rowspan="2">Concentr.  (nM)</th>
+                                        <th rowspan="2">Yield</th>
+                                        <th colspan="1">AM</th>
+                                        <th colspan="5">MD</th>
+                                        {% if pType.table == 'rna' %}
+                                        <th colspan="6">RNA</th>
+                                        {% elif pType.table == 'hs' %}
+                                        <th colspan="8">HS</th>
+                                        {% endif %}
+                                        <th rowspan="2">QC Status</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Pct. Adapters</th>
+                                        <th>Reads Examined</th>
+                                        <th>Unpaired Reads</th>
+                                        <th>Sum Reads</th>
+                                        <th>Unmapped</th>
+                                        <th>Pct. Duplic.</th>
+                                        {% if pType.table == 'rna' %}
+                                        <th>Pct. Ribos.</th>
+                                        <th>Pct. Coding</th>
+                                        <th>Pct. Utr</th>
+                                        <th>Pct. Intron.</th>
+                                        <th>Pct. Intergen.</th>
+                                        <th>Pct. Mnra</th>
+                                        {% elif pType.table == 'hs' %}
+                                        <th>Mean Tgt Cvg</th>
+                                        <th>Sum MTC</th>
+                                        <th>Pct. Zero Cvg</th>
+                                        <th>Pct. Off Bait</th>
+                                        <th>Pct. 10x</th>
+                                        <th>Pct. 30x</th>
+                                        <th>Pct. 100x</th>
+                                        <th>Mskq</th>
+                                        {% endif %}
+                                    </tr>
+                                    </thead>
+
+                                    {% for sample in samples %}
+                                    <tr>
+                                        {% if sample.qc.run in run_indexes %}
+                                        {% set url = "html/FASTQ/%s/Reports/html/index.html" % sample.qc.run %}
+                                        <td>
+                                            <a href="{{ url_for('static', filename=url) }}" target="_blank">
+                                                <bf class="text-inverse">{{ sample.qc.run_toprint }}</bf>
+                                            </a>
+                                        </td>
+                                        {% else %}
+                                        <td>{{ sample.qc.run_toprint }}</td>
+                                        {% endif %}
+                                        <td><nobr>{{ sample.qc.sampleName }}</nobr></td>
+                                        <td>{{ sample.species }}</td>
+                                        {% if sample.tumorOrNormal == 'Tumor' %}
+                                        <td><p class="text-danger">Tumor</p></td>
+                                        {% else %}
+                                        <td><p class="text-primary">Normal</p></td>
+                                        {% endif %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
+                                        <td align="right">N/A</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentAdapters) }}</td>
+                                        <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
+                                        <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
+                                        {% if not sample.qc.sumReads is defined %}
+                                        <td></td>
+                                        {% elif pType.table != 'hs' and sample.qc.sumReads <= requester.requestedNumberOfReads %}
+                                        <td align="right" class="highlight">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
+                                        {% else %}
+                                        <td align="right">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
+                                        {% endif %}
+                                        <td align="right">{{ "{:,d}".format(sample.qc.unmapped) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentDuplication*100) }}</td>
+                                        {% if pType.table == 'rna' %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentRibosomalBases*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentCodingBases*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentUtrBases*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntronicBases*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntergenicBases*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentMrnaBases*100) }}</td>
+                                        {% elif pType.table == 'hs' %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
+                                        {% if not sample.qc.sumMtc is defined %}
+                                        <td></td>
+                                        {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
+                                        <td align="right" class="highlight">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
+                                        {% else %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.sumMtc) }}</td>
+                                        {% endif %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.zeroCoveragePercent*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentOffBait*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget10x*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget30x*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget100x*100) }}</td>
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.mskq) }}</td>
+                                        {% endif %}
+                                        <td>
+                                            <div class="btn-group">
+                                                {% if not sample.qc.qcStatus in ['Passed', 'Under-Review'] %}
+                                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
+                                                    <span class="caret"></span>
+                                                </button>
                                                 {% else %}
-                                                    <td><p class="text-primary">Normal</p></td>
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
+                                                    <span class="caret"></span>
+                                                </button>
                                                 {% endif %}
-                                                <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
-                                                <td align="right">N/A</td>
-                                                <td align="right">{{ "{:,.2f}".format(sample.qc.percentAdapters) }}</td>
-                                                <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
-                                                <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
-                                                {% if not sample.qc.sumReads is defined %}
-                                                    <td></td>
-                                                {% elif pType.table != 'hs' and sample.qc.sumReads <= requester.requestedNumberOfReads %}
-                                                    <td align="right" class="highlight">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
-                                                {% else %}
-                                                    <td align="right">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
-                                                {% endif %}
-                                                <td align="right">{{ "{:,d}".format(sample.qc.unmapped) }}</td>
-                                                <td align="right">{{ "{:,.2f}".format(sample.qc.percentDuplication*100) }}</td>
-                                                {% if pType.table == 'rna' %}
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentRibosomalBases*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentCodingBases*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentUtrBases*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntronicBases*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntergenicBases*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentMrnaBases*100) }}</td>
-                                                {% elif pType.table == 'hs' %}
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
-                                                    {% if not sample.qc.sumMtc is defined %}
-                                                    <td></td>
-                                                    {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
-                                                    <td align="right" class="highlight">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
+                                                <ul class="dropdown-menu pull-right" role="menu">
+                                                    {% for i in qcStatusLabel %}
+                                                    {% if i == sample.qc.qcStatus %}
+                                                    <li class="disabled"><a href="#">{{ i }}</a></li>
                                                     {% else %}
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.sumMtc) }}</td>
+                                                    <li>
+                                                        <a href="{{ url_for('post_qcStatus', pId=requester.requestId , recordId=sample.qc.recordId, qcStatus=i) }}">
+                                                            {{ i }}
+                                                        </a>
+                                                    </li>
                                                     {% endif %}
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.zeroCoveragePercent*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentOffBait*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget10x*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget30x*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget100x*100) }}</td>
-                                                    <td align="right">{{ "{:,.2f}".format(sample.qc.mskq) }}</td>
-                                                {% endif %}
-                                                <td>
-                                                    <div class="btn-group">
-                                                        {% if not sample.qc.qcStatus in ['Passed', 'Under-Review'] %}
-                                                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
-                                                            {{ '{:.6}'.format(sample.qc.qcStatus) }}
-                                                            <span class="caret"></span>
-                                                        </button>
-                                                        {% else %}
-                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                            {{ '{:.6}'.format(sample.qc.qcStatus) }}
-                                                            <span class="caret"></span>
-                                                        </button>
-                                                        {% endif %}
-                                                        <ul class="dropdown-menu pull-right" role="menu">
-                                                          {% for i in qcStatusLabel %}
-                                                              {% if i == sample.qc.qcStatus %}
-                                                                <li class="disabled"><a href="#">{{ i }}</a></li>
-                                                              {% else %}
-                                                                <li><a href="{{ url_for('post_qcStatus', pId=requester.requestId , recordId=sample.recordId, qcStatus=i) }}">{{ i }}</a></li>
-                                                              {% endif %}
-                                                          {% endfor %}
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-	                                       
-	                                        <tfoot>
-	                                            <tr>
-	                                                <th>Run</th>
-	                                                <th>Sample</th>
-                                                    <th>Genome</th>
-                                                    <th>Tumor or Normal</th>
-                                                    <th>Concentr.</th>
-                                                    <th>Yield</th>
-	                                                <th>Pct. Adapters</th>
-	                                                <th>Reads Examined</th>
-	                                                <th>Unpaired Reads</th>
-                                                    <th>Sum Reads</th>
-                                                    <th>Unmapped</th>
-                                                    <th>Pct. Duplic.</th>
-                                                    {% if pType.table == 'rna' %}
-                                                        <th>Pct. Ribos.</th>
-                                                        <th>Pct. Coding</th>
-	                                                    <th>Pct. Utr</th>
-                                                        <th>Pct. Intron.</th>
-	                                                    <th>Pct. Intergen.</th>
-                                                        <th>Pct. Mnra</th>
-                                                    {% elif pType.table == 'hs' %}
-	                                                    <th>Mean Tgt Cvg</th>
-                                                        <th>Sum MTC</th>
-	                                                    <th>Pct. Zero Cvg</th>
-                                                        <th>Pct. Off Bait</th>
-	                                                    <th>Pct. 10x</th>
-                                                        <th>Pct. 30x</th>
-                                                        <th>Pct. 100x</th>
-	                                                    <th>Mskq</th>
-                                                    {% endif %}
-                                                    <th>QC Status</th>
-	                                            </tr>
-	                                        </tfoot>
-	                                    </table>
-                                </div> 		
-						</div><!-- End .widget-container-->
-					</div> 
-				</div>
-			</div><!-- End .row-->
-			<!--Data Table ends here -->
-            
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                    <tfoot>
+                                    <tr>
+                                        <th>Run</th>
+                                        <th>Sample</th>
+                                        <th>Genome</th>
+                                        <th>Tumor or Normal</th>
+                                        <th>Concentr.</th>
+                                        <th>Yield</th>
+                                        <th>Pct. Adapters</th>
+                                        <th>Reads Examined</th>
+                                        <th>Unpaired Reads</th>
+                                        <th>Sum Reads</th>
+                                        <th>Unmapped</th>
+                                        <th>Pct. Duplic.</th>
+                                        {% if pType.table == 'rna' %}
+                                        <th>Pct. Ribos.</th>
+                                        <th>Pct. Coding</th>
+                                        <th>Pct. Utr</th>
+                                        <th>Pct. Intron.</th>
+                                        <th>Pct. Intergen.</th>
+                                        <th>Pct. Mnra</th>
+                                        {% elif pType.table == 'hs' %}
+                                        <th>Mean Tgt Cvg</th>
+                                        <th>Sum MTC</th>
+                                        <th>Pct. Zero Cvg</th>
+                                        <th>Pct. Off Bait</th>
+                                        <th>Pct. 10x</th>
+                                        <th>Pct. 30x</th>
+                                        <th>Pct. 100x</th>
+                                        <th>Mskq</th>
+                                        {% endif %}
+                                        <th>QC Status</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div><!-- End .widget-container-->
+                    </div>
+                </div>
+            </div><!-- End .row-->
+            <!--Data Table ends here -->
+
             <div class="row">
                 <br><br>
             </div>
-            
-        </div>
-		<!-- Main Container ends here -->
-		
-		
 
-		<!-- Bootstrap core JavaScript
-		================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		
-		<!-- Important js put in all pages -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script>
-			window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
-		</script>
-		<script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
-	 
-		<!-- Data table plugins -->
-		<script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
+        </div>
+        <!-- Main Container ends here -->
+
+
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+
+        <!-- Important js put in all pages -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>
+            window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
+        </script>
+        <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+
+        <!-- Data table plugins -->
+        <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
             <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.0.3/js/buttons.colvis.min.js"></script>
-	    
-		<!-- Init plugins and custom javascript-->
-		<script src="{{ url_for('static', filename="js/custom.js") }}"></script>
-            
-        		 
-	</body>
+
+        <!-- Init plugins and custom javascript-->
+        <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
+
+
+    </body>
 </html>
 

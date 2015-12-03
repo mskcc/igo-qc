@@ -1,11 +1,13 @@
 from flask import Flask, render_template, url_for, request, redirect
 from functools import wraps
 import requests
-import json, re
+import os, json, re
+from settings import APP_STATIC
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
+
 
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
@@ -29,18 +31,17 @@ def navbarForm(func):
         else:                           # If the request is POST or PUT, we check the input and then redirect the URL.
             project_id = request.form['project_id'].strip()
             if not project_id:
-                errors = "Please enter the field."
+                return redirect( url_for('page_not_found', code_error=1) )
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-                    errors = errors + "\nPlease enter a valid project ID"
-                    return redirect(url_for('page_not_found', error_id=404, txt=errors))
+		    return redirect( url_for('page_not_found', code_error=2) )
                 else:
 		    # If there are no errors, create a dictionary containing all the entered
                     # data and pass it to the template to be displayed
                     data = {'project_id': project_id}
                     # Since the form data is valid, render the success template
-                    return redirect(url_for('data_table', pId=project_id))
+                    return redirect( url_for('data_table', pId=project_id) )
     return inner
 
 
@@ -64,17 +65,26 @@ def index():
 @app.route('/<pId>', methods=['GET', 'POST'])
 @navbarForm
 def data_table(pId):
+
     #define variables
     data = {}
     qcStatusLabel = []
+
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
     r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
     t = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=("qc","funball"), verify=False)
+
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
     qcStatusLabel = json.loads(t.content)
+
     #select the subset of the python dictionary that corresponds to what we want to display
     samples = data['samples']
+
+    #test if the requested project exist in the LIMS else display 404.html
+    if data['samples'] == []:
+        return redirect( url_for('page_not_found', code_error=3) )
+
     #compute the sum of the 'readDuped' by 'sampleName'
     sumDict = {}
     l = {}
@@ -88,6 +98,7 @@ def data_table(pId):
         #else:
         #    sample['qc']['sumReads'] = null
         l[sample['qc']['sampleName']] = 1
+
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     sumDict = dict.fromkeys( sumDict.iterkeys(), 0 )
     l = {}
@@ -99,16 +110,19 @@ def data_table(pId):
 	#else:
 	#    sample['qc']['sumMtc'] = null
         l[sample['qc']['sampleName']] = 1
+
     #format of 'run'
     for sample in samples:
 	l = sample['qc']['run'].split('_')
-	sample['qc']['run'] = l[0] + '_' + l[1]
+	sample['qc']['run_toprint'] = l[0] + '_' + l[1]
+
     #format of 'concentration'
     for sample in samples:
 	l = sample['concentration'].split()
 	if l[1] == 'pM':
 		l[0] = float(l[0]) / 1000
 	sample['concentration'] = float(l[0])
+
     #number of samples
     l = []
     for sample in samples:
@@ -157,6 +171,17 @@ def data_table(pId):
     for sample in samples:
         recordIds.append(sample['qc']['recordId'])
 
+    #get the list of the index for the runs
+    run_indexes = os.listdir ( os.path.join(APP_STATIC, "html/FASTQ") )
+
+    #get the list of the project charts
+    charts_links = {}
+    project_indexes = os.listdir ( os.path.join(APP_STATIC, "html/PDF") )
+    for project_index in project_indexes:
+        l = project_index.split('___')
+        if l[1] == data['requestId']:
+            charts_links[l[0] + '_' + l[2]] = 'html/PDF/' + project_index
+
     #print samples
     #pass it to templates/data_table.html to render with jinja templates
     return render_template("data_table.html", **locals())
@@ -173,27 +198,35 @@ def displayJSON(pId):
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
-    url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
-    headers = {'Content-Type': 'application/json'}
-    r = requests.post(url, headers=headers)
+    payload = {recordId: qcStatus}
+    url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus'
+    r = requests.post(url, params=payload)
     return redirect(url_for('data_table', pId=pId))
 
 
 #route to post all the qc status
 @app.route('/post_all_<qcStatus>_<pId>')
 def post_all_qcStatus(qcStatus, pId):
+    recordIds = request.form['recordIds']
     for recordId in recordIds:
-        url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus?' + recordId + '=' + qcStatus
-        headers = {'Content-Type': 'application/json'}
-        r = requests.post(url, headers=headers)
+	payload = {recordId: qcStatus}
+        url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus'
+        r = requests.post(url, params=payload)
     return redirect(url_for('data_table', pId=pId))
 
 
 # We raise an error and display it. This render '404.html' template
-@app.errorhandler(404)
-@navbarForm
-def page_not_found(e):
-    return render_template('404.html', error=e), 404
+@app.route('/page_not_found_<int:code_error>')
+def page_not_found(code_error):
+    if code_error == 1:
+	errors = "Bad request => You press 'Go' with an empty field: please enter the field."
+    elif code_error == 2:
+	errors = "Bad request => Please enter a valid project ID"
+    elif code_error == 3:
+        errors = "This project does not exist in the LIMS (at least with this id) => No data available"
+    else:
+        errors="Unknown error => Try again. If the error persists, inspect the code"
+    return render_template('404.html', errors=errors)
 
 
 
