@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, request, redirect
 from functools import wraps
 import requests
 import os, json, re
-from settings import APP_STATIC
+from settings import APP_STATIC, LIMS_version
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
@@ -31,11 +31,11 @@ def navbarForm(func):
         else:                           # If the request is POST or PUT, we check the input and then redirect the URL.
             project_id = request.form['project_id'].strip()
             if not project_id:
-                return redirect( url_for('page_not_found', code_error=1) )
+                return redirect( url_for('page_not_found', pId='fail', code_error=1) )
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-		    return redirect( url_for('page_not_found', code_error=2) )
+		    return redirect( url_for('page_not_found', pId='fail', code_error=2) )
                 else:
 		    # If there are no errors, create a dictionary containing all the entered
                     # data and pass it to the template to be displayed
@@ -71,8 +71,8 @@ def data_table(pId):
     qcStatusLabel = []
 
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
-    t = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=("qc","funball"), verify=False)
+    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
+    t = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=("qc","funball"), verify=False)
 
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
@@ -83,7 +83,7 @@ def data_table(pId):
 
     #test if the requested project exist in the LIMS else display 404.html
     if data['samples'] == []:
-        return redirect( url_for('page_not_found', code_error=3) )
+        return redirect( url_for('page_not_found', pId=data['requestId'], code_error=3) )
 
     #compute the sum of the 'readDuped' by 'sampleName'
     sumDict = {}
@@ -146,13 +146,13 @@ def data_table(pId):
     for i in qcStatusLabel:
         status[i] = 0
     for sample in samples:
-	if not sample['qc']['sampleName'] in l:
+	if not sample['qc']['recordId'] in l:
 	    if 'qcStatus' in sample['qc']:
   	        status[sample['qc']['qcStatus']] += 1
-	    else:
-	        sample['qc']['qcStatus'] = 'Under-Review'
-	        status['Under-Review'] += 1
-	    l.append(sample['qc']['sampleName'])
+	    #else:
+	        #sample['qc']['qcStatus'] = 'Under-Review'
+	        #status['Under-Review'] += 1
+	    l.append(sample['qc']['recordId'])
 
     #fill 'requester' dict
     requester = {}
@@ -162,7 +162,7 @@ def data_table(pId):
 	else:
 	    requester[label] = 'N/A'
     if 'requestedNumberOfReads' in samples[0]:
-	requester['requestedNumberOfReads'] = 13000000 #samples[0]['requestedNumberOfReads']
+	requester['requestedNumberOfReads'] = 100 #samples[0]['requestedNumberOfReads']
     else:
 	requester['requestedNumberOfReads'] = 'N/A'
 
@@ -180,7 +180,10 @@ def data_table(pId):
     for project_index in project_indexes:
         l = project_index.split('___')
         if l[1] == data['requestId']:
-            charts_links[l[0] + '_' + l[2]] = 'html/PDF/' + project_index
+	    if l[2] == 'tree.pdf' or l[1] == 'heatmap.pdf':
+                charts_links[l[0] + '_' + l[2]] = 'html/PDF/' + project_index
+	    elif l[3] == 'pie.pdf':
+		charts_links[l[0] + '_' + l[2] + '_' + l[3]] = 'html/PDF/' + project_index
 
     #print samples
     #pass it to templates/data_table.html to render with jinja templates
@@ -190,7 +193,7 @@ def data_table(pId):
 #route for display the JSON
 @app.route('/JSON_<pId>')
 def displayJSON(pId):
-    r = s.get("https://igo.cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
+    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
@@ -198,35 +201,35 @@ def displayJSON(pId):
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
-    payload = {recordId: qcStatus}
-    url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus'
-    r = requests.post(url, params=payload)
+    payload = {'record': recordId, 'status': qcStatus}
+    url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
+    r = s.post(url, params=payload, auth=("qc","funball"), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
 #route to post all the qc status
-@app.route('/post_all_<qcStatus>_<pId>')
-def post_all_qcStatus(qcStatus, pId):
-    recordIds = request.form['recordIds']
+@app.route('/postall_<qcStatus>_<pId>')
+def postall_qcStatus(qcStatus, pId):
+    recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
-	payload = {recordId: qcStatus}
-        url = 'https://toro.cbio.mskcc.org:8443/LimsRest/setQcStatus'
-        r = requests.post(url, params=payload)
+	payload = {'record': recordId, 'status': qcStatus}
+        url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
+        r = s.post(url, params=payload, auth=("qc","funball"), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
 # We raise an error and display it. This render '404.html' template
-@app.route('/page_not_found_<int:code_error>')
-def page_not_found(code_error):
+@app.route('/page_not_found_<pId>_<int:code_error>')
+def page_not_found(pId, code_error):
     if code_error == 1:
-	errors = "Bad request => You press 'Go' with an empty field: please enter the field."
+	errors = "Bad request => You press 'Go' with an empty field: please enter the project ID."
     elif code_error == 2:
 	errors = "Bad request => Please enter a valid project ID"
     elif code_error == 3:
-        errors = "This project does not exist in the LIMS (at least with this id) => No data available"
+        errors = "The metrics for this project are not loaded in the LIMS (at least up to now) => No metrics available<br>Try JSON button to display the data available for this project"
     else:
         errors="Unknown error => Try again. If the error persists, inspect the code"
-    return render_template('404.html', errors=errors)
+    return render_template('404.html', **locals())
 
 
 

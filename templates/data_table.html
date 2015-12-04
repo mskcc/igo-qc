@@ -124,13 +124,14 @@
                         </div>
                         <div class="widget-container project-informations">
                             Project Id <span class="pull-right"><bf class="text-info">{{ requester.requestId }}</bf></span><br>
-                            <hr>
                             Cmo Project <span class="pull-right"><bf class="text-info">{{ requester.cmoProject }}</bf></span><br>
                             <hr>
                             Recipe <span class="pull-right"><bf class="text-info">{{ pType.recipe }}</bf></span><br>
                             {% if pType['table'] == 'hs' %}
                             Bait Set <span class="pull-right"><bf class="text-info">{{ pType.baitSet }}</bf></span><br>
                             {% endif %}
+                            <hr>
+                            Run Type <span class="pull-right"><bf class="text-info">N/A<!-- {{ data.runType }} --></bf></span><br>
                             <hr>
                             Number of samples <span class="pull-right"><bf class="text-info">{{ n }}</bf></span><br>
                         </div>
@@ -148,10 +149,7 @@
                                 {% for i in status %}
                                 <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf>
                                         <span class="pull-right">
-                                            <form method="post" action="{{ url_for('post_all_qcStatus', qcStatus=i, pId=requester.requestId) }}" class="inline">
-                                                <input type="hidden" name="recordIds" value="{{ recordIds }}">
-                                                <a role="button" class="active">Set All</a>
-                                            </form>
+                                            <a href="{{ url_for('postall_qcStatus', pId=requester.requestId, qcStatus=i, recordIds=recordIds) }}">Set All</a>
                                         </span>
                                 <br>
                                 {% endfor %}
@@ -254,7 +252,7 @@
                                         <td><p class="text-primary">Normal</p></td>
                                         {% endif %}
                                         <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
-                                        <td align="right">N/A</td>
+                                        <td align="right">N/A<!-- {{ sample.yield }} --></td>
                                         <td align="right">{{ "{:,.2f}".format(sample.qc.percentAdapters) }}</td>
                                         <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
                                         <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
@@ -278,7 +276,7 @@
                                         <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
                                         {% if not sample.qc.sumMtc is defined %}
                                         <td></td>
-                                        {% elif sample.qc.sumReads <= requester.requestedNumberOfReads %}
+                                        {% elif sample.qc.sumMtc <= requester.requestedNumberOfReads %}
                                         <td align="right" class="highlight">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
                                         {% else %}
                                         <td align="right">{{ "{:,.2f}".format(sample.qc.sumMtc) }}</td>

@@ -60,6 +60,14 @@
                   </div>
               </header>
               <!-- Navigation header ends here -->
+              {% if not pId == 'fail' %}
+              <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
+                  <ul class="nav navbar-nav pull-right">
+                    <a href="{{ url_for('displayJSON', pId=pId) }}" class="btn btn-secondary btn-lg active" role="button">JSON</a>
+                  </ul>
+              </div>
+              {% endif %}
+                
               <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
               </div>
             </div>
@@ -74,7 +82,7 @@
                     <h2><i class="glyphicon glyphicon-warning-sign"></i>What happened?</h2>
                   </div>
                   <div class="widget-container project-error">
-                      <div class="alert alert-danger" role="alert" >{{ errors }}</div>
+                      <div class="alert alert-danger" role="alert" >{{ errors|safe }}</div>
                   </div>
                 </div>
             </div>
