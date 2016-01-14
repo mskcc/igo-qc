@@ -162,9 +162,9 @@ def data_table(pId):
 	else:
 	    requester[label] = 'N/A'
     if 'requestedNumberOfReads' in samples[0]:
-	requester['requestedNumberOfReads'] = 100 #samples[0]['requestedNumberOfReads']
+        requester['requestedNumberOfReads'] = samples[0]['requestedNumberOfReads']
     else:
-	requester['requestedNumberOfReads'] = 'N/A'
+	    requester['requestedNumberOfReads'] = 'N/A'
 
     #list all recordId
     recordIds = []
