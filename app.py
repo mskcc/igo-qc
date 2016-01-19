@@ -85,6 +85,10 @@ def data_table(pId):
     if data['samples'] == []:
         return redirect( url_for('page_not_found', pId=data['requestId'], code_error=3) )
 
+    if data['requestId'] == "ERROR":
+        return redirect( url_for('page_not_found', pId=data['requestId'], code_error=3) )
+
+
     #compute the sum of the 'readDuped' by 'sampleName'
     sumDict = {}
     l = {}
