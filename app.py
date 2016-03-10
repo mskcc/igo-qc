@@ -95,7 +95,12 @@ def data_table(pId):
     for sample in samples:
 	if not sumDict.has_key(sample['qc']['sampleName']):
 		sumDict[sample['qc']['sampleName']] = 0
-	sumDict[sample['qc']['sampleName']] += sample['qc']['unpairedReadsExamined']
+ 
+    if sample['qc']['readsExamined']>0:
+        sumDict[sample['qc']['sampleName']] += sample['qc']['readsExamined']
+    else:
+        sumDict[sample['qc']['sampleName']] += sample['qc']['unpairedReadsExamined']
+
     for sample in samples:
 	if not sample['qc']['sampleName'] in l:
 	    sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
