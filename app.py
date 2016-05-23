@@ -7,7 +7,7 @@ app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
-
+from cred import authCodes
 
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
@@ -71,8 +71,8 @@ def data_table(pId):
     qcStatusLabel = []
 
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
-    t = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=("qc","funball"), verify=False)
+    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=authCodes, verify=False)
+    t = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=authCodes, verify=False)
 
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
@@ -202,7 +202,7 @@ def data_table(pId):
 #route for display the JSON
 @app.route('/JSON_<pId>')
 def displayJSON(pId):
-    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=("qc","funball"), verify=False)
+    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=authCodes, verify=False)
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
@@ -212,7 +212,7 @@ def displayJSON(pId):
 def post_qcStatus(pId, recordId, qcStatus):
     payload = {'record': recordId, 'status': qcStatus}
     url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
-    r = s.post(url, params=payload, auth=("qc","funball"), verify=False)
+    r = s.post(url, params=payload, auth=authCodes, verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
@@ -223,7 +223,7 @@ def postall_qcStatus(qcStatus, pId):
     for recordId in recordIds:
 	payload = {'record': recordId, 'status': qcStatus}
         url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
-        r = s.post(url, params=payload, auth=("qc","funball"), verify=False)
+        r = s.post(url, params=payload, auth=authCodes, verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
