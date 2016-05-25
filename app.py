@@ -1,3 +1,5 @@
+# Version 1.0
+
 from flask import Flask, render_template, url_for, request, redirect
 from functools import wraps
 import requests
