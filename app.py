@@ -1,20 +1,23 @@
+# Version 1.0
+
 from flask import Flask, render_template, url_for, request, redirect
 from functools import wraps
+from collections import defaultdict
 import requests
 import os, json, re
-from settings import APP_STATIC, LIMS_version
+from settings import APP_STATIC
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
-from cred import authCodes
-
+app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
         self.poolmanager = PoolManager(num_pools=connections,
                 maxsize=maxsize,
                 block=block,
-                ssl_version=ssl.PROTOCOL_SSLv3)
+                ssl_version=ssl.PROTOCOL_SSLv23)
+                #ssl_version=ssl.PROTOCOL_SSLv3)
 
 s = requests.Session()
 s.mount('https://', MyAdapter())
@@ -35,9 +38,9 @@ def navbarForm(func):
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-		    return redirect( url_for('page_not_found', pId='fail', code_error=2) )
+                    return redirect( url_for('page_not_found', pId='fail', code_error=2) )
                 else:
-		    # If there are no errors, create a dictionary containing all the entered
+            # If there are no errors, create a dictionary containing all the entered
                     # data and pass it to the template to be displayed
                     data = {'project_id': project_id}
                     # Since the form data is valid, render the success template
@@ -59,6 +62,8 @@ def is_project_id_valid(project_id):
 @app.route('/home', methods=['GET', 'POST'])
 @navbarForm
 def index():
+    lims_version = "igo"
+    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getRecentDeliveries", auth=(user, passw), verify=False)
     return render_template("index.html", **locals())
 
 
@@ -69,85 +74,88 @@ def data_table(pId):
     #define variables
     data = {}
     qcStatusLabel = []
-
+    lims_version = "igo" #tango
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=authCodes, verify=False)
-    t = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=authCodes, verify=False)
+    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=(user, passw), verify=False) #, verify=(lims_version == "igo"))
+    t = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(user, passw), verify=False) # verify=(lims_version == "igo"))
 
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
     qcStatusLabel = json.loads(t.content)
-
     #select the subset of the python dictionary that corresponds to what we want to display
-    samples = data['samples']
+    if len(data) == 0:
+        return render_template("empty.html", **locals()) 
+    samples = data[0]['samples']
 
     #test if the requested project exist in the LIMS else display 404.html
-    if data['samples'] == []:
-        return redirect( url_for('page_not_found', pId=data['requestId'], code_error=3) )
+    if data[0]['samples'] == []:
+        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
 
-    if data['requestId'] == "ERROR":
-        return redirect( url_for('page_not_found', pId=data['requestId'], code_error=3) )
+    if data[0]['requestId'] == "ERROR":
+        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
 
 
     #compute the sum of the 'readDuped' by 'sampleName'
-    sumDict = {}
+    sumReadDict = defaultdict(int) 
     l = {}
     for sample in samples:
-	if not sumDict.has_key(sample['qc']['sampleName']):
-		sumDict[sample['qc']['sampleName']] = 0
- 
-    if sample['qc']['readsExamined']>0:
-        sumDict[sample['qc']['sampleName']] += sample['qc']['readsExamined']
-    else:
-        sumDict[sample['qc']['sampleName']] += sample['qc']['unpairedReadsExamined']
+        if sample['qc']['readsExamined']>0:
+            sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
+        else:
+            sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
 
-    for sample in samples:
-	if not sample['qc']['sampleName'] in l:
-	    sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
-        #else:
-        #    sample['qc']['sumReads'] = null
-        l[sample['qc']['sampleName']] = 1
+    #for sample in samples:
+    #    if not sample['qc']['sampleName'] in l:
+    #        sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
+    #    #else:
+    #    #    sample['qc']['sumReads'] = null
+    #    l[sample['qc']['sampleName']] = 1
 
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
-    sumDict = dict.fromkeys( sumDict.iterkeys(), 0 )
     l = {}
+    sumMtcDict = defaultdict(float)
     for sample in samples:
-        sumDict[sample['qc']['sampleName']] += sample['qc']['meanTargetCoverage']
+        sumMtcDict[sample['cmoId']] += sample['qc']['meanTargetCoverage']
     for sample in samples:
-        if not sample['qc']['sampleName'] in l:
-            sample['qc']['sumMtc'] = sumDict[sample['qc']['sampleName']]
-	#else:
-	#    sample['qc']['sumMtc'] = null
+        sample['sumMtc'] = sumMtcDict[sample['cmoId']]
+        sample['sumReads'] = sumReadDict[sample['cmoId']]
+   # for sample in samples:
+   #     if not sample['qc']['sampleName'] in l:
+   #         sample['qc']['sumMtc'] = sumDict[sample['qc']['sampleName']]
+
+    #else:
+    #    sample['qc']['sumMtc'] = null
         l[sample['qc']['sampleName']] = 1
 
     #format of 'run'
     for sample in samples:
-	l = sample['qc']['run'].split('_')
-	sample['qc']['run_toprint'] = l[0] + '_' + l[1]
+        l = sample['qc']['run'].split('_')
+        sample['qc']['run_toprint'] = l[0] + '_' + l[1]
 
     #format of 'concentration'
     for sample in samples:
-	l = sample['concentration'].split()
-	if l[1] == 'pM':
-		l[0] = float(l[0]) / 1000
-	sample['concentration'] = float(l[0])
+        l = sample['concentration'].split()
+        if l[1] == 'pM':
+            l[0] = float(l[0]) / 1000
+        sample['concentration'] = float(l[0])
+            
 
     #number of samples
     l = []
     for sample in samples:
-	if not sample['qc']['sampleName'] in l:
-	    l.append(sample['qc']['sampleName'])
-    n = len(l)
+        if not sample['qc']['sampleName'] in l:
+            l.append(sample['qc']['sampleName'])
+            n = len(l)
 
     #fill pType dict
     pType = {'recipe': samples[0]['recipe']}
     if 'RNA' in pType['recipe']:
-	pType['table'] = 'rna'
+        pType['table'] = 'rna'
     elif 'baitSet' in samples[0]['qc']:
-	pType['table'] = 'hs'
-	pType['baitSet'] = samples[0]['qc']['baitSet']
+        pType['table'] = 'hs'
+        pType['baitSet'] = samples[0]['qc']['baitSet']
     else:
-	pType['table'] = 'md'
+        pType['table'] = 'md'
 
     #fill status dict
     status = {}
@@ -155,25 +163,25 @@ def data_table(pId):
     for i in qcStatusLabel:
         status[i] = 0
     for sample in samples:
-	if not sample['qc']['recordId'] in l:
-	    if 'qcStatus' in sample['qc']:
-  	        status[sample['qc']['qcStatus']] += 1
-	    #else:
-	        #sample['qc']['qcStatus'] = 'Under-Review'
-	        #status['Under-Review'] += 1
-	    l.append(sample['qc']['recordId'])
+        if not sample['qc']['recordId'] in l:
+            if 'qcStatus' in sample['qc']:
+                status[sample['qc']['qcStatus']] += 1
+        #else:
+            #sample['qc']['qcStatus'] = 'Under-Review'
+            #status['Under-Review'] += 1
+            l.append(sample['qc']['recordId'])
 
     #fill 'requester' dict
     requester = {}
     for label in ['requestId', 'investigator',  'pi', 'projectManager', 'pipelinable', 'analysisRequested', 'cmoProject']:
-	if label in data:
-	    requester[label] = data[label]
-	else:
-	    requester[label] = 'N/A'
+        if label in data[0]:
+            requester[label] = data[0][label]
+        else:
+            requester[label] = 'N/A'
     if 'requestedNumberOfReads' in samples[0]:
         requester['requestedNumberOfReads'] = samples[0]['requestedNumberOfReads']
     else:
-	    requester['requestedNumberOfReads'] = 'N/A'
+        requester['requestedNumberOfReads'] = 'N/A'
 
     #list all recordId
     recordIds = []
@@ -181,18 +189,23 @@ def data_table(pId):
         recordIds.append(sample['qc']['recordId'])
 
     #get the list of the index for the runs
-    run_indexes = os.listdir ( os.path.join(APP_STATIC, "html/FASTQ") )
+    #run_indexes = os.listdir ( os.path.join(APP_STATIC, "html/FASTQ") )
 
     #get the list of the project charts
+    #Contract on file name structure RUN_ARBITRARY_NUMBER_OF_STUFF_P01234[_[A-Z]+]?_TYPE.pdf
     charts_links = {}
-    project_indexes = os.listdir ( os.path.join(APP_STATIC, "html/PDF") )
+    project_indexes = os.listdir(APP_STATIC + "/html/PDF") #os.listdir ( os.path.join("", "html/PDF") )
     for project_index in project_indexes:
-        l = project_index.split('___')
-        if l[1] == data['requestId']:
-	    if l[2] == 'tree.pdf' or l[1] == 'heatmap.pdf':
-                charts_links[l[0] + '_' + l[2]] = 'html/PDF/' + project_index
-	    elif l[3] == 'pie.pdf':
-		charts_links[l[0] + '_' + l[2] + '_' + l[3]] = 'html/PDF/' + project_index
+        l = project_index.split('_')
+        if re.match("^[A-Z]+$", l[-2]):    
+            image_req = l[-3].replace("P", "") + "_" + l[-2]
+        else:
+            image_req = l[-2].replace("P", "")
+        if image_req  == data[0]['requestId']:
+            if l[-1].lower() == 'tree.pdf' or l[-1].lower() == "heatmap.pdf":
+                charts_links[l[0] + '_'  + l[1] + '_' + l[-1].lower()]  = 'html/PDF/' + project_index
+            elif l[-1].lower() == 'pie.pdf':
+                charts_links[l[0] + '_' + l[1] + '_pie.pdf'] = 'html/PDF/' + project_index
 
     #print samples
     #pass it to templates/data_table.html to render with jinja templates
@@ -202,7 +215,8 @@ def data_table(pId):
 #route for display the JSON
 @app.route('/JSON_<pId>')
 def displayJSON(pId):
-    r = s.get("https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=authCodes, verify=False)
+    lims_version = "igo" #tango
+    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getProjectQc?project="+pId,  auth=(user, passw), verify=False)
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
@@ -210,20 +224,23 @@ def displayJSON(pId):
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
+    lims_version = "igo" #tango
     payload = {'record': recordId, 'status': qcStatus}
-    url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
-    r = s.post(url, params=payload, auth=authCodes, verify=False)
+    url = "https://" + lims_version  + ".mskcc.org:8443/LimsRest/setQcStatus"
+    r = s.post(url, params=payload,  auth=(user, passw), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
 #route to post all the qc status
-@app.route('/postall_<qcStatus>_<pId>')
+@app.route('/postall_<pId>_<qcStatus>')
 def postall_qcStatus(qcStatus, pId):
+    lims_version = "igo" #tango
+
     recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
-	payload = {'record': recordId, 'status': qcStatus}
-        url = "https://" + LIMS_version  + ".cbio.mskcc.org:8443/LimsRest/setQcStatus"
-        r = s.post(url, params=payload, auth=authCodes, verify=False)
+        payload = {'record': recordId, 'status': qcStatus}
+        url = "https://" + lims_version  + ".mskcc.org:8443/LimsRest/setQcStatus"
+        r = s.post(url, params=payload,  auth=(user, passw), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
@@ -231,9 +248,9 @@ def postall_qcStatus(qcStatus, pId):
 @app.route('/page_not_found_<pId>_<int:code_error>')
 def page_not_found(pId, code_error):
     if code_error == 1:
-	errors = "Bad request => You press 'Go' with an empty field: please enter the project ID."
+        errors = "Bad request => You press 'Go' with an empty field: please enter the project ID."
     elif code_error == 2:
-	errors = "Bad request => Please enter a valid project ID"
+        errors = "Bad request => Please enter a valid project ID"
     elif code_error == 3:
         errors = "The metrics for this project are not loaded in the LIMS (at least up to now) => No metrics available<br>Try JSON button to display the data available for this project"
     else:
@@ -245,4 +262,4 @@ def page_not_found(pId, code_error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="rho.mskcc.org", port=5600)
+    app.run()
