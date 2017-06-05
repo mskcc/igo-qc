@@ -6,8 +6,7 @@ body {
     font-size: 13px;
     line-height: 20px;
     color: #333;
-    background-color: #F5F5F5;
-    background-image: url('../images/bg.jpg');
+    background-color: #bcc8d6; 
     padding-top: 70px;
 }
 a {
@@ -45,7 +44,7 @@ a i.glyphicon, button i.glyphicon, .widget-title i.glyphicon, .title.icon-space 
     padding: 0 16px 12px 0;
 }
 button i.btn-icon,button.btn-icon i{
-    margin-right: 0;
+    margin-right: 10;
 }
 .highlight{
     background: #eee;
@@ -192,7 +191,21 @@ td.highlight {
     }
 
 
+table.dataTable tbody tr:hover td {
+    background-color: #78b5fd !important;
+}
 
+.dt-button {
+    display: block;
+    width: 80px;
+    height: 32px;
+    background: #78b5fd; 
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
 /* Button styles
 ====================================================================== */ 
 .group-header {
@@ -538,7 +551,7 @@ fieldset[disabled] .btn-brown.active {
 }
 /*Large desktop*/
   @media (min-width: 1200px) {
-    .container {max-width: 90%;} 
+    .container {max-width: 95%;} 
 
     .row.navbar-fixed-top{
         margin-left: 0;

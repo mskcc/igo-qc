@@ -4,7 +4,7 @@ from flask import Flask, render_template, url_for, request, redirect
 from functools import wraps
 from collections import defaultdict
 import requests
-import os, json, re
+import os, json, re, yaml
 from settings import APP_STATIC
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
@@ -22,6 +22,12 @@ class MyAdapter(HTTPAdapter):
 s = requests.Session()
 s.mount('https://', MyAdapter())
 
+config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
+config_options = yaml.load(open(config, "r"))
+USER = config_options['username']
+PASSW = config_options['password']
+PORT = config_options['port']
+LIMS_API_ROOT =config_options['lims_end_point']
 
 # This decorator make a function able to read the project ID input of the user and then launch the
 # data gathering process.
@@ -62,8 +68,17 @@ def is_project_id_valid(project_id):
 @app.route('/home', methods=['GET', 'POST'])
 @navbarForm
 def index():
-    lims_version = "igo"
-    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getRecentDeliveries", auth=(user, passw), verify=False)
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False)
+    data = json.loads(r.content)
+    projects = []
+    if len(data) > 0:
+         projects = data
+    for project in projects:
+        for sample in project['samples']:
+            if 'basicQcs' not in sample or len(sample['basicQcs']) == 0:
+               project['ready'] = False 
+            else:
+               project['ready'] = True
     return render_template("index.html", **locals())
 
 
@@ -76,8 +91,8 @@ def data_table(pId):
     qcStatusLabel = []
     lims_version = "igo" #tango
     #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getProjectQc?project="+pId, auth=(user, passw), verify=False) #, verify=(lims_version == "igo"))
-    t = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(user, passw), verify=False) # verify=(lims_version == "igo"))
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False) #, verify=(lims_version == "igo"))
+    t = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False) # verify=(lims_version == "igo"))
 
     #turn the json content (the body of the html reply) into a python dictionary/list object
     data = json.loads(r.content)
@@ -142,14 +157,22 @@ def data_table(pId):
 
     #number of samples
     l = []
+    tumorCount = 0
+    normalCount = 0
     for sample in samples:
         if not sample['qc']['sampleName'] in l:
             l.append(sample['qc']['sampleName'])
-            n = len(l)
+            if sample['tumorOrNormal'] == "Tumor":
+                tumorCount += 1
+            elif sample['tumorOrNormal'] == "Normal":
+                normalCount += 1
+    n = len(l)
 
     #fill pType dict
     pType = {'recipe': samples[0]['recipe']}
-    if 'RNA' in pType['recipe']:
+    if 'runType' in samples[0]:
+        pType['runType'] = samples[0]['runType']
+    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
         pType['table'] = 'rna'
     elif 'baitSet' in samples[0]['qc']:
         pType['table'] = 'hs'
@@ -180,9 +203,14 @@ def data_table(pId):
             requester[label] = 'N/A'
     if 'requestedNumberOfReads' in samples[0]:
         requester['requestedNumberOfReads'] = samples[0]['requestedNumberOfReads']
+        try:
+           float(samples[0]['requestedNumberOfReads'])
+        except ValueError:
+           requester['requestedNumberOfReads'] = 'N/A'   
     else:
         requester['requestedNumberOfReads'] = 'N/A'
-
+    requester['tumorCount'] = tumorCount
+    requester['normalCount'] =  normalCount
     #list all recordId
     recordIds = []
     for sample in samples:
@@ -215,8 +243,7 @@ def data_table(pId):
 #route for display the JSON
 @app.route('/JSON_<pId>')
 def displayJSON(pId):
-    lims_version = "igo" #tango
-    r = s.get("https://" + lims_version  + ".mskcc.org:8443/LimsRest/getProjectQc?project="+pId,  auth=(user, passw), verify=False)
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId,  auth=(USER, PASSW), verify=False)
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
@@ -224,23 +251,21 @@ def displayJSON(pId):
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
-    lims_version = "igo" #tango
     payload = {'record': recordId, 'status': qcStatus}
-    url = "https://" + lims_version  + ".mskcc.org:8443/LimsRest/setQcStatus"
-    r = s.post(url, params=payload,  auth=(user, passw), verify=False)
+    url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+    r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 
 #route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
 def postall_qcStatus(qcStatus, pId):
-    lims_version = "igo" #tango
 
     recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
         payload = {'record': recordId, 'status': qcStatus}
-        url = "https://" + lims_version  + ".mskcc.org:8443/LimsRest/setQcStatus"
-        r = s.post(url, params=payload,  auth=(user, passw), verify=False)
+        url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+        r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
 

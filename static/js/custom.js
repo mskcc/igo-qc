@@ -9,19 +9,24 @@ $(document).ready(function() {
 
     /* ---------- Data Table ---------- */   
     if($('table').hasClass('dynamicTable')){
-                    var table = $('.dynamicTable').dataTable({
+                    var table = $('.dynamicTable').DataTable({
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'excelHtml5'
+                        ],
                         //"sScrollY": "60vh",
-                        //"bPaginate": false,
+                        "bPaginate": false,
                         //"bJQueryUI": false,
-                        "iDisplayLength": 30,
+                        //"iDisplayLength": 30,
                         //"fixedHeader": true,
-                        "sPaginationType": "full_numbers",
+                        //"sPaginationType": "full_numbers",
                         "bAutoWidth": false,
                         "bLengthChange": false,
                         "fnInitComplete": function(oSettings, json) {
                           $('.dataTables_filter>label>input').attr('id', 'search');
                         }
                     });
+
                 } 
     /* ---------- Data Table ---------- */   
 

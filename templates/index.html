@@ -43,7 +43,7 @@
                 <header class=" col-sm-12 col-md-10">
                     <div class="navbar navbar-default">
                         <div class="navbar-header">
-                            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+                            <a class="navbar-brand" href="{{ url_for('index') }}">IGO QC</a>
                         </div>
 
                         <div class="navbar-collapse collapse">
@@ -59,20 +59,36 @@
                 <!-- Navigation header ends here -->
                 <div class="col-xs-12 col-sm-12 col-md-2 nav-user"></div>
             </div>
-
-
-
+            <div class="row">
+                <div class="col-sm-14 col-md-14 col-lg-14">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
+                        </div>
+                        <div class="widget-container table-responsive">
+                            <div class="content noPad clearfix">
+            <table id=projects>
+             <tr><th>PI</th><th>Type</th><th>Request Id</th> </tr>
+                 {% for project in projects %} 
+                 {% if project.ready %}
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td></tr>
+                 {% endif %}
+                 {% endfor %}
+            </table>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
         </div>
         <!-- Main Container ends here -->
-
-
 
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
 
         <!-- Important js put in all pages -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>
             window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
         </script>
