@@ -171,6 +171,13 @@ button i.btn-icon,button.btn-icon i{
 
 /* Table
 =================================================================== */
+table.back-table thead{background-color: #fff; } 
+table.back-table tfoot{background-color: #fff; }
+
+
+table.basic-table th { padding: 0 10px 0; }
+table.basic-table td { padding: 0 10px 0; }
+
 
 table.order-table{border-collapse: separate; }
 table.order-table th{color: #fff; }
