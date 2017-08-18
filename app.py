@@ -10,6 +10,11 @@ app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
+import re
+import time
+import uwsgi, pickle
+from operator import itemgetter
+
 app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
@@ -71,14 +76,59 @@ def index():
     r = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False)
     data = json.loads(r.content)
     projects = []
+    review_projects = []
+    active_projects = []
     if len(data) > 0:
          projects = data
     for project in projects:
+        unreviewed = False
+        runs =[]
+        recentDate = 0
         for sample in project['samples']:
             if 'basicQcs' not in sample or len(sample['basicQcs']) == 0:
-               project['ready'] = False 
+               if 'ready' not in project:
+                  project['ready'] = False 
             else:
                project['ready'] = True
+               for qc in sample['basicQcs']:
+                  if qc['qcStatus'] == 'Under-Review':
+                       unreviewed = True
+                  if 'run' not in qc:
+                       continue
+                  trimmed = re.match("([A-Z|0-9]+_[0-9]+)", qc['run']).groups()[0]
+                  if trimmed not in runs:
+                      runs.append(trimmed)
+                  if qc['createDate'] > recentDate:
+                      recentDate = qc['createDate']
+        project['run'] = ", ".join(runs)
+        project['ordering'] = recentDate
+        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+        if unreviewed:
+            review_projects.append(project)
+        else:
+            active_projects.append(project)
+    review_projects.sort(key=itemgetter('ordering'))
+    active_projects.sort(key=itemgetter('ordering'))
+    #stoop = """[{"samples":[{"cmoId":"DS-fastcf-020-N","userId":"DS_FastCF020_BCN01","project":"07037_T","recipe":"WholeExomeSequencing","basicQcs":[{"run":"PITT_0129_BHJHCGBBXX","sampleName":"DS-fastcf-020-N","qcStatus":"Required-Additional-Reads","restStatus":"SUCCESS","totalReads":13159582,"createDate":1497961043213,"reviewedDates":[{"timestamp":1498059710204,"event":"Required-Additional-Reads"}]}],"requestId":"06573_E","requestType":"IMPACT468","investigator":"Britta Weigelt","pi":"Jorge Reis-Filho","projectManager":"Bourque, Caitlin","analysisRequested":true,"recordId":0,"sampleNumber":16,"restStatus":"SUCCESS","autorunnable":false,"deliveryDate":[]}]"""
+    #uwsgi.cache_set("delivered", pickle.dumps(stoop), 3600, "igoqc")
+    if uwsgi.cache_exists("delivered", "igoqc"):
+        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
+    else:
+        delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
+        del_content = delReq.content
+        delivery_data = json.loads(del_content)
+        if uwsgi is not None:
+            uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
+    for project in delivery_data:
+        recentDate = 0
+        for sample in project['samples']:
+            if 'basicQcs' in sample:
+                for qc in sample['basicQcs']:
+                     if qc['createDate'] > recentDate:
+                         recentDate = qc['createDate']
+        project['ordering'] = recentDate
+        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+    delivery_data.sort(key=itemgetter('ordering'))
     return render_template("index.html", **locals())
 
 
@@ -144,6 +194,8 @@ def data_table(pId):
 
     #format of 'run'
     for sample in samples:
+        if 'run' not in sample['qc'] or '_' not in sample['qc']['run']:
+            continue
         l = sample['qc']['run'].split('_')
         sample['qc']['run_toprint'] = l[0] + '_' + l[1]
 
@@ -167,6 +219,8 @@ def data_table(pId):
             elif sample['tumorOrNormal'] == "Normal":
                 normalCount += 1
     n = len(l)
+    if 'sampleNumber' in data[0]:
+        n = data[0]['sampleNumber']
 
     #fill pType dict
     pType = {'recipe': samples[0]['recipe']}
@@ -179,6 +233,25 @@ def data_table(pId):
         pType['baitSet'] = samples[0]['qc']['baitSet']
     else:
         pType['table'] = 'md'
+    pType['startable'] = False
+    pType['quanted'] = False
+    pType['qcControlled'] = False
+    
+    for sample in samples:
+        if 'quantIt' in sample['qc']:
+            pType['quanted'] = True
+        else:
+            sample['qc']['quantIt'] = 0.0
+            sample['qc']['quantUnits'] = "NA"
+        if 'qcControl' in sample['qc']:
+            pType['qcControlled'] = True
+        else:
+            sample['qc']['qcControl'] = 0.0
+            sample['qc']['qcUnits'] = 0.0
+        if 'startingAmount' in sample['qc']:
+            pType['startable'] = True
+        else:
+            sample['qc']['startingAmount'] = 0.0
 
     #fill status dict
     status = {}
@@ -206,7 +279,8 @@ def data_table(pId):
         try:
            float(samples[0]['requestedNumberOfReads'])
         except ValueError:
-           requester['requestedNumberOfReads'] = 'N/A'   
+           print("setting to N/A")
+           requester['requestedNumberOfReads'] = 'N/A'
     else:
         requester['requestedNumberOfReads'] = 'N/A'
     requester['tumorCount'] = tumorCount
@@ -268,6 +342,12 @@ def postall_qcStatus(qcStatus, pId):
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return redirect(url_for('data_table', pId=pId))
 
+@app.route('/add_note', methods=['POST'])
+def add_note():
+   payload = {'request' : request.form['request'], 'user' : 'qc_review', 'igoUser' : 'gabow', 'readMe' : request.form['readMe']}
+   url = LIMS_API_ROOT + "/LimsRest/limsRequest"
+   r =  s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
+   return redirect(url_for('index'))
 
 # We raise an error and display it. This render '404.html' template
 @app.route('/page_not_found_<pId>_<int:code_error>')
@@ -282,8 +362,18 @@ def page_not_found(pId, code_error):
         errors="Unknown error => Try again. If the error persists, inspect the code"
     return render_template('404.html', **locals())
 
-
-
+@app.context_processor
+def utility_processor():
+   def getQc(qcStatus):
+       newStatus = 'btn-warning'
+       if qcStatus == 'Failed':
+          newStatus = 'btn-danger'
+       elif qcStatus == 'Passed':
+          newStatus = 'btn-primary'
+       elif qcStatus == 'Under-Review':
+          newStatus = 'btn-default'
+       return newStatus
+   return dict(getQc=getQc)
 
 
 if __name__ == '__main__':

@@ -41,7 +41,8 @@
         <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
 
         <!-- Data table plugins -->
-        <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="{{ url_for('static', filename="js/jquery.dataTables.js") }}"></script>
             <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.colVis.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
@@ -50,8 +51,23 @@
         <script src="//cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
         <!-- Init plugins and custom javascript-->
         <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
+        <script>
 
-   </head>
+        function getQc(qcStatus){
+            var newStatus = 'btn-warning';
+            if(qcStatus == 'Failed'){
+               newStatus = 'btn-danger';
+            } else if(qcStatus == 'Passed'){
+               newStatus = 'btn-primary';
+            } else if(qcStatus == 'Under-Review'){
+               newStatus = 'btn-default';
+            }
+            return newStatus;
+        }
+        </script>
+
+
+</head>
 
     <body>
         <!-- Main Container starts here -->
@@ -133,10 +149,11 @@
                             {% endif %}
                             {% else %}
                             {% if requester.requestedNumberOfReads == 'N/A' %}
-                            Number of Reads Requested <span class="pull-right"><bf class="text-info">"N/A"</bf></span><br>
+                             <span class="pull-right"><bf class="text-info">"N/A"</bf></span><br>
                             {% else %}
-                            Number of Reads Requested  <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
+                            <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
                             {% endif %}
+
                             {% endif %}
                             Tumor count <bf class="text-info">{{ "{:,d}".format(requester.tumorCount) }}</bf><span class="pull-right"> Normal count <bf class="text-info">{{ "{:,d}".format(requester.normalCount) }}</bf></span>
                         </div>
@@ -174,14 +191,39 @@
                             </div>
                             <div class="widget-container project-status">
                                 {% for i in status %}
-                                <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf>
+                                <bf class="text-info"><span class="d_count" id="status_{{ i }}">{{ status[i] }}</span></bf> sample(s) <bf class="text-info">{{ i }}</bf>
                                         <span class="pull-right">
-                                            <a href="{{ url_for('postall_qcStatus', pId=requester.requestId, qcStatus=i, recordIds=recordIds) }}">Set All</a>
+                                           <div class="all" id="d_{{ i }}"> <a href="#" id="a_{{ i }}" >Set All</a></div>
                                         </span>
                                 <br>
                                 {% endfor %}
+                                <script>
+                                $(".all a").click(function(event){ var status = $(this).attr('id'); status = status.substr(2, status.length); 
+                                  $(".div_status").each(function( index, obj ){ 
+                                        $(obj).text(status);
+                                        var idInfo = $(obj).attr('id').slice(4).split('_');
+                                        var recordId = idInfo[idInfo.length -1];
+                                        var sampleId = idInfo[0];
+                                        var baseUrl = "{{ url_for('post_qcStatus', pId= 'PROJECTID', recordId=  'RECORDID', qcStatus= 'STATUS' ) }}"
+
+                                        if(idInfo[1].match(/[A-Z]+/)){
+                                            sampleId = idInfo[0] + '_' + idInfo[1];
+                                        }
+                                        $.ajax(baseUrl.replace("PROJECTID", sampleId).replace("RECORDID",  recordId).replace("STATUS", status));
+                                        $(".dropdown-toggle").removeClass().addClass('btn ' + getQc(status) + ' dropdown-toggle');                                        
+                                        var count = 0;
+                                        $(".d_count").each(function( index, obj ){ 
+                                            count += parseInt($(obj).text());
+                                            $(obj).html(0);
+                                        });
+                                        $("#status_" + status).html(count);                                  
+                                  });
+                                  return false;
+                                 });
+                                </script>
                             </div>
                         </div>
+
                     </div>
                     <!-- Project status ends here -->
                     <!-- Project charts starts here -->
@@ -209,12 +251,12 @@
             <div class="row">
                 <div class="col-sm-14 col-md-14 col-lg-14">
                     <div class="widget-box">
-                        <div class="widget-title">
+                         <div class="widget-title">
                             <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
                         </div>
                         <div class="widget-container table-responsive">
                             <div class="content noPad clearfix">
-                                <table id="stats" class="responsive dynamicTable display table table-hover table-bordered">
+                                <table id="stats" class="responsive back-table dynamicTable display table table-hover table-bordered">
                                     <thead>
                                     <tr>
                                         <th rowspan="2">Run</th>
@@ -222,6 +264,15 @@
                                         <th rowspan="2">IGO Id</th>
                                         <th rowspan="2">Genome</th>
                                         <th rowspan="2">Tumor or Normal</th>
+                                        {% if pType.startable %}
+                                        <th rowspan="2">Starting Amount</th>
+                                        {% endif %}
+                                        {% if pType.qcControlled  %}
+                                        <th rowspan="2">Library Quality Control</th>
+                                        {% endif %}
+                                        {% if pType.quanted  %}
+                                        <th rowspan="2">Quant-it</th>
+                                        {% endif %}
                                         <th rowspan="2">Concentr.  (nM)</th>
                                         <th rowspan="2">Final Library Yield (fmol)</th>
                                         <th colspan="1">AM</th>
@@ -281,6 +332,15 @@
                                         {% else %}
                                         <td><p class="text-primary">Normal</p></td>
                                         {% endif %}
+                                        {% if pType.startable %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.startingAmount) }}</td>
+                                        {% endif %} 
+                                        {% if pType.qcControlled %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.qcControl) }} {{ sample.qc.qcUnits  }}</td>
+                                        {% endif %}
+                                        {% if pType.quanted %}
+                                        <td align="right">{{ "{:,.2f}".format(sample.qc.quantIt) }} {{ sample.qc.quantUnits }}</td>
+                                        {% endif %}
                                         <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
                                         <td align="right">{{ "{:,.2f}".format(sample.yield) }}</td>
                                         <td align="right">{{ "{:,.4f}".format(sample.qc.percentAdapters * 100) }}</td>
@@ -325,27 +385,20 @@
                                         {% endif %}
                                         <td>
                                             <div class="btn-group">
-                                                {% if not sample.qc.qcStatus in ['Passed', 'Under-Review'] %}
-                                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
-                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
+                                                <button type="button" class="btn {{ getQc(sample.qc.qcStatus) }} dropdown-toggle" data-toggle="dropdown">
+                                                    <div id="div_{{ sample.baseId }}_{{ sample.qc.recordId }}" class="div_status">{{ '{:.6}'.format(sample.qc.qcStatus) }}</div>
                                                     <span class="caret"></span>
                                                 </button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
-                                                    <span class="caret"></span>
-                                                </button>
-                                                {% endif %}
-                                                <ul class="dropdown-menu pull-right" role="menu">
+                                                <ul class="dropdown-menu pull-right" id="drop_{{ sample.baseId }}_{{ sample.qc.run }}" role="menu">
                                                     {% for i in qcStatusLabel %}
                                                     {% if i == sample.qc.qcStatus %}
-                                                    <li class="disabled"><a href="#">{{ i }}</a></li>
-                                                    {% else %}
-                                                    <li>
-                                                        <a href="{{ url_for('post_qcStatus', pId=requester.requestId , recordId=sample.qc.recordId, qcStatus=i) }}">
-                                                            {{ i }}
-                                                        </a>
+                                                    <li  class="disabled" onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}';  $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
+                                                       {{ i }}
                                                     </li>
+                                                    {% else %}
+                                                  <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
+                                                     {{ i }}
+                                                     </li>
                                                     {% endif %}
                                                     {% endfor %}
                                                 </ul>
@@ -361,6 +414,15 @@
                                         <th>IGO Id</th>
                                         <th>Genome</th>
                                         <th>Tumor or Normal</th>
+                                        {% if pType.startable %}
+                                        <th>Starting Amount</th>
+                                        {% endif %}
+                                        {% if pType.qcControlled  %}
+                                        <th>Library Quality Control</th>
+                                        {% endif %}
+                                        {% if pType.quanted  %}
+                                        <th>Quant-it</th>
+                                        {% endif %}
                                         <th>Concentr.</th>
                                         <th>Yield</th>
                                         <th>Pct. Adapters</th>

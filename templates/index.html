@@ -31,8 +31,13 @@
         <![endif]-->
 
         <script src="{{ url_for('static', filename="js/custom.modernizr.js")}}" type="text/javascript" ></script>
+        <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 
-
+        <style>
+           th, td {
+               padding: 0 13px 0;
+            }
+        </style>
     </head>
 
     <body>
@@ -63,17 +68,37 @@
                 <div class="col-sm-14 col-md-14 col-lg-14">
                     <div class="widget-box">
                         <div class="widget-title">
-                            <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
+                            <h3><i class="glyphicon glyphicon-align-left"></i>Stats Table</h3>
                         </div>
                         <div class="widget-container table-responsive">
                             <div class="content noPad clearfix">
-            <table id=projects>
-             <tr><th>PI</th><th>Type</th><th>Request Id</th> </tr>
-                 {% for project in projects %} 
+            <h3>Needs Review</h3>
+            <table id=projects class="basic-table">
+             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th><th>Notes</th></tr>
+                 {% for project in review_projects %} 
                  {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td></tr>
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td><td><form name="f_{{ project.requestId }}" action="{{ url_for('add_note') }}" method="post"><input type="text" name="readMe"><input type="hidden" name="request" value="{{ project.requestId }}"><input type="submit"></form></td></tr>
+                 <script>
+                 $("form").submit(function(event){ var s = $(this).find('input[type=text]').val(); var noteu = "{{ url_for('add_note', request=project.requestId )  }}"; $.ajax(noteu + '&readMe='+ s); });
+                 </script>
                  {% endif %}
                  {% endfor %}
+            </table>
+            <h3>Requires Further Sequencing</h3>
+             <table id=projects class="basic-table">
+             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
+                 {% for project in active_projects %}
+                 {% if project.ready %}
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
+                 {% endif %}
+                 {% endfor %}
+            </table>
+             <h3>Recent Deliveries</h3>
+            <table id="delivered" class="basic-table">
+            <tr><th>PI</th><th>Request Id</th><th>Date of Latest Stats</th></tr>
+             {% for project in delivery_data %}
+            <tr><td>{{ project.pi }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
+            {% endfor %}
             </table>
             </div>
             </div>
