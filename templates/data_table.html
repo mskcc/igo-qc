@@ -140,21 +140,6 @@
                             Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
                             {% endif %}
                             <hr>
-                            {% if pType.table == 'hs' %}
-                            Coverage requested
-                            {% if requester.requestedNumberOfReads == 'N/A' %}
-                             <span class="pull-right"><bf class="text-info">"N/A"</bf></span><br>
-                            {% else %}
-                            <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>    
-                            {% endif %}
-                            {% else %}
-                            {% if requester.requestedNumberOfReads == 'N/A' %}
-                             <span class="pull-right"><bf class="text-info">"N/A"</bf></span><br>
-                            {% else %}
-                            <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
-                            {% endif %}
-
-                            {% endif %}
                             Tumor count <bf class="text-info">{{ "{:,d}".format(requester.tumorCount) }}</bf><span class="pull-right"> Normal count <bf class="text-info">{{ "{:,d}".format(requester.normalCount) }}</bf></span>
                         </div>
                     </div>
@@ -275,6 +260,7 @@
                                         {% endif %}
                                         <th rowspan="2">Concentr.  (nM)</th>
                                         <th rowspan="2">Final Library Yield (fmol)</th>
+                                        <th rowspan="2">Coverage Target</th>
                                         <th colspan="1">AM</th>
                                         <th colspan="5">MD</th>
                                         {% if pType.table == 'rna' %}
@@ -343,6 +329,7 @@
                                         {% endif %}
                                         <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
                                         <td align="right">{{ "{:,.2f}".format(sample.yield) }}</td>
+                                        <td align="right">{{"{:,d}".format(sample.coverageTarget) }}</td>
                                         <td align="right">{{ "{:,.4f}".format(sample.qc.percentAdapters * 100) }}</td>
                                         <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
                                         <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
@@ -425,6 +412,7 @@
                                         {% endif %}
                                         <th>Concentr.</th>
                                         <th>Yield</th>
+                                        <th>Coverage Target</th>
                                         <th>Pct. Adapters</th>
                                         <th>Reads Examined</th>
                                         <th>Unpaired Reads</th>

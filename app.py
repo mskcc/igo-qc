@@ -1,6 +1,6 @@
 # Version 1.0
 
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, make_response
 from functools import wraps
 from collections import defaultdict
 import requests
@@ -164,32 +164,23 @@ def data_table(pId):
     sumReadDict = defaultdict(int) 
     l = {}
     for sample in samples:
-        if sample['qc']['readsExamined']>0:
-            sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
-        else:
-            sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
+        if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
+            if sample['qc']['readsExamined']>0:
+                sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
+            else:
+                sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
 
-    #for sample in samples:
-    #    if not sample['qc']['sampleName'] in l:
-    #        sample['qc']['sumReads'] = sumDict[sample['qc']['sampleName']]
-    #    #else:
-    #    #    sample['qc']['sumReads'] = null
-    #    l[sample['qc']['sampleName']] = 1
 
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     l = {}
     sumMtcDict = defaultdict(float)
+
     for sample in samples:
-        sumMtcDict[sample['cmoId']] += sample['qc']['meanTargetCoverage']
+        if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
+            sumMtcDict[sample['cmoId']] += sample['qc']['meanTargetCoverage']
     for sample in samples:
         sample['sumMtc'] = sumMtcDict[sample['cmoId']]
         sample['sumReads'] = sumReadDict[sample['cmoId']]
-   # for sample in samples:
-   #     if not sample['qc']['sampleName'] in l:
-   #         sample['qc']['sumMtc'] = sumDict[sample['qc']['sampleName']]
-
-    #else:
-    #    sample['qc']['sumMtc'] = null
         l[sample['qc']['sampleName']] = 1
 
     #format of 'run'
@@ -262,9 +253,6 @@ def data_table(pId):
         if not sample['qc']['recordId'] in l:
             if 'qcStatus' in sample['qc']:
                 status[sample['qc']['qcStatus']] += 1
-        #else:
-            #sample['qc']['qcStatus'] = 'Under-Review'
-            #status['Under-Review'] += 1
             l.append(sample['qc']['recordId'])
 
     #fill 'requester' dict
@@ -328,7 +316,7 @@ def post_qcStatus(pId, recordId, qcStatus):
     payload = {'record': recordId, 'status': qcStatus}
     url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
     r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-    return redirect(url_for('data_table', pId=pId))
+    return make_response(r.text, 200, None)
 
 
 #route to post all the qc status
@@ -340,7 +328,7 @@ def postall_qcStatus(qcStatus, pId):
         payload = {'record': recordId, 'status': qcStatus}
         url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-    return redirect(url_for('data_table', pId=pId))
+    return make_response(r.text, 200, None) 
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
