@@ -236,11 +236,11 @@ def build_grid_from_samples(samples, pType):
             grid.set_value("Initial Pool", row, sample["initialPool"])
         grid.set_value("Unmapped", row, qc['unmapped'])
         grid.set_value("Pct. Duplic.", row, qc['percentDuplication'] * 100) #
-        if "startable" in pType:
+        if pType["startable"]:
             grid.set_value("Starting Amount", row, qc["startingAmount"])
-        if "qcControlled" in pType:
-            grid.set_value("Library Quality Control", row, "{:,.2f}".format(qc["qcControl"]) + " " +  qc["qcUnits"])
-        if "quanted" in pType:
+        if pType["qcControlled"]:
+            grid.set_value("Library Quality Control", row, "{:,.2f}".format(qc["qcControl"]) + " " +  str(qc["qcUnits"]))
+        if pType["quanted"]:
             grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
         grid.set_value("Sum Reads", row, sample["sumReads"])
         if pType['table'] != 'hs' and 'requestedNumberOfReads' in sample:
