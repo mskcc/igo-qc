@@ -274,7 +274,7 @@
                                                     {% endif %}
                                                 {% endfor %}
                                             {% else %}
-                                                {{ grid.grid[row][header_element] }}
+                                            <div class="{{ grid.style[row][header_element] }}">{{ grid.grid[row][header_element] }}</div>
                                             {% endif %}
                                             </td>
                                         {% endfor %}

@@ -12,7 +12,7 @@ from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
 import re
 import time
-#import uwsgi, pickle
+import uwsgi, pickle
 from operator import itemgetter
 import Grid
 
@@ -108,14 +108,14 @@ def index():
             active_projects.append(project)
     review_projects.sort(key=itemgetter('ordering'))
     active_projects.sort(key=itemgetter('ordering'))
-#    if uwsgi.cache_exists("delivered", "igoqc"):
-#        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
-#    else:
-    delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
-    del_content = delReq.content
-    delivery_data = json.loads(del_content)
-#        if uwsgi is not None:
-#           uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
+    if uwsgi.cache_exists("delivered", "igoqc"):
+        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
+    else:
+        delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
+        del_content = delReq.content
+        delivery_data = json.loads(del_content)
+        if uwsgi is not None:
+           uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
     for project in delivery_data:
         recentDate = 0
         for sample in project['samples']:
@@ -356,7 +356,7 @@ def data_table(pId):
         pType['runType'] = samples[0]['runType']
     if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
         pType['table'] = 'rna'
-    elif 'baitSet' in samples[0]['qc']:
+    elif isWholeExome(pType['recipe']):
         pType['table'] = 'hs'
         pType['baitSet'] = samples[0]['qc']['baitSet']
     else:
@@ -448,5 +448,13 @@ def utility_processor():
        return newStatus
    return dict(getQc=getQc)
 
+def isWholeExome(recipe):
+    return recipe == "WholeExome-KAPALib" or \
+    recipe == "WholeExomeSequencing" or \
+    recipe == "Agilent_v4_51MB_Human" or \
+    recipe == "WESAnalysis" or \
+    recipe == "IDT_Exome_v1_FP" or \
+    recipe == "WES"
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
