@@ -183,8 +183,8 @@
                                 <br>
                                 {% endfor %}
                                 <script>
-                                $(".all a").click(function(event){ var status = $(this).attr('id'); status = status.substr(2, status.length); 
-                                  $(".div_status").each(function( index, obj ){ 
+                                $(".all a").click(function(event){ var status = $(this).attr('id'); status = status.substr(2, status.length);
+                                  $(".div_status").each(function( index, obj ){
                                         $(obj).text(status);
                                         var idInfo = $(obj).attr('id').slice(4).split('_');
                                         var recordId = idInfo[idInfo.length -1];
@@ -195,20 +195,19 @@
                                             sampleId = idInfo[0] + '_' + idInfo[1];
                                         }
                                         $.ajax(baseUrl.replace("PROJECTID", sampleId).replace("RECORDID",  recordId).replace("STATUS", status));
-                                        $(".dropdown-toggle").removeClass().addClass('btn ' + getQc(status) + ' dropdown-toggle');                                        
+                                        $(".dropdown-toggle").removeClass().addClass('btn ' + getQc(status) + ' dropdown-toggle');
                                         var count = 0;
-                                        $(".d_count").each(function( index, obj ){ 
+                                        $(".d_count").each(function( index, obj ){
                                             count += parseInt($(obj).text());
                                             $(obj).html(0);
                                         });
-                                        $("#status_" + status).html(count);                                  
+                                        $("#status_" + status).html(count);
                                   });
                                   return false;
                                  });
                                 </script>
                             </div>
                         </div>
-
                     </div>
                     <!-- Project status ends here -->
                     <!-- Project charts starts here -->
@@ -242,204 +241,55 @@
                         <div class="widget-container table-responsive">
                             <div class="content noPad clearfix">
                                 <table id="stats" class="responsive back-table dynamicTable display table table-hover table-bordered">
+
                                     <thead>
                                     <tr>
-                                        <th rowspan="2">Run</th>
-                                        <th rowspan="2">Sample</th>
-                                        <th rowspan="2">IGO Id</th>
-                                        <th rowspan="2">Genome</th>
-                                        <th rowspan="2">Tumor or Normal</th>
-                                        {% if pType.startable %}
-                                        <th rowspan="2">Starting Amount</th>
-                                        {% endif %}
-                                        {% if pType.qcControlled  %}
-                                        <th rowspan="2">Library Quality Control</th>
-                                        {% endif %}
-                                        {% if pType.quanted  %}
-                                        <th rowspan="2">Quant-it</th>
-                                        {% endif %}
-                                        <th rowspan="2">Concentr.  (nM)</th>
-                                        <th rowspan="2">Final Library Yield (fmol)</th>
-                                        <th rowspan="2">Coverage Target</th>
-                                        <th colspan="1">AM</th>
-                                        <th colspan="5">MD</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th colspan="6">RNA</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th colspan="8">HS</th>
-                                        {% endif %}
-                                        <th rowspan="2">Initial Pool</th>
-                                        <th rowspan="2">QC Status</th>
+                                    {% for header_element in grid.header %}
+                                        <th>{{ header_element }}</th>
+                                    {% endfor %}
                                     </tr>
-                                    <tr>
-                                        <th>Pct. Adapters</th>
-                                        <th>Reads Examined</th>
-                                        <th>Unpaired Reads</th>
-                                        <th>Sum Reads</th>
-                                        <th>Unmapped</th>
-                                        <th>Pct. Duplic.</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th>Pct. Ribos.</th>
-                                        <th>Pct. Coding</th>
-                                        <th>Pct. Utr</th>
-                                        <th>Pct. Intron.</th>
-                                        <th>Pct. Intergen.</th>
-                                        <th>Pct. Mnra</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th>Mean Tgt Cvg</th>
-                                        <th>Sum MTC</th>
-                                        <th>Pct. Zero Cvg</th>
-                                        <th>Pct. Off Bait</th>
-                                        <th>Pct. 10x</th>
-                                        <th>Pct. 30x</th>
-                                        <th>Pct. 100x</th>
-                                        <th>Mskq</th>
-                                        {% endif %}
-                                    </tr>
-                                    </thead>
+                                    </ thead>
 
-                                    {% for sample in samples %}
-                                    <tr>
-                                        {% if sample.qc.run in run_indexes %}
-                                        {% set url = "html/FASTQ/%s/Reports/html/index.html" % sample.qc.run %}
-                                        <td>
-                                            <a href="{{ url_for('static', filename=url) }}" target="_blank">
-                                                <bf class="text-inverse">{{ sample.qc.run_toprint }}</bf>
-                                            </a>
-                                        </td>
-                                        {% else %}
-                                        <td>{{ sample.qc.run_toprint }}</td>
-                                        {% endif %}
-                                        <td><nobr>{{ sample.qc.sampleName }}</nobr></td>
-                                        <td>{{ sample.baseId }}</td>
-                                        <td>{{ sample.species }}</td>
-                                        {% if sample.tumorOrNormal == 'Tumor' %}
-                                        <td><p class="text-danger">Tumor</p></td>
-                                        {% else %}
-                                        <td><p class="text-primary">Normal</p></td>
-                                        {% endif %}
-                                        {% if pType.startable %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.startingAmount) }}</td>
-                                        {% endif %} 
-                                        {% if pType.qcControlled %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.qcControl) }} {{ sample.qc.qcUnits  }}</td>
-                                        {% endif %}
-                                        {% if pType.quanted %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.quantIt) }} {{ sample.qc.quantUnits }}</td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.yield) }}</td>
-                                        <td align="right">{{"{:,d}".format(sample.coverageTarget) }}</td>
-                                        <td align="right">{{ "{:,.4f}".format(sample.qc.percentAdapters * 100) }}</td>
-                                        <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
-                                        <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
-                                        {% if not sample.sumReads is defined %}
-                                        <td></td>
-                                        {% elif pType.table != 'hs' and sample.sumReads <= requester.requestedNumberOfReads %}
-                                        <td align="right" class="highlight">{{ "{:,d}".format(sample.sumReads) }}</td>
-                                        {% else %}
-                                        <td align="right">{{ "{:,d}".format(sample.sumReads) }}</td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,d}".format(sample.qc.unmapped) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentDuplication*100) }}</td>
-                                        {% if pType.table == 'rna' %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentRibosomalBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentCodingBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentUtrBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntronicBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntergenicBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentMrnaBases*100) }}</td>
-                                        {% elif pType.table == 'hs' %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
-                                        {% if not sample.sumMtc is defined %}
-                                        <td></td>
-                                        {% elif sample.sumMtc <= requester.requestedNumberOfReads %}
-                                        <td align="right" class="highlight">{{ "{:,.2f}".format(sample.sumMtc) }}</td>
-                                        {% else %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.sumMtc) }}</td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.zeroCoveragePercent*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentOffBait*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget10x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget30x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget100x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.mskq) }}</td>
-                                        {% endif %}
-                                        {% if not sample.initialPool is defined %}
-                                        <td></td>
-                                        {% else %}
-                                        <td align="right">{{ sample.initialPool }}</td>
-                                        {% endif %}
-                                        <td>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn {{ getQc(sample.qc.qcStatus) }} dropdown-toggle" data-toggle="dropdown">
+                                    <tbody>
+                                    {% for row in grid.grid %}
+                                        <tr>
+                                        {% for header_element in grid.header %}
+                                            <td>
+                                            {% if header_element == "QC Status" %}
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn {{ getQc(sample.qc.qcStatus) }} dropdown-toggle" data-toggle="dropdown">
                                                     <div id="div_{{ sample.baseId }}_{{ sample.qc.recordId }}" class="div_status">{{ '{:.6}'.format(sample.qc.qcStatus) }}</div>
                                                     <span class="caret"></span>
                                                 </button>
                                                 <ul class="dropdown-menu pull-right" id="drop_{{ sample.baseId }}_{{ sample.qc.run }}" role="menu">
-                                                    {% for i in qcStatusLabel %}
+                                                {% for i in qcStatusLabel %}
                                                     {% if i == sample.qc.qcStatus %}
                                                     <li  class="disabled" onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}';  $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
-                                                       {{ i }}
+                                                    {{ i }}
                                                     </li>
                                                     {% else %}
-                                                  <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
-                                                     {{ i }}
-                                                     </li>
+                                                    <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
+                                                    {{ i }}
+                                                    </li>
                                                     {% endif %}
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                {{ grid.grid[row][header_element] }}
+                                            {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                        </tr>
                                     {% endfor %}
+                                    </tbody>
 
                                     <tfoot>
                                     <tr>
-                                        <th>Run</th>
-                                        <th>Sample</th>
-                                        <th>IGO Id</th>
-                                        <th>Genome</th>
-                                        <th>Tumor or Normal</th>
-                                        {% if pType.startable %}
-                                        <th>Starting Amount</th>
-                                        {% endif %}
-                                        {% if pType.qcControlled  %}
-                                        <th>Library Quality Control</th>
-                                        {% endif %}
-                                        {% if pType.quanted  %}
-                                        <th>Quant-it</th>
-                                        {% endif %}
-                                        <th>Concentr.</th>
-                                        <th>Yield</th>
-                                        <th>Coverage Target</th>
-                                        <th>Pct. Adapters</th>
-                                        <th>Reads Examined</th>
-                                        <th>Unpaired Reads</th>
-                                        <th>Sum Reads</th>
-                                        <th>Unmapped</th>
-                                        <th>Pct. Duplic.</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th>Pct. Ribos.</th>
-                                        <th>Pct. Coding</th>
-                                        <th>Pct. Utr</th>
-                                        <th>Pct. Intron.</th>
-                                        <th>Pct. Intergen.</th>
-                                        <th>Pct. Mnra</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th>Mean Tgt Cvg</th>
-                                        <th>Sum MTC</th>
-                                        <th>Pct. Zero Cvg</th>
-                                        <th>Pct. Off Bait</th>
-                                        <th>Pct. 10x</th>
-                                        <th>Pct. 30x</th>
-                                        <th>Pct. 100x</th>
-                                        <th>Mskq</th>
-                                        {% endif %}
-                                        <th>Initial Pool</th>
-                                        <th>QC Status</th>
+                                    {% for header_element in grid.header %}
+                                        <td>{{ header_element }}</td>
+                                    {% endfor %}
                                     </tr>
                                     </tfoot>
+
                                 </table>
                             </div>
                         </div><!-- End .widget-container-->
@@ -447,15 +297,11 @@
                 </div>
             </div><!-- End .row-->
             <!--Data Table ends here -->
-
             <div class="row">
                 <br><br>
             </div>
-
         </div>
         <!-- Main Container ends here -->
-
-
     </body>
 </html>
 

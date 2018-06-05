@@ -12,8 +12,9 @@ from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
 import re
 import time
-import uwsgi, pickle
+#import uwsgi, pickle
 from operator import itemgetter
+import Grid
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
@@ -58,7 +59,6 @@ def navbarForm(func):
                     return redirect( url_for('data_table', pId=project_id) )
     return inner
 
-
 # Here we define some useful functions
 
 # This function validates the shape of the project ID
@@ -67,7 +67,6 @@ def is_project_id_valid(project_id):
     if not re.match("^[a-zA-Z0-9_]+$", project_id):
         return False
     return True
-
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
@@ -87,7 +86,7 @@ def index():
         for sample in project['samples']:
             if 'basicQcs' not in sample or len(sample['basicQcs']) == 0:
                if 'ready' not in project:
-                  project['ready'] = False 
+                  project['ready'] = False
             else:
                project['ready'] = True
                for qc in sample['basicQcs']:
@@ -109,16 +108,14 @@ def index():
             active_projects.append(project)
     review_projects.sort(key=itemgetter('ordering'))
     active_projects.sort(key=itemgetter('ordering'))
-    #stoop = """[{"samples":[{"cmoId":"DS-fastcf-020-N","userId":"DS_FastCF020_BCN01","project":"07037_T","recipe":"WholeExomeSequencing","basicQcs":[{"run":"PITT_0129_BHJHCGBBXX","sampleName":"DS-fastcf-020-N","qcStatus":"Required-Additional-Reads","restStatus":"SUCCESS","totalReads":13159582,"createDate":1497961043213,"reviewedDates":[{"timestamp":1498059710204,"event":"Required-Additional-Reads"}]}],"requestId":"06573_E","requestType":"IMPACT468","investigator":"Britta Weigelt","pi":"Jorge Reis-Filho","projectManager":"Bourque, Caitlin","analysisRequested":true,"recordId":0,"sampleNumber":16,"restStatus":"SUCCESS","autorunnable":false,"deliveryDate":[]}]"""
-    #uwsgi.cache_set("delivered", pickle.dumps(stoop), 3600, "igoqc")
-    if uwsgi.cache_exists("delivered", "igoqc"):
-        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
-    else:
-        delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
-        del_content = delReq.content
-        delivery_data = json.loads(del_content)
-        if uwsgi is not None:
-            uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
+#    if uwsgi.cache_exists("delivered", "igoqc"):
+#        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
+#    else:
+    delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
+    del_content = delReq.content
+    delivery_data = json.loads(del_content)
+#        if uwsgi is not None:
+#           uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
     for project in delivery_data:
         recentDate = 0
         for sample in project['samples']:
@@ -131,37 +128,22 @@ def index():
     delivery_data.sort(key=itemgetter('ordering'))
     return render_template("index.html", **locals())
 
-
-@app.route('/<pId>', methods=['GET', 'POST'])
-@navbarForm
-def data_table(pId):
-
-    #define variables
-    data = {}
-    qcStatusLabel = []
-    lims_version = "igo" #tango
-    #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
-    r = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False) #, verify=(lims_version == "igo"))
-    t = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False) # verify=(lims_version == "igo"))
-
-    #turn the json content (the body of the html reply) into a python dictionary/list object
-    data = json.loads(r.content)
-    qcStatusLabel = json.loads(t.content)
-    #select the subset of the python dictionary that corresponds to what we want to display
-    if len(data) == 0:
-        return render_template("empty.html", **locals()) 
-    samples = data[0]['samples']
-
-    #test if the requested project exist in the LIMS else display 404.html
-    if data[0]['samples'] == []:
-        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
-
-    if data[0]['requestId'] == "ERROR":
-        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
-
-
+def build_grid_from_samples(samples, pType):
+    header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+                 "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Initial Pool",
+                 "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
+                 "Unmapped", "Pct. Duplic."]
+    hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
+                 "Coverage Target", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
+                 "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
+                 "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
+    rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+                     "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Initial Pool",
+                     "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
+                     "Unmapped", "Pct. Duplic.",
+                     "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
     #compute the sum of the 'readDuped' by 'sampleName'
-    sumReadDict = defaultdict(int) 
+    sumReadDict = defaultdict(int)
     l = {}
     for sample in samples:
         if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
@@ -169,7 +151,6 @@ def data_table(pId):
                 sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
             else:
                 sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
-
 
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     l = {}
@@ -196,38 +177,7 @@ def data_table(pId):
         if l[1] == 'pM':
             l[0] = float(l[0]) / 1000
         sample['concentration'] = float(l[0])
-            
 
-    #number of samples
-    l = []
-    tumorCount = 0
-    normalCount = 0
-    for sample in samples:
-        if not sample['qc']['sampleName'] in l:
-            l.append(sample['qc']['sampleName'])
-            if sample['tumorOrNormal'] == "Tumor":
-                tumorCount += 1
-            elif sample['tumorOrNormal'] == "Normal":
-                normalCount += 1
-    n = len(l)
-    if 'sampleNumber' in data[0]:
-        n = data[0]['sampleNumber']
-
-    #fill pType dict
-    pType = {'recipe': samples[0]['recipe']}
-    if 'runType' in samples[0]:
-        pType['runType'] = samples[0]['runType']
-    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
-        pType['table'] = 'rna'
-    elif 'baitSet' in samples[0]['qc']:
-        pType['table'] = 'hs'
-        pType['baitSet'] = samples[0]['qc']['baitSet']
-    else:
-        pType['table'] = 'md'
-    pType['startable'] = False
-    pType['quanted'] = False
-    pType['qcControlled'] = False
-    
     for sample in samples:
         if 'quantIt' in sample['qc']:
             pType['quanted'] = True
@@ -244,7 +194,107 @@ def data_table(pId):
         else:
             sample['qc']['startingAmount'] = 0.0
 
-    #fill status dict
+    if pType['table'] == 'hs':
+        header = hs_header
+    elif pType['table'] == 'rna':
+        header = rna_header
+    genome_index = header.index("Genome")
+    if "startable" in pType:
+        if pType["startable"]:
+            header.insert(genome_index + 1, "Starting Amount")
+    if "qcControlled" in pType:
+        if pType["qcControlled"]:
+            header.insert(genome_index + 1, "Library Quality Control")
+    if "quanted" in pType:
+        if pType["quanted"]:
+            header.insert(genome_index + 1, "Quant-it")
+
+    grid = Grid.Grid()
+    grid.set_header(header)
+    grid.assign_value_types()
+    row = 0
+    for sample in samples:
+        qc = sample['qc']
+        grid.set_value("Run", row, qc['run'])
+        grid.set_value("QC Status", row, qc['qcStatus'])
+        grid.set_value("Sample", row, qc['sampleName'])
+        grid.set_value("IGO Id", row, sample['baseId'])
+        grid.set_value("Genome", row, sample['species'])
+        grid.set_value("Tumor or Normal", row, 'Normal')
+        grid.set_style("Tumor or Normal", row, "text-primary")
+        if sample['tumorOrNormal'] == 'Tumor':
+            grid.set_value("Tumor or Normal", row, 'Tumor')
+            grid.set_style("Tumor or Normal", row, "text-danger")
+        grid.set_value("Concentr.  (nM)", row, sample['concentration'])
+        grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
+        grid.set_value("Coverage Target", row, sample['coverageTarget'])
+        grid.set_value("Pct. Adapters", row, qc['percentAdapters'] * 100) #
+        grid.set_value("Reads Examined", row, qc['readsExamined'])
+        grid.set_value("Unpaired Reads", row, qc['unpairedReadsExamined'])
+        grid.set_value("Initial Pool", row, "")
+        if "initialPool" in sample:
+            grid.set_value("Initial Pool", row, sample["initialPool"])
+        grid.set_value("Unmapped", row, qc['unmapped'])
+        grid.set_value("Pct. Duplic.", row, qc['percentDuplication'] * 100) #
+        if "startable" in pType:
+            grid.set_value("Starting Amount", row, qc["startingAmount"])
+        if "qcControlled" in pType:
+            grid.set_value("Library Quality Control", row, "{:,.2f}".format(qc["qcControl"]) + " " +  qc["qcUnits"])
+        if "quanted" in pType:
+            grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
+        grid.set_value("Sum Reads", row, sample["sumReads"])
+        if pType['table'] != 'hs' and 'requestedNumberOfReads' in sample:
+            try:
+                if sample['sumReads'] <= float(sample['requestedNumberOfReads']):
+                    grid.set_style("Sum Reads", row, "highlight")
+            except ValueError:
+                grid.set_style("Sum Reads", row, None)
+        if pType['table'] == 'rna':
+            grid.set_value("Pct. Ribos.", row, qc['percentRibosomalBases'] * 100)
+            grid.set_value("Pct. Coding", row, qc['percentCodingBases'] * 100)
+            grid.set_value("Pct. Utr", row, qc['percentUtrBases'] * 100)
+            grid.set_value("Pct. Intron.", row, qc['percentIntronicBases'] * 100)
+            grid.set_value("Pct. Intergenic", row, qc['percentIntergenicBases'] * 100)
+            grid.set_value("Pct. Mrna", row, qc['percentMrnaBases'] * 100)
+        if pType['table'] == 'hs':
+            grid.set_value("Mean Tgt Cvg", row, qc['meanTargetCoverage'])
+            if "sumMtc" in sample:
+               grid.set_value("Sum MTC", row, qc['meanTargetCoverage'])
+               if 'requestedNumberOfReads' in sample:
+                   try:
+                       if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
+                           grid.set_style("Sum MTC", row, "highlight")
+                   except ValueError:
+                       grid.set_style("Sum MTC", row, None)
+            grid.set_value("Pct. Zero Cvg", row, qc['zeroCoveragePercent'] * 100)
+            grid.set_value("Pct. Off Bait", row, qc['percentOffBait'] * 100)
+            grid.set_value("Pct. 10x", row, qc['percentTarget10x'] * 100)
+            grid.set_value("Pct. 30x", row, qc['percentTarget30x'] * 100)
+            grid.set_value("Pct. 100x", row, qc['percentTarget100x'] * 100)
+        row += 1
+    return grid
+
+@app.route('/<pId>', methods=['GET', 'POST'])
+@navbarForm
+def data_table(pId):
+
+    #define variables
+    data = {}
+    qcStatusLabel = []
+    lims_version = "igo" #tango
+    #get the content, turning off SSL_VERIFY_CERTIFICATE and supplying username/pass
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False) #, verify=(lims_version == "igo"))
+    t = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False) # verify=(lims_version == "igo"))
+
+    #turn the json content (the body of the html reply) into a python dictionary/list object
+    data = json.loads(r.content)
+    qcStatusLabel = json.loads(t.content)
+    #select the subset of the python dictionary that corresponds to what we want to display
+    if len(data) == 0:
+        return render_template("empty.html", **locals())
+    samples = data[0]['samples']
+
+    #fill status dict - CODE MOVED
     status = {}
     l = []
     for i in qcStatusLabel:
@@ -255,7 +305,29 @@ def data_table(pId):
                 status[sample['qc']['qcStatus']] += 1
             l.append(sample['qc']['recordId'])
 
-    #fill 'requester' dict
+    #test if the requested project exist in the LIMS else display 404.html
+    if data[0]['samples'] == []:
+        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
+
+    if data[0]['requestId'] == "ERROR":
+        return redirect( url_for('page_not_found', pId=data[0]['requestId'], code_error=3) )
+
+    #number of samples - CODE MOVED
+    l = []
+    tumorCount = 0
+    normalCount = 0
+    for sample in samples:
+        if not sample['qc']['sampleName'] in l:
+            l.append(sample['qc']['sampleName'])
+            if sample['tumorOrNormal'] == "Tumor":
+                tumorCount += 1
+            elif sample['tumorOrNormal'] == "Normal":
+                normalCount += 1
+    n = len(l)
+    if 'sampleNumber' in data[0]:
+        n = data[0]['sampleNumber']
+
+    #fill 'requester' dict - CODE MOVED
     requester = {}
     for label in ['requestId', 'investigator',  'pi', 'projectManager', 'pipelinable', 'analysisRequested', 'cmoProject']:
         if label in data[0]:
@@ -278,6 +350,23 @@ def data_table(pId):
     for sample in samples:
         recordIds.append(sample['qc']['recordId'])
 
+    #fill pType dict - MOVED
+    pType = {'recipe': samples[0]['recipe']}
+    if 'runType' in samples[0]:
+        pType['runType'] = samples[0]['runType']
+    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
+        pType['table'] = 'rna'
+    elif 'baitSet' in samples[0]['qc']:
+        pType['table'] = 'hs'
+        pType['baitSet'] = samples[0]['qc']['baitSet']
+    else:
+        pType['table'] = 'md'
+    pType['startable'] = False
+    pType['quanted'] = False
+    pType['qcControlled'] = False
+
+    grid = build_grid_from_samples(samples, pType)
+
     #get the list of the index for the runs
     #run_indexes = os.listdir ( os.path.join(APP_STATIC, "html/FASTQ") )
 
@@ -287,7 +376,7 @@ def data_table(pId):
     project_indexes = os.listdir(APP_STATIC + "/html/PDF") #os.listdir ( os.path.join("", "html/PDF") )
     for project_index in project_indexes:
         l = project_index.split('_')
-        if re.match("^[A-Z]+$", l[-2]):    
+        if re.match("^[A-Z]+$", l[-2]):
             image_req = l[-3].replace("P", "") + "_" + l[-2]
         else:
             image_req = l[-2].replace("P", "")
@@ -297,10 +386,8 @@ def data_table(pId):
             elif l[-1].lower() == 'pie.pdf':
                 charts_links[l[0] + '_' + l[1] + '_pie.pdf'] = 'html/PDF/' + project_index
 
-    #print samples
     #pass it to templates/data_table.html to render with jinja templates
     return render_template("data_table.html", **locals())
-
 
 #route for display the JSON
 @app.route('/JSON_<pId>')
@@ -309,7 +396,6 @@ def displayJSON(pId):
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
-
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
@@ -317,7 +403,6 @@ def post_qcStatus(pId, recordId, qcStatus):
     url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
     r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
-
 
 #route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
@@ -328,7 +413,7 @@ def postall_qcStatus(qcStatus, pId):
         payload = {'record': recordId, 'status': qcStatus}
         url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-    return make_response(r.text, 200, None) 
+    return make_response(r.text, 200, None)
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
@@ -363,6 +448,5 @@ def utility_processor():
        return newStatus
    return dict(getQc=getQc)
 
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
