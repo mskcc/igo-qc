@@ -130,15 +130,15 @@ def index():
 
 def build_grid_from_samples(samples, pType):
     header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                 "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Initial Pool",
+                 "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Minimum Number of Requested Reads (Millions)", "Initial Pool",
                  "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
                  "Unmapped", "Pct. Duplic."]
     hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
-                 "Coverage Target", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
+                 "Coverage Target", "Minimum Number of Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
                  "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
                  "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
     rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                     "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Initial Pool",
+                     "Concentr.  (nM)", "Final Library Yield (fmol)", "Minimum Number of Requested Reads (Millions)", "Initial Pool",
                      "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
                      "Unmapped", "Pct. Duplic.",
                      "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
@@ -227,7 +227,9 @@ def build_grid_from_samples(samples, pType):
             grid.set_style("Tumor or Normal", row, "text-danger")
         grid.set_value("Concentr.  (nM)", row, sample['concentration'])
         grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
-        grid.set_value("Coverage Target", row, sample['coverageTarget'])
+        cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget'] # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
+        grid.set_value("Coverage Target", row, cov_target)
+        grid.set_value("Minimum Number of Requested Reads (Millions)", row, sample['requestedNumberOfReads'])
         grid.set_value("Pct. Adapters", row, qc['percentAdapters'] * 100) #
         grid.set_value("Reads Examined", row, qc['readsExamined'])
         grid.set_value("Unpaired Reads", row, qc['unpairedReadsExamined'])
