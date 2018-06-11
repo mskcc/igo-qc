@@ -57,24 +57,11 @@
                     </div>
                 </header>
                 <!-- Navigation header ends here -->
-                <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
-                    <ul class="nav navbar-nav pull-right">
-                        <a href="{{ url_for('data_table', pId=data.requestId) }}" class="btn btn-secondary btn-lg active" role="button">Pretty Display</a>
-                    </ul>
-                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 nav-user"></div>
             </div>
 
 
-            <div class="col-sm-14 col-md-14 col-lg-14">
-                <div class="widget-box">
-                    <div class="widget-title">
-                        <h2><i class="glyphicon glyphicon-send"></i>JSON</h2>
-                    </div>
-                    <div class="widget-container project-JSON">
-                        <pre id="json"></pre>
-                    </div>
-                </div>
-            </div>
+
         </div>
         <!-- Main Container ends here -->
 
@@ -98,7 +85,6 @@
 
         <!-- Init plugins and custom javascript-->
         <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
-        <script>document.getElementById("json").innerHTML = JSON.stringify({{ r.content|safe }}, undefined, 4)</script>
 
 
     </body>

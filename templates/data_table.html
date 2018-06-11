@@ -19,7 +19,7 @@
 
         <!-- Data-Table style -->
         <link href="{{ url_for('static', filename="css/jquery.dataTables.css") }}" rel="stylesheet">
-        <link href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
+        <link href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
 
         <!-- Custom styles for this template -->
         <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet">
@@ -29,11 +29,45 @@
             <script src="js/html5shiv.js"></script>
             <script src="js/respond.min.js"></script>
         <![endif]-->
-
         <script src="{{ url_for('static', filename="js/custom.modernizr.js")}}" type="text/javascript" ></script>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+
+        <!-- Important js put in all pages -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script>
+            window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
+        </script>
+        <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+
+        <!-- Data table plugins -->
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="{{ url_for('static', filename="js/jquery.dataTables.js") }}"></script>
+            <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.colVis.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.27/build/pdfmake.min.js"></script>
+        <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.27/build/vfs_fonts.js"></script>
+        <script src="//cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
+        <!-- Init plugins and custom javascript-->
+        <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
+        <script>
+
+        function getQc(qcStatus){
+            var newStatus = 'btn-warning';
+            if(qcStatus == 'Failed'){
+               newStatus = 'btn-danger';
+            } else if(qcStatus == 'Passed'){
+               newStatus = 'btn-primary';
+            } else if(qcStatus == 'Under-Review'){
+               newStatus = 'btn-default';
+            }
+            return newStatus;
+        }
+        </script>
 
 
-    </head>
+</head>
 
     <body>
         <!-- Main Container starts here -->
@@ -44,7 +78,7 @@
                     <div class="navbar navbar-default">
                         <div class="navbar-header">
                             <a class="navbar-brand" href="{{ url_for('index') }}">
-                                <i class="glyphicon glyphicon-pause"></i>IGO QC<i class="glyphicon glyphicon-pause"></i>
+                                IGO QC</i>
                             </a>
                         </div>
                         <!-- <ul class="nav navbar-nav navbar-right">
@@ -106,12 +140,7 @@
                             Analysis Requested <span class="pull-right"><i class="glyphicon glyphicon-remove text-danger"></i></span><br>
                             {% endif %}
                             <hr>
-                            {% if pType.table == 'hs' %}
-                            Coverage requested
-                            <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
-                            {% else %}
-                            Number of Reads Requested <span class="pull-right"><bf class="text-info">{{ "{:,d}".format(requester.requestedNumberOfReads) }}</bf></span><br>
-                            {% endif %}
+                            Tumor count <bf class="text-info">{{ "{:,d}".format(requester.tumorCount) }}</bf><span class="pull-right"> Normal count <bf class="text-info">{{ "{:,d}".format(requester.normalCount) }}</bf></span>
                         </div>
                     </div>
                 </div>
@@ -131,7 +160,7 @@
                             Bait Set <span class="pull-right"><bf class="text-info">{{ pType.baitSet }}</bf></span><br>
                             {% endif %}
                             <hr>
-                            Run Type <span class="pull-right"><bf class="text-info">N/A<!-- {{ data.runType }} --></bf></span><br>
+                            Run Type <span class="pull-right"><bf class="text-info"> {{pType.runType }} </bf></span><br>
                             <hr>
                             Number of samples <span class="pull-right"><bf class="text-info">{{ n }}</bf></span><br>
                         </div>
@@ -147,12 +176,36 @@
                             </div>
                             <div class="widget-container project-status">
                                 {% for i in status %}
-                                <bf class="text-info">{{ status[i] }}</bf> sample(s) <bf class="text-info">{{ i }}</bf>
+                                <bf class="text-info"><span class="d_count" id="status_{{ i }}">{{ status[i] }}</span></bf> sample(s) <bf class="text-info">{{ i }}</bf>
                                         <span class="pull-right">
-                                            <a href="{{ url_for('postall_qcStatus', pId=requester.requestId, qcStatus=i, recordIds=recordIds) }}">Set All</a>
+                                           <div class="all" id="d_{{ i }}"> <a href="#" id="a_{{ i }}" >Set All</a></div>
                                         </span>
                                 <br>
                                 {% endfor %}
+                                <script>
+                                $(".all a").click(function(event){ var status = $(this).attr('id'); status = status.substr(2, status.length);
+                                  $(".div_status").each(function( index, obj ){
+                                        $(obj).text(status);
+                                        var idInfo = $(obj).attr('id').slice(4).split('_');
+                                        var recordId = idInfo[idInfo.length -1];
+                                        var sampleId = idInfo[0];
+                                        var baseUrl = "{{ url_for('post_qcStatus', pId= 'PROJECTID', recordId=  'RECORDID', qcStatus= 'STATUS' ) }}"
+
+                                        if(idInfo[1].match(/[A-Z]+/)){
+                                            sampleId = idInfo[0] + '_' + idInfo[1];
+                                        }
+                                        $.ajax(baseUrl.replace("PROJECTID", sampleId).replace("RECORDID",  recordId).replace("STATUS", status));
+                                        $(".dropdown-toggle").removeClass().addClass('btn ' + getQc(status) + ' dropdown-toggle');
+                                        var count = 0;
+                                        $(".d_count").each(function( index, obj ){
+                                            count += parseInt($(obj).text());
+                                            $(obj).html(0);
+                                        });
+                                        $("#status_" + status).html(count);
+                                  });
+                                  return false;
+                                 });
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -182,177 +235,61 @@
             <div class="row">
                 <div class="col-sm-14 col-md-14 col-lg-14">
                     <div class="widget-box">
-                        <div class="widget-title">
+                         <div class="widget-title">
                             <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
                         </div>
                         <div class="widget-container table-responsive">
                             <div class="content noPad clearfix">
-                                <table id="stats" class="responsive dynamicTable display table table-hover table-bordered">
+                                <table id="stats" class="responsive back-table dynamicTable display table table-hover table-bordered">
+
                                     <thead>
                                     <tr>
-                                        <th rowspan="2" style="width: 25%">Run</th>
-                                        <th rowspan="2">Sample</th>
-                                        <th rowspan="2">Genome</th>
-                                        <th rowspan="2">Tumor or Normal</th>
-                                        <th rowspan="2">Concentr.  (nM)</th>
-                                        <th rowspan="2">Yield</th>
-                                        <th colspan="1">AM</th>
-                                        <th colspan="5">MD</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th colspan="6">RNA</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th colspan="8">HS</th>
-                                        {% endif %}
-                                        <th rowspan="2">QC Status</th>
+                                    {% for header_element in grid.header %}
+                                        <th>{{ header_element }}</th>
+                                    {% endfor %}
                                     </tr>
-                                    <tr>
-                                        <th>Pct. Adapters</th>
-                                        <th>Reads Examined</th>
-                                        <th>Unpaired Reads</th>
-                                        <th>Sum Reads</th>
-                                        <th>Unmapped</th>
-                                        <th>Pct. Duplic.</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th>Pct. Ribos.</th>
-                                        <th>Pct. Coding</th>
-                                        <th>Pct. Utr</th>
-                                        <th>Pct. Intron.</th>
-                                        <th>Pct. Intergen.</th>
-                                        <th>Pct. Mnra</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th>Mean Tgt Cvg</th>
-                                        <th>Sum MTC</th>
-                                        <th>Pct. Zero Cvg</th>
-                                        <th>Pct. Off Bait</th>
-                                        <th>Pct. 10x</th>
-                                        <th>Pct. 30x</th>
-                                        <th>Pct. 100x</th>
-                                        <th>Mskq</th>
-                                        {% endif %}
-                                    </tr>
-                                    </thead>
+                                    </ thead>
 
-                                    {% for sample in samples %}
-                                    <tr>
-                                        {% if sample.qc.run in run_indexes %}
-                                        {% set url = "html/FASTQ/%s/Reports/html/index.html" % sample.qc.run %}
-                                        <td>
-                                            <a href="{{ url_for('static', filename=url) }}" target="_blank">
-                                                <bf class="text-inverse">{{ sample.qc.run_toprint }}</bf>
-                                            </a>
-                                        </td>
-                                        {% else %}
-                                        <td>{{ sample.qc.run_toprint }}</td>
-                                        {% endif %}
-                                        <td><nobr>{{ sample.qc.sampleName }}</nobr></td>
-                                        <td>{{ sample.species }}</td>
-                                        {% if sample.tumorOrNormal == 'Tumor' %}
-                                        <td><p class="text-danger">Tumor</p></td>
-                                        {% else %}
-                                        <td><p class="text-primary">Normal</p></td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.concentration) }}</td>
-                                        <td align="right">N/A<!-- {{ sample.yield }} --></td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentAdapters) }}</td>
-                                        <td align="right">{{ "{:,d}".format(sample.qc.readsExamined) }}</td>
-                                        <td align="right">{{ "{:,d}".format(sample.qc.unpairedReadsExamined) }}</td>
-                                        {% if not sample.qc.sumReads is defined %}
-                                        <td></td>
-                                        {% elif pType.table != 'hs' and sample.qc.sumReads <= requester.requestedNumberOfReads %}
-                                        <td align="right" class="highlight">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
-                                        {% else %}
-                                        <td align="right">{{ "{:,d}".format(sample.qc.sumReads) }}</td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,d}".format(sample.qc.unmapped) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentDuplication*100) }}</td>
-                                        {% if pType.table == 'rna' %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentRibosomalBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentCodingBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentUtrBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntronicBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentIntergenicBases*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentMrnaBases*100) }}</td>
-                                        {% elif pType.table == 'hs' %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
-                                        {% if not sample.qc.sumMtc is defined %}
-                                        <td></td>
-                                        {% elif sample.qc.sumMtc <= requester.requestedNumberOfReads %}
-                                        <td align="right" class="highlight">{{ "{:,.2f}".format(sample.qc.meanTargetCoverage) }}</td>
-                                        {% else %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.sumMtc) }}</td>
-                                        {% endif %}
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.zeroCoveragePercent*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentOffBait*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget10x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget30x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.percentTarget100x*100) }}</td>
-                                        <td align="right">{{ "{:,.2f}".format(sample.qc.mskq) }}</td>
-                                        {% endif %}
-                                        <td>
-                                            <div class="btn-group">
-                                                {% if not sample.qc.qcStatus in ['Passed', 'Under-Review'] %}
-                                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
-                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
+                                    <tbody>
+                                    {% for row in grid.grid %}
+                                        <tr>
+                                        {% for header_element in grid.header %}
+                                            <td>
+                                            {% if header_element == "QC Status" %}
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn {{ getQc(sample.qc.qcStatus) }} dropdown-toggle" data-toggle="dropdown">
+                                                    <div id="div_{{ sample.baseId }}_{{ sample.qc.recordId }}" class="div_status">{{ '{:.6}'.format(sample.qc.qcStatus) }}</div>
                                                     <span class="caret"></span>
                                                 </button>
-                                                {% else %}
-                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                    {{ '{:.6}'.format(sample.qc.qcStatus) }}
-                                                    <span class="caret"></span>
-                                                </button>
-                                                {% endif %}
-                                                <ul class="dropdown-menu pull-right" role="menu">
-                                                    {% for i in qcStatusLabel %}
+                                                <ul class="dropdown-menu pull-right" id="drop_{{ sample.baseId }}_{{ sample.qc.run }}" role="menu">
+                                                {% for i in qcStatusLabel %}
                                                     {% if i == sample.qc.qcStatus %}
-                                                    <li class="disabled"><a href="#">{{ i }}</a></li>
+                                                    <li  class="disabled" onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}';  $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
+                                                    {{ i }}
+                                                    </li>
                                                     {% else %}
-                                                    <li>
-                                                        <a href="{{ url_for('post_qcStatus', pId=requester.requestId , recordId=sample.qc.recordId, qcStatus=i) }}">
-                                                            {{ i }}
-                                                        </a>
+                                                    <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= sample.qc.recordId, qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ sample.baseId }}_{{ sample.qc.recordId }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ sample.baseId }}_{{ sample.qc.run }}' ).find('li.disabled').removeClass();  return false;">
+                                                    {{ i }}
                                                     </li>
                                                     {% endif %}
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                            <div class="{{ grid.style[row][header_element] }}">{{ grid.grid[row][header_element] }}</div>
+                                            {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                        </tr>
                                     {% endfor %}
+                                    </tbody>
 
                                     <tfoot>
                                     <tr>
-                                        <th>Run</th>
-                                        <th>Sample</th>
-                                        <th>Genome</th>
-                                        <th>Tumor or Normal</th>
-                                        <th>Concentr.</th>
-                                        <th>Yield</th>
-                                        <th>Pct. Adapters</th>
-                                        <th>Reads Examined</th>
-                                        <th>Unpaired Reads</th>
-                                        <th>Sum Reads</th>
-                                        <th>Unmapped</th>
-                                        <th>Pct. Duplic.</th>
-                                        {% if pType.table == 'rna' %}
-                                        <th>Pct. Ribos.</th>
-                                        <th>Pct. Coding</th>
-                                        <th>Pct. Utr</th>
-                                        <th>Pct. Intron.</th>
-                                        <th>Pct. Intergen.</th>
-                                        <th>Pct. Mnra</th>
-                                        {% elif pType.table == 'hs' %}
-                                        <th>Mean Tgt Cvg</th>
-                                        <th>Sum MTC</th>
-                                        <th>Pct. Zero Cvg</th>
-                                        <th>Pct. Off Bait</th>
-                                        <th>Pct. 10x</th>
-                                        <th>Pct. 30x</th>
-                                        <th>Pct. 100x</th>
-                                        <th>Mskq</th>
-                                        {% endif %}
-                                        <th>QC Status</th>
+                                    {% for header_element in grid.header %}
+                                        <td>{{ header_element }}</td>
+                                    {% endfor %}
                                     </tr>
                                     </tfoot>
+
                                 </table>
                             </div>
                         </div><!-- End .widget-container-->
@@ -360,36 +297,11 @@
                 </div>
             </div><!-- End .row-->
             <!--Data Table ends here -->
-
             <div class="row">
                 <br><br>
             </div>
-
         </div>
         <!-- Main Container ends here -->
-
-
-
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-
-        <!-- Important js put in all pages -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>
-            window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
-        </script>
-        <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
-
-        <!-- Data table plugins -->
-        <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
-            <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/1.0.3/js/buttons.colvis.min.js"></script>
-
-        <!-- Init plugins and custom javascript-->
-        <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
-
-
     </body>
 </html>
 
