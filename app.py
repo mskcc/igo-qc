@@ -219,6 +219,7 @@ def build_grid_from_samples(samples, pType):
         grid.set_value("Run", row, qc['run'])
         grid.set_value("QC Status", row, qc['qcStatus'])
         grid.set_value("Sample", row, qc['sampleName'])
+        grid.set_value("QC Record Id", row, qc['recordId'])
         grid.set_value("IGO Id", row, sample['baseId'])
         grid.set_value("Genome", row, sample['species'])
         grid.set_value("Tumor or Normal", row, 'Normal')
