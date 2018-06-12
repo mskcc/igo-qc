@@ -239,7 +239,7 @@
                             <h2><i class="glyphicon glyphicon-align-left"></i>Stats Table</h2>
                         </div>
                         <div class="widget-container table-responsive">
-                            <div class="content noPad clearfix">
+                            <div class="content noPad clearfix" style="overflow-x:auto;">
                                 <table id="stats" class="responsive back-table dynamicTable display table table-hover table-bordered">
 
                                     <thead>
@@ -264,11 +264,11 @@
                                                     <ul class="dropdown-menu pull-right" id="drop_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['Run'] }}" role="menu">
                                                     {% for i in qcStatusLabel %}
                                                         {% if i == grid.grid[row][header_element] %}
-                                                        <li  class="disabled" onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= grid.grid[row]['QC Record Id'], qcStatus= i )  }}';  $( '#div_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['QC Record Id'] }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['Run'] }}' ).find('li.disabled').removeClass(); console.log('{{i}}'); console.log(qcu); console.log('{{grid.grid[row]['Sample']}}');  return false;"
+                                                        <li  class="disabled" onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= grid.grid[row]['QC Record Id'], qcStatus= i )  }}';  $( '#div_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['QC Record Id'] }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['Run'] }}' ).find('li.disabled').removeClass(); return false;">
                                                                 {{ i }}
                                                             </li>
                                                         {% else %}
-                                                        <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= grid.grid[row]['QC Record Id'], qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['QC Record Id'] }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['Run'] }}' ).find('li.disabled').removeClass(); console.log('{{i}}'); console.log(qcu); return false;">
+                                                        <li  onclick="var qcs = '{{ i }}'; var qcu = '{{ url_for('post_qcStatus', pId= requester.requestId, recordId= grid.grid[row]['QC Record Id'], qcStatus= i )  }}'; $.ajax(qcu); $( '#div_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['QC Record Id'] }}' ).text(qcs.slice(0,6)).parent().removeClass().addClass('btn {{ getQc(i) }} dropdown-toggle'); $( '#drop_{{ grid.grid[row]['IGO Id'] }}_{{ grid.grid[row]['Run'] }}' ).find('li.disabled').removeClass(); return false;">
                                                                 {{ i }}
                                                             </li>
                                                         {% endif %}
