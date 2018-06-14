@@ -263,7 +263,7 @@ def build_grid_from_samples(samples, pType):
         if pType['table'] == 'hs':
             grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
             if "sumMtc" in sample:
-               grid.set_value("Sum MTC", row, format_fp(qc['meanTargetCoverage']))
+               grid.set_value("Sum MTC", row, format_fp(sample['sumMtc']))
                if 'requestedNumberOfReads' in sample:
                    try:
                        if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
