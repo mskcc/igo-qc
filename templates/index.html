@@ -100,6 +100,15 @@
             <tr><td>{{ project.pi }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
             {% endfor %}
             </table>
+
+            <h3>Recent Runs</h3>
+            <table id="delivered" class="basic-table">
+            <tr><th>Report Generated</th><th>Lane Summary</th></tr>
+             {% for run in run_data %}
+             <tr><td>{{ run.date }}</td><td><a href="{{ run.path }}" style="color:blue" >{{ run.run_name }}</a></td></tr>
+             {% endfor %}
+            </table>
+
             </div>
             </div>
             </div>

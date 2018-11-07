@@ -12,7 +12,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
 import re
-import time
+import time,datetime, glob
 import uwsgi, pickle
 from operator import itemgetter
 import Grid
@@ -127,6 +127,29 @@ def index():
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
     delivery_data.sort(key=itemgetter('ordering'))
+    
+    # use same directory for dev & production
+    dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
+    dir_data = glob.glob(dir_path + "*.html")
+    dir_data.sort(key=os.path.getmtime, reverse=True)
+
+    datenow = datetime.datetime.now()
+
+    # Add Recent Runs data for links to HTML files
+    run_data = []
+    for eachfile in dir_data:
+        print("File:" + eachfile)
+        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
+        if (datenow - mtime).days < 7:
+            project = {}
+            mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
+            project['date'] = mod_timestamp
+            head, tail = os.path.split(eachfile)
+            project['path'] = "static/html/FASTQ/" + tail
+            project['run_name'] = tail
+            run_data.append(project)
+            #print(mod_timestamp + " " + tail)
+
     return render_template("index.html", **locals())
 
 def build_grid_from_samples(samples, pType):
@@ -397,7 +420,7 @@ def data_table(pId):
         else:
             image_req = l[-2].replace("P", "")
         if image_req  == data[0]['requestId']:
-            if l[-1].lower() == 'tree.pdf' or l[-1].lower() == "heatmap.pdf":
+            if l[-1].lower() == 'tree.pdf' or l[-1].lower() == "heatmap.pdf" or l[-1].lower() == "treemap.pdf":
                 charts_links[l[0] + '_'  + l[1] + '_' + l[-1].lower()]  = 'html/PDF/' + project_index
             elif l[-1].lower() == 'pie.pdf':
                 charts_links[l[0] + '_' + l[1] + '_pie.pdf'] = 'html/PDF/' + project_index
