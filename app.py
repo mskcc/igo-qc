@@ -479,7 +479,7 @@ def utility_processor():
    def getQc(qcStatus):
        newStatus = 'btn-warning'
        if qcStatus == 'Failed':
-          newStatus = 'btn-danger'
+          newStatus = 'btn-danger disabled'
        elif qcStatus == 'Passed':
           newStatus = 'btn-primary'
        elif qcStatus == 'Under-Review':
