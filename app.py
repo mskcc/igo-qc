@@ -480,7 +480,7 @@ def utility_processor():
        newStatus = 'btn-warning'
        if qcStatus == 'Failed':
           newStatus = 'btn-danger disabled'
-       elif qcStatus == 'Passed':
+       elif qcStatus == 'Passed' or qcStatus == 'IGO-Complete':
           newStatus = 'btn-primary'
        elif qcStatus == 'Under-Review':
           newStatus = 'btn-default'
