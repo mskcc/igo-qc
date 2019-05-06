@@ -91,7 +91,7 @@ def index():
             else:
                project['ready'] = True
                for qc in sample['basicQcs']:
-                  if qc['qcStatus'] == 'Under-Review':
+                  if 'qcStatus' in qc and qc['qcStatus'] == 'Under-Review':
                        unreviewed = True
                   if 'run' not in qc:
                        continue
