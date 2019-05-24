@@ -1,6 +1,5 @@
 # Version 1.0
 
-
 from flask import Flask, render_template, url_for, request, redirect, make_response
 from functools import wraps
 from collections import defaultdict
@@ -91,7 +90,7 @@ def index():
             else:
                project['ready'] = True
                for qc in sample['basicQcs']:
-                  if 'qcStatus' in qc and qc['qcStatus'] == 'Under-Review':
+                  if 'qcStatus' in qc and  qc['qcStatus'] == 'Under-Review':
                        unreviewed = True
                   if 'run' not in qc:
                        continue
@@ -128,7 +127,6 @@ def index():
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
     delivery_data.sort(key=itemgetter('ordering'))
     
-    # use same directory for dev & production
     dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
@@ -494,6 +492,15 @@ def isWholeExome(recipe):
     recipe == "WESAnalysis" or \
     recipe == "IDT_Exome_v1_FP" or \
     recipe == "WES"
+
+
+@app.route("/getInterOpsData")
+def get_interops_data():
+    runName = request.args.get("runId").split("_laneBarcode.html")[0]
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
+    run_summary = r.content
+    return render_template('run_summary.html', run_summary=json.loads(run_summary))
+
 
 if __name__ == '__main__':
     app.run()
