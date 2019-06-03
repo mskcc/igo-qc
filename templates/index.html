@@ -73,13 +73,10 @@
                             <div class="content noPad clearfix">
             <h3>Needs Review</h3>
             <table id=projects class="basic-table">
-             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th><th>Notes</th></tr>
+             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
                  {% for project in review_projects %}
                  {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td><td><form name="f_{{ project.requestId }}" action="{{ url_for('add_note') }}" method="post"><input type="text" name="readMe"><input type="hidden" name="request" value="{{ project.requestId }}"><input type="submit"></form></td></tr>
-                 <script>
-                 $("form").submit(function(event){ var s = $(this).find('input[type=text]').val(); var noteu = "{{ url_for('add_note', request=project.requestId )  }}"; $.ajax(noteu + '&readMe='+ s); });
-                 </script>
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
                  {% endif %}
                  {% endfor %}
             </table>

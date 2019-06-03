@@ -16,6 +16,8 @@ import uwsgi, pickle
 from operator import itemgetter
 import Grid
 
+
+
 app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
@@ -452,12 +454,19 @@ def postall_qcStatus(qcStatus, pId):
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
 
+
+#@deprecation.deprecated(details="This method is deprecated on 06-01-2019 and there are no other methods replacing this method.")
 @app.route('/add_note', methods=['POST'])
 def add_note():
-   payload = {'request' : request.form['request'], 'user' : 'qc_review', 'igoUser' : 'gabow', 'readMe' : request.form['readMe']}
-   url = LIMS_API_ROOT + "/LimsRest/limsRequest"
-   r =  s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-   return redirect(url_for('index'))
+    """
+    This method is deprecated on 06-01-2019 and there are no other methods replacing this method.
+
+    """
+
+    payload = {'request' : request.form['request'], 'user' : 'qc_review', 'igoUser' : 'gabow', 'readMe' : request.form['readMe']}
+    url = LIMS_API_ROOT + "/LimsRest/limsRequest"
+    r =  s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
+    return redirect(url_for('index'))
 
 # We raise an error and display it. This render '404.html' template
 @app.route('/page_not_found_<pId>_<int:code_error>')
@@ -496,6 +505,11 @@ def isWholeExome(recipe):
 
 @app.route("/getInterOpsData")
 def get_interops_data():
+    """
+    Function that takes the run ID from request parameters and calls LimsRest backend to get related
+    InterOps data from LIMS database.
+    :return: run_summary.html web-page with InterOps data displayed in a table.
+    """
     runName = request.args.get("runId").split("_laneBarcode.html")[0]
     r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
     run_summary = r.content
