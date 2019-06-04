@@ -510,7 +510,8 @@ def get_interops_data():
     InterOps data from LIMS database.
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
-    runName = request.args.get("runId").split("_laneBarcode.html")[0]
+    runIdSplit = request.args.get("runId").split("_")
+    runName = runIdSplit[0] + "_" + runIdSplit[1] + "_" + runIdSplit[2]
     r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
