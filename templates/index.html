@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<!--[if IE 8]> 				 
+<!--[if IE 8]>
 <html class="lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!-->
 <html lang="en" >
@@ -22,7 +21,7 @@
         <link href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
 
         <!-- Custom styles for this template -->
-        <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet"> 
+        <link href="{{ url_for('static', filename="css/style.css") }}" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -74,13 +73,10 @@
                             <div class="content noPad clearfix">
             <h3>Needs Review</h3>
             <table id=projects class="basic-table">
-             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th><th>Notes</th></tr>
-                 {% for project in review_projects %} 
+             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
+                 {% for project in review_projects %}
                  {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td><td><form name="f_{{ project.requestId }}" action="{{ url_for('add_note') }}" method="post"><input type="text" name="readMe"><input type="hidden" name="request" value="{{ project.requestId }}"><input type="submit"></form></td></tr>
-                 <script>
-                 $("form").submit(function(event){ var s = $(this).find('input[type=text]').val(); var noteu = "{{ url_for('add_note', request=project.requestId )  }}"; $.ajax(noteu + '&readMe='+ s); });
-                 </script>
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
                  {% endif %}
                  {% endfor %}
             </table>
@@ -101,28 +97,35 @@
             {% endfor %}
             </table>
 
-            <h3>Recent Runs</h3>
-            <table id="delivered" class="basic-table">
-            <tr><th>Report Generated</th><th>Lane Summary</th></tr>
-             {% for run in run_data %}
-             <tr><td>{{ run.date }}</td><td><a href="{{ run.path }}" style="color:blue" >{{ run.run_name }}</a></td></tr>
-             {% endfor %}
-            </table>
 
-            </div>
-            </div>
-            </div>
-            </div>
+                        <h3>Recent Runs</h3>
+                        <table class="basic-table" id="delivered">
+                            <tr>
+                                <th>Report Generated</th>
+                                <th>Lane Summary</th>
+                                <th>Run Stats</th>
+                            </tr>
+                            {% for run in run_data %}
+                            <tr>
+                                <td>{{ run.date }}</td>
+                                <td><a href="{{ run.path }}" style="color:blue">{{ run.run_name }}</a></td>
+                                <td><button class="btn btn-primary" style="margin-bottom:5px;"><a href="{{ url_for('get_interops_data', runId=run.run_name)}}" target="_blank" style="color:white">View Run Stats</a></button></td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- Main Container ends here -->
+    </div>
+</div>
+<!-- Main Container ends here -->
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
 
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-
-        <!-- Important js put in all pages -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<!-- Important js put in all pages -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>
             window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
         </script>
@@ -136,7 +139,6 @@
         <!-- Init plugins and custom javascript-->
         <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
 
-
-    </body>
+</body>
 </html>
 
