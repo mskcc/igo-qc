@@ -166,6 +166,10 @@ def build_grid_from_samples(samples, pType):
                      "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
                      "Unmapped", "Pct. Duplic.",
                      "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
+    wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+                "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
+                "QC Status", "MEAN_COVERAGE", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped", 
+                "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]    
     #compute the sum of the 'readDuped' by 'sampleName'
     sumReadDict = defaultdict(int)
     l = {}
@@ -222,6 +226,8 @@ def build_grid_from_samples(samples, pType):
         header = hs_header
     elif pType['table'] == 'rna':
         header = rna_header
+    elif pType['table'] == 'wgs':
+        header = wgs_header
     genome_index = header.index("Genome")
     if "startable" in pType:
         if pType["startable"]:
@@ -283,6 +289,17 @@ def build_grid_from_samples(samples, pType):
             grid.set_value("Pct. Intron.", row, format_fp(qc['percentIntronicBases'] * 100))
             grid.set_value("Pct. Intergenic", row, format_fp(qc['percentIntergenicBases'] * 100))
             grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
+        if pType['table'] == 'wgs':
+            grid.set_value("MEAN_COVERAGE", row, format_int(qc["mean_COVERAGE"]))
+            grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
+            grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
+            grid.set_value("PCT_EXC_BASEQ", row, format_fp(qc['pct_EXC_BASEQ'] * 100))
+            grid.set_value("PCT_EXC_TOTAL", row, format_fp(qc['pct_EXC_TOTAL'] * 100))
+            grid.set_value("PCT_10X", row, format_fp(qc['percentTarget10x'] * 100))
+            grid.set_value("PCT_30X", row, format_fp(qc['percentTarget30x'] * 100))
+            grid.set_value("PCT_40X", row, format_fp(qc['percentTarget40x'] * 100))
+            grid.set_value("PCT_80X", row, format_fp(qc['percentTarget80x'] * 100))
+            grid.set_value("PCT_100X", row, format_fp(qc['percentTarget100x'] * 100))
         if pType['table'] == 'hs':
             grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
             if "sumMtc" in sample:
@@ -398,6 +415,8 @@ def data_table(pId):
     elif 'baitSet' in samples[0]['qc']:
         pType['table'] = 'hs'
         pType['baitSet'] = samples[0]['qc']['baitSet']
+    elif 'HumanWholeGenome' in pType['recipe']:
+        pType['table'] = 'wgs'
     else:
         pType['table'] = 'md'
     pType['startable'] = False
