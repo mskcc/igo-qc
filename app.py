@@ -522,6 +522,28 @@ def isWholeExome(recipe):
     recipe == "WES"
 
 
+def get_flowcell_id(run_name):
+    '''
+    Method to extract FlowCell Ids from the run names using regex. If the regex does not match any pattern
+    for flowcell ID in the run name, then the Run ID is returned.
+    :param run_name:
+    :return:
+    '''
+    hiseq_pattern = (r'([A-Z,0-9,A-Z]{10,10})')
+    miseq_pattern = (r'-([A-Z\dA-Z]{5,5})')
+
+    if len(run_name.split("-")) > 1:
+        if len(re.findall(miseq_pattern, run_name)) == 1:
+            return re.findall(miseq_pattern, run_name)[0]
+    elif len(run_name.split("-")) <= 1:
+        if len(re.findall(hiseq_pattern, run_name)) == 1:
+            return re.findall(hiseq_pattern, run_name)[0]
+    else:
+        run_values = run_name.split('_')
+        run_id = run_values[0] + "_" + run_values[1] + "_" + run_values[2]
+        return run_id
+
+
 @app.route("/getInterOpsData")
 def get_interops_data():
     """
@@ -529,8 +551,7 @@ def get_interops_data():
     InterOps data from LIMS database.
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
-    runIdSplit = request.args.get("runId").split("_")
-    runName = runIdSplit[0] + "_" + runIdSplit[1] + "_" + runIdSplit[2]
+    runName = get_flowcell_id(request.args.get("runId"))
     r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
