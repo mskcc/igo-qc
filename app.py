@@ -410,7 +410,7 @@ def data_table(pId):
     pType = {'recipe': samples[0]['recipe']}
     if 'runType' in samples[0]:
         pType['runType'] = samples[0]['runType']
-    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
+    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe'] or '96Well_SmartSeq2' in pType['recipe']:
         pType['table'] = 'rna'
     elif 'baitSet' in samples[0]['qc']:
         pType['table'] = 'hs'
