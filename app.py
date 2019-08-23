@@ -96,7 +96,8 @@ def index():
                        unreviewed = True
                   if 'run' not in qc:
                        continue
-                  trimmed = re.match("([A-Z|0-9]+_[0-9]+)", qc['run']).groups()[0]
+                  print("RUN::" + qc['run'])        
+                  trimmed = re.match("([A-Z|0-9]+_[0-9|A-Z]+)", qc['run']).groups()[0]
                   if trimmed not in runs:
                       runs.append(trimmed)
                   if qc['createDate'] > recentDate:
@@ -250,7 +251,8 @@ def build_grid_from_samples(samples, pType):
         grid.set_value("Sample", row, qc['sampleName'])
         grid.set_value("QC Record Id", row, qc['recordId'])
         grid.set_value("IGO Id", row, sample['baseId'])
-        grid.set_value("Genome", row, sample['species'])
+        if "species" in sample:
+            grid.set_value("Genome", row, sample['species'])
         grid.set_value("Tumor or Normal", row, 'Normal')
         grid.set_style("Tumor or Normal", row, "text-primary")
         if sample['tumorOrNormal'] == 'Tumor':
@@ -410,12 +412,12 @@ def data_table(pId):
     pType = {'recipe': samples[0]['recipe']}
     if 'runType' in samples[0]:
         pType['runType'] = samples[0]['runType']
-    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe']:
+    if 'RNA' in pType['recipe'] or 'SMARTerAmpSeq' in pType['recipe'] or '96Well_SmartSeq2' in pType['recipe']:
         pType['table'] = 'rna'
     elif 'baitSet' in samples[0]['qc']:
         pType['table'] = 'hs'
         pType['baitSet'] = samples[0]['qc']['baitSet']
-    elif 'HumanWholeGenome' in pType['recipe']:
+    elif 'WholeGenome' in pType['recipe']:
         pType['table'] = 'wgs'
     else:
         pType['table'] = 'md'
@@ -551,7 +553,9 @@ def get_interops_data():
     InterOps data from LIMS database.
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
+    print(request.args.get("runId"))
     runName = get_flowcell_id(request.args.get("runId"))
+    print(runName)
     r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
