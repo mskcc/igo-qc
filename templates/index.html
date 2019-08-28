@@ -109,7 +109,7 @@
                             <tr>
                                 <td>{{ run.date }}</td>
                                 <td><a href="{{ run.path }}" style="color:blue">{{ run.run_name }}</a></td>
-                                <td><button class="btn btn-primary" style="margin-bottom:5px;"><a href="{{ url_for('get_interops_data', runId=run.run_name)}}" target="_blank" style="color:white">View Run Stats</a></button></td>
+                                <td><button class="btn btn-primary" style="margin-bottom:5px;"><a href="{{ URL_PREFIX + url_for('get_interops_data', runId=run.run_name)}}" target="_blank" style="color:white">View Run Stats</a></button></td>
                             </tr>
                             {% endfor %}
                         </table>
