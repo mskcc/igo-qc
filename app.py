@@ -5,7 +5,7 @@ from functools import wraps
 from collections import defaultdict
 import requests
 import os, json, re, yaml
-from settings import APP_STATIC
+from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
@@ -41,6 +41,26 @@ USER = config_options['username']
 PASSW = config_options['password']
 PORT = config_options['port']
 LIMS_API_ROOT = config_options['lims_end_point']
+
+
+@app.context_processor
+def inject_globals():
+    return dict(URL_PREFIX=URL_PREFIX)
+
+
+@app.context_processor
+def utility_processor():
+    def getQc(qcStatus):
+        newStatus = 'btn-warning'
+        if qcStatus == 'Failed':
+            newStatus = 'btn-danger disabled'
+        elif qcStatus == 'Passed' or qcStatus == 'IGO-Complete':
+            newStatus = 'btn-primary'
+        elif qcStatus == 'Under-Review':
+            newStatus = 'btn-default'
+        return newStatus
+
+    return dict(getQc=getQc)
 
 # This decorator make a function able to read the project ID input of the user and then launch the
 # data gathering process.
@@ -108,7 +128,7 @@ def index():
                         unreviewed = True
                     if 'run' not in qc:
                         continue
-                    print("RUN::" + qc['run'])
+                    # print("RUN::" + qc['run'])
                     trimmed = re.match("([A-Z|0-9]+_[0-9|A-Z]+)", qc['run']).groups()[0]
                     if trimmed not in runs:
                         runs.append(trimmed)
@@ -150,16 +170,15 @@ def index():
         )
     delivery_data.sort(key=itemgetter('ordering'))
 
-    dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
+    dir_path = FASTQ_PATH
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
-
     datenow = datetime.datetime.now()
 
     # Add Recent Runs data for links to HTML files
     run_data = []
     for eachfile in dir_data:
-        print("File:" + eachfile)
+        # print("File:" + eachfile)
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
         if (datenow - mtime).days < 7:
             project = {}

@@ -43,11 +43,11 @@
                 <header class=" col-sm-12 col-md-10">
                     <div class="navbar navbar-default">
                         <div class="navbar-header">
-                            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+                            <a class="navbar-brand" href="{{ URL_PREFIX + url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
                         </div>
 
                         <div class="navbar-collapse collapse">
-                            <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
+                            <form class="navbar-form navbar-center" role="search" action="{{ URL_PREFIX + url_for('data_table', pId=project_id) }}" method="post">
                                 <div class="form-group">
                                     <input type="text" class="form-control" placeholder="Project ID" name="project_id">
                                 </div>

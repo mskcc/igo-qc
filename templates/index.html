@@ -47,11 +47,11 @@
                 <header class=" col-sm-12 col-md-10">
                     <div class="navbar navbar-default">
                         <div class="navbar-header">
-                            <a class="navbar-brand" href="{{ url_for('index') }}">IGO QC</a>
+                            <a class="navbar-brand" href="{{ URL_PREFIX + url_for('index') }}">IGO QC</a>
                         </div>
 
                         <div class="navbar-collapse collapse">
-                            <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
+                            <form class="navbar-form navbar-center" role="search" action="{{ URL_PREFIX + url_for('data_table', pId=project_id) }}" method="post">
                                 <div class="form-group">
                                     <input type="text" class="form-control" placeholder="Project ID" name="project_id">
                                 </div>
@@ -76,7 +76,7 @@
              <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
                  {% for project in review_projects %}
                  {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ URL_PREFIX + url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
                  {% endif %}
                  {% endfor %}
             </table>
@@ -85,7 +85,7 @@
              <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
                  {% for project in active_projects %}
                  {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
+                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ URL_PREFIX + url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
                  {% endif %}
                  {% endfor %}
             </table>
@@ -93,7 +93,7 @@
             <table id="delivered" class="basic-table">
             <tr><th>PI</th><th>Request Id</th><th>Date of Latest Stats</th></tr>
              {% for project in delivery_data %}
-            <tr><td>{{ project.pi }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
+            <tr><td>{{ project.pi }}</td><td><a href="{{ URL_PREFIX + url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
             {% endfor %}
             </table>
 

@@ -43,11 +43,11 @@
                 <header class=" col-sm-12 col-md-10">
                     <div class="navbar navbar-default">
                         <div class="navbar-header">
-                            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
+                            <a class="navbar-brand" href="{{ URL_PREFIX + url_for('index') }}"><i class="glyphicon glyphicon-heart"></i>IGO QC<i class="glyphicon glyphicon-heart"></i></a>
                         </div>
 
                         <div class="navbar-collapse collapse">
-                            <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
+                            <form class="navbar-form navbar-center" role="search" action="{{ URL_PREFIX + url_for('data_table', pId=project_id) }}" method="post">
                                 <div class="form-group">
                                     <input type="text" class="form-control" placeholder="Project ID" name="project_id">
                                 </div>
@@ -59,7 +59,7 @@
                 <!-- Navigation header ends here -->
                 <div class="col-xs-12 col-sm-12 col-md-2 nav-user">
                     <ul class="nav navbar-nav pull-right">
-                        <a href="{{ url_for('data_table', pId=data.requestId) }}" class="btn btn-secondary btn-lg active" role="button">Pretty Display</a>
+                        <a href="{{ URL_PREFIX + url_for('data_table', pId=data.requestId) }}" class="btn btn-secondary btn-lg active" role="button">Pretty Display</a>
                     </ul>
                 </div>
             </div>
