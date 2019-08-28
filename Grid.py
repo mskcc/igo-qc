@@ -30,11 +30,11 @@ class Grid:
         return self.grid[index]
 
     def assign_value_types(self):
-	self.set_value_type("Run", "s")
-	self.set_value_type("Sample", "s")
+        self.set_value_type("Run", "s")
+        self.set_value_type("Sample", "s")
         self.set_value_type("IGO Id", "s")
         self.set_value_type("Genome", "s")
-        self.set_value_type("Tumor or Normal", "s")    
+        self.set_value_type("Tumor or Normal", "s")
         self.set_value_type("Coverage Target", "d")
         self.set_value_type("Pct. Adapters", "4f")
         self.set_value_type("Reads Examined", "d")
@@ -45,11 +45,11 @@ class Grid:
 
     def __repr__(self):
         num_index = len(self.grid)
-	output_str = ""
-	for i in self.grid:
-		current_dict = self.grid[i]
-		temp_str = str(i)
-		for value in current_dict:
-			temp_str +=  "\t" + value + "\t" + str(current_dict[value]) 
-		output_str += temp_str.strip() + "\n"
+        output_str = ""
+        for i in self.grid:
+            current_dict = self.grid[i]
+            temp_str = str(i)
+            for value in current_dict:
+                temp_str += "\t" + value + "\t" + str(current_dict[value])
+            output_str += temp_str.strip() + "\n"
         return output_str
