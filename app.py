@@ -640,13 +640,13 @@ def data_table(pId):
 
 # route for display the JSON
 @app.route('/JSON_<pId>')
-def displayJSON(pId):
+def displayJSON(pId):  
     r = s.get(
         LIMS_API_ROOT + "/LimsRest/getProjectQc?project=" + pId,
         auth=(USER, PASSW),
         verify=False,
     )
-    data = json.loads(r.content)
+    data = str(r.content, "utf-8")
     return render_template('json.html', **locals())
 
 
