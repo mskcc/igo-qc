@@ -35,4 +35,3 @@ urllib3==1.24.3
 uWSGI==2.0.18
 Werkzeug==0.15.2
 WTForms==2.2.1
-

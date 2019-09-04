@@ -8,6 +8,7 @@ body {
     color: #333;
     background-color: #bcc8d6; 
     padding-top: 70px;
+    min-height: 100vh;
 }
 a {
     color: #0D5075;

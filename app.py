@@ -1,11 +1,24 @@
 # Version 1.0
 
-from flask import Flask, render_template, url_for, request, redirect, make_response
+from flask import (
+    Flask,
+    render_template,
+    url_for,
+    request,
+    redirect,
+    make_response,
+    jsonify,
+    flash,
+    session,
+)
 from functools import wraps
 from collections import defaultdict
 import requests
 import os, json, re, yaml
-from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX, LDAP_URL
+from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
+
+from flask_login import login_user, login_required, LoginManager, UserMixin
+
 
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
@@ -13,12 +26,15 @@ from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
 import re
 import time, datetime, glob
+from datetime import timedelta
+
 import uwsgi, pickle
 from operator import itemgetter
 import Grid
 
 
 import ldap
+
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
@@ -45,6 +61,120 @@ PORT = config_options['port']
 LIMS_API_ROOT = config_options['lims_end_point']
 
 
+################## Simple Authentication Code
+LDAP_URL = config_options['ldap_url']
+AUTHORIZED_GROUP = config_options['authorized_group']
+app.config['SECRET_KEY'] = config_options['secret_key']
+
+
+# timeout
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=60)
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.username = username
+        self.id = id
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_active(self):
+        return True
+
+
+current_user = User("username")
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return current_user
+
+
+def get_ldap_connection():
+    conn = ldap.initialize(LDAP_URL)
+    conn.set_option(ldap.OPT_REFERRALS, 0)
+    return conn
+
+
+def ldap_authenticate(username, password):
+    conn = get_ldap_connection()
+
+    conn.simple_bind_s('%s@mskcc.org' % username, password)
+    # attrs = ['memberOf']
+    attrs = ['sAMAccountName', 'displayName', 'memberOf', 'title']
+    result = conn.search_s(
+        'DC=MSKCC,DC=ROOT,DC=MSKCC,DC=ORG',
+        ldap.SCOPE_SUBTREE,
+        'sAMAccountName=' + username,
+        attrs,
+    )
+    conn.unbind_s()
+    return result
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/authenticate', methods=['GET', 'POST'])
+def authenticate():
+
+    try:
+        print(request.form)
+
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # username = "wagnerl"
+        # password = "kL4B4ut3r"
+    except:
+        flash('Missing username or password. Please try again.')
+        return render_template('login.html')
+    try:
+        result = ldap_authenticate(username, password)
+    except ldap.INVALID_CREDENTIALS:
+
+        flash('Please check your login details and try again.')
+
+        return render_template('login.html')
+
+    if is_authorized(result):
+        login_user(User(username))
+        current_user = User(username)
+        return redirect(URL_PREFIX + url_for('index'))
+    else:
+        flash('You are not authorized to view this page')
+        return render_template('login.html')
+
+
+def is_authorized(result):
+    return AUTHORIZED_GROUP in format_result(result)
+
+
+def format_result(result):
+    p = re.compile('CN=(.*?)\,')
+    groups = re.sub('CN=Users', '', str(result))
+    return p.findall(groups)
+
+
+################## Authentication Code END
+
+
 @app.context_processor
 def inject_globals():
     return dict(URL_PREFIX=URL_PREFIX)
@@ -64,6 +194,7 @@ def utility_processor():
 
     return dict(getQc=getQc)
 
+
 # This decorator make a function able to read the project ID input of the user and then launch the
 # data gathering process.
 def navbarForm(func):
@@ -75,17 +206,21 @@ def navbarForm(func):
         else:  # If the request is POST or PUT, we check the input and then redirect the URL.
             project_id = request.form['project_id'].strip()
             if not project_id:
-                return redirect( URL_PREFIX + url_for('page_not_found', pId='fail', code_error=1))
+                return redirect(
+                    URL_PREFIX + url_for('page_not_found', pId='fail', code_error=1)
+                )
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-                    return redirect( URL_PREFIX + url_for('page_not_found', pId='fail', code_error=2))
+                    return redirect(
+                        URL_PREFIX + url_for('page_not_found', pId='fail', code_error=2)
+                    )
                 else:
                     # If there are no errors, create a dictionary containing all the entered
                     # data and pass it to the template to be displayed
                     data = {'project_id': project_id}
                     # Since the form data is valid, render the success template
-                    return redirect( URL_PREFIX + url_for('data_table', pId=project_id))
+                    return redirect(URL_PREFIX + url_for('data_table', pId=project_id))
 
     return inner
 
@@ -100,103 +235,11 @@ def is_project_id_valid(project_id):
     return True
 
 
-
-# def get_ldap_connection():
-#     conn = ldap.initialize(LDAP_URL)
-#     conn.set_option(ldap.OPT_REFERRALS, 0)
-#     return conn
-
-# @app.route('/authenticate', methods=['GET', 'POST'])
-# def authenticate():
-#     try:
-#         payload = request.get_json()['data']
-#         username = payload["username"]
-#         password = payload["password"]
-#     except:
-#         responseObject = {
-#             'message': 'Missing username or password. Please try again.'
-#         }
-#         return make_response(jsonify(responseObject), 401, None)
-#     try:
-#         result = User.try_login(username, password)
-#     except ldap.INVALID_CREDENTIALS:
-#         log_error(
-#             "user " + username + " trying to login with invalid credentials"
-#         )
-#         responseObject = {
-#             'message': 'Invalid username or password. Please try again.'
-#         }
-#         return make_response(jsonify(responseObject), 401, None)
-
-#     if is_authorized(result):
-#         log_info('authorized user loaded: ' + username)
-#         # load or register user
-#         user = load_username(username)
-#         # Create our JWTs
-#         # default expiration 15 minutes
-#         access_token = create_access_token(identity=username)
-#         # default expiration 30 days
-#         expires = datetime.timedelta(hours=12)
-
-#         refresh_token = create_refresh_token(
-#             identity=username, expires_delta=expires
-#         )
-
-#         responseObject = {
-#             'status': 'success',
-#             'message': 'Hello, '
-#             + username
-#             + '. You have successfully logged in.',
-#             'access_token': access_token,
-#             'refresh_token': refresh_token,
-#             'username': username,
-#             'role': user.role,
-#             'submissions': load_submissions(username),
-#             'submission_columns': submission_columns,
-#         }
-
-#         log_info("user " + username + " logged in successfully")
-#         return make_response(jsonify(responseObject), 200, None)
-#     else:
-#             log_error(
-#                 "user "
-#                 + username
-#                 + " AD authenticated but not in GRP_SKI_Haystack_NetIQ"
-#             )
-#             return make_response(
-#                 'You are not authorized to view this website. Please email <a href="mailto:wagnerl@mkscc.org">sample intake support</a> if you need any assistance.',
-#                 403,
-#                 None,
-#             )
-#     except Exception as e:
-#         print(e)
-#         responseObject = {
-#             'status': 'fail',
-#             'message': 'Our backend is experiencing some issues, please try again later or email an admin.',
-#         }
-#         return make_response(jsonify(responseObject)), 500
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
+@login_required
 @navbarForm
 def index():
-    # conn = get_ldap_connection()
-
-    # conn.simple_bind_s('%s@mskcc.org' % 'wagnerl', 'kL4B4ut3r')
-    # # attrs = ['memberOf']
-    # attrs = ['sAMAccountName', 'displayName', 'memberOf', 'title']
-    # result = conn.search_s(
-    #     'DC=MSKCC,DC=ROOT,DC=MSKCC,DC=ORG',
-    #     ldap.SCOPE_SUBTREE,
-    #     'sAMAccountName='+ 'streidd',
-    #     attrs,
-    # )
-    # print(result)
-
-    # conn.unbind_s()
-     
-
-
 
     r = s.get(
         LIMS_API_ROOT + "/LimsRest/getRecentDeliveries",
@@ -276,8 +319,7 @@ def index():
     for eachfile in dir_data:
         # print("File:" + eachfile)
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
-        if (datenow - mtime).days < 10:
-        # if (datenow - mtime).days < 7:
+        if (datenow - mtime).days < 7:
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
@@ -584,6 +626,7 @@ def format_int(value):
 
 
 @app.route('/<pId>', methods=['GET', 'POST'])
+@login_required
 @navbarForm
 def data_table(pId):
 
@@ -737,7 +780,8 @@ def data_table(pId):
 
 # route for display the JSON
 @app.route('/JSON_<pId>')
-def displayJSON(pId):  
+@login_required
+def displayJSON(pId):
     r = s.get(
         LIMS_API_ROOT + "/LimsRest/getProjectQc?project=" + pId,
         auth=(USER, PASSW),
@@ -749,6 +793,7 @@ def displayJSON(pId):
 
 # route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
+@login_required
 def post_qcStatus(pId, recordId, qcStatus):
     payload = {'record': recordId, 'status': qcStatus}
     url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
@@ -759,6 +804,7 @@ def post_qcStatus(pId, recordId, qcStatus):
 
 # route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
+@login_required
 def postall_qcStatus(qcStatus, pId):
 
     recordIds = request.args.getlist('recordIds')
@@ -771,6 +817,7 @@ def postall_qcStatus(qcStatus, pId):
 
 # @deprecation.deprecated(details="This method is deprecated on 06-01-2019 and there are no other methods replacing this method.")
 @app.route('/add_note', methods=['POST'])
+@login_required
 def add_note():
     """
     This method is deprecated on 06-01-2019 and there are no other methods replacing this method.
@@ -785,11 +832,12 @@ def add_note():
     }
     url = LIMS_API_ROOT + "/LimsRest/limsRequest"
     r = s.post(url, params=payload, auth=(USER, PASSW), verify=False)
-    return redirect( URL_PREFIX + url_for('index'))
+    return redirect(URL_PREFIX + url_for('index'))
 
 
 # We raise an error and display it. This render '404.html' template
 @app.route('/page_not_found_<pId>_<int:code_error>')
+@login_required
 def page_not_found(pId, code_error):
     if code_error == 1:
         errors = "Bad request => You press 'Go' with an empty field: please enter the project ID."
@@ -851,6 +899,7 @@ def get_flowcell_id(run_name):
 
 
 @app.route("/getInterOpsData")
+@login_required
 def get_interops_data():
     """
     Function that takes the run ID from request parameters and calls LimsRest backend to get related
