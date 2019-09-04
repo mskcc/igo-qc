@@ -5,7 +5,7 @@ from functools import wraps
 from collections import defaultdict
 import requests
 import os, json, re, yaml
-from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
+from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX, LDAP_URL
 
 app = Flask(__name__)
 from requests.adapters import HTTPAdapter
@@ -17,6 +17,8 @@ import uwsgi, pickle
 from operator import itemgetter
 import Grid
 
+
+import ldap
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
@@ -73,17 +75,17 @@ def navbarForm(func):
         else:  # If the request is POST or PUT, we check the input and then redirect the URL.
             project_id = request.form['project_id'].strip()
             if not project_id:
-                return redirect(url_for('page_not_found', pId='fail', code_error=1))
+                return redirect( URL_PREFIX + url_for('page_not_found', pId='fail', code_error=1))
             if not errors:
                 # Validate the project_id and raise an error if it is invalid
                 if not is_project_id_valid(project_id):
-                    return redirect(url_for('page_not_found', pId='fail', code_error=2))
+                    return redirect( URL_PREFIX + url_for('page_not_found', pId='fail', code_error=2))
                 else:
                     # If there are no errors, create a dictionary containing all the entered
                     # data and pass it to the template to be displayed
                     data = {'project_id': project_id}
                     # Since the form data is valid, render the success template
-                    return redirect(url_for('data_table', pId=project_id))
+                    return redirect( URL_PREFIX + url_for('data_table', pId=project_id))
 
     return inner
 
@@ -98,10 +100,104 @@ def is_project_id_valid(project_id):
     return True
 
 
+
+# def get_ldap_connection():
+#     conn = ldap.initialize(LDAP_URL)
+#     conn.set_option(ldap.OPT_REFERRALS, 0)
+#     return conn
+
+# @app.route('/authenticate', methods=['GET', 'POST'])
+# def authenticate():
+#     try:
+#         payload = request.get_json()['data']
+#         username = payload["username"]
+#         password = payload["password"]
+#     except:
+#         responseObject = {
+#             'message': 'Missing username or password. Please try again.'
+#         }
+#         return make_response(jsonify(responseObject), 401, None)
+#     try:
+#         result = User.try_login(username, password)
+#     except ldap.INVALID_CREDENTIALS:
+#         log_error(
+#             "user " + username + " trying to login with invalid credentials"
+#         )
+#         responseObject = {
+#             'message': 'Invalid username or password. Please try again.'
+#         }
+#         return make_response(jsonify(responseObject), 401, None)
+
+#     if is_authorized(result):
+#         log_info('authorized user loaded: ' + username)
+#         # load or register user
+#         user = load_username(username)
+#         # Create our JWTs
+#         # default expiration 15 minutes
+#         access_token = create_access_token(identity=username)
+#         # default expiration 30 days
+#         expires = datetime.timedelta(hours=12)
+
+#         refresh_token = create_refresh_token(
+#             identity=username, expires_delta=expires
+#         )
+
+#         responseObject = {
+#             'status': 'success',
+#             'message': 'Hello, '
+#             + username
+#             + '. You have successfully logged in.',
+#             'access_token': access_token,
+#             'refresh_token': refresh_token,
+#             'username': username,
+#             'role': user.role,
+#             'submissions': load_submissions(username),
+#             'submission_columns': submission_columns,
+#         }
+
+#         log_info("user " + username + " logged in successfully")
+#         return make_response(jsonify(responseObject), 200, None)
+#     else:
+#             log_error(
+#                 "user "
+#                 + username
+#                 + " AD authenticated but not in GRP_SKI_Haystack_NetIQ"
+#             )
+#             return make_response(
+#                 'You are not authorized to view this website. Please email <a href="mailto:wagnerl@mkscc.org">sample intake support</a> if you need any assistance.',
+#                 403,
+#                 None,
+#             )
+#     except Exception as e:
+#         print(e)
+#         responseObject = {
+#             'status': 'fail',
+#             'message': 'Our backend is experiencing some issues, please try again later or email an admin.',
+#         }
+#         return make_response(jsonify(responseObject)), 500
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 @navbarForm
 def index():
+    # conn = get_ldap_connection()
+
+    # conn.simple_bind_s('%s@mskcc.org' % 'wagnerl', 'kL4B4ut3r')
+    # # attrs = ['memberOf']
+    # attrs = ['sAMAccountName', 'displayName', 'memberOf', 'title']
+    # result = conn.search_s(
+    #     'DC=MSKCC,DC=ROOT,DC=MSKCC,DC=ORG',
+    #     ldap.SCOPE_SUBTREE,
+    #     'sAMAccountName='+ 'streidd',
+    #     attrs,
+    # )
+    # print(result)
+
+    # conn.unbind_s()
+     
+
+
+
     r = s.get(
         LIMS_API_ROOT + "/LimsRest/getRecentDeliveries",
         auth=(USER, PASSW),
@@ -180,7 +276,8 @@ def index():
     for eachfile in dir_data:
         # print("File:" + eachfile)
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
-        if (datenow - mtime).days < 7:
+        if (datenow - mtime).days < 10:
+        # if (datenow - mtime).days < 7:
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
@@ -655,6 +752,7 @@ def displayJSON(pId):
 def post_qcStatus(pId, recordId, qcStatus):
     payload = {'record': recordId, 'status': qcStatus}
     url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
+    print(url)
     r = s.post(url, params=payload, auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
 
@@ -687,7 +785,7 @@ def add_note():
     }
     url = LIMS_API_ROOT + "/LimsRest/limsRequest"
     r = s.post(url, params=payload, auth=(USER, PASSW), verify=False)
-    return redirect(url_for('index'))
+    return redirect( URL_PREFIX + url_for('index'))
 
 
 # We raise an error and display it. This render '404.html' template
