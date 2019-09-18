@@ -4,7 +4,6 @@ const e = React.createElement;
 
 class ProjectRouter extends React.Component {
   constructor(props) {
-    alert("Project Router");
     super(props);
   }
 
