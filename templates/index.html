@@ -32,6 +32,9 @@
         <script src="{{ url_for('static', filename="js/custom.modernizr.js")}}" type="text/javascript" ></script>
         <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 
+        <!-- THIS IS FOR JSX. Don't use this in production: -->
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
         <style>
            th, td {
                padding: 0 13px 0;
@@ -42,6 +45,7 @@
     <body>
         <!-- Main Container starts here -->
         <div class="container">
+            <div id="react_app"></div>
             <div class="row navbar-fixed-top" id="top-navigation">
                 <!-- Navigation header starts here -->
                 <header class=" col-sm-12 col-md-10">
@@ -133,12 +137,20 @@
 
         <!-- Data table plugins -->
         <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
-            <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.0.3/js/buttons.colvis.min.js"></script>
 
         <!-- Init plugins and custom javascript-->
         <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
 
+
+        <!-- Load React. -->
+        <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+        <!-- Load our React component. -->
+        <script src="{{ url_for('static', filename='seq-qc/src/index.js') }}" type="module"></script>
 </body>
 </html>
 
