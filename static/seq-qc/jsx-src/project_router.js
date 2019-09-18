@@ -1,20 +1,22 @@
-const e = React.createElement;
+// TODO - When fully integrated
+// import PropTypes from 'prop-types';
 
 class ProjectRouter extends React.Component {
   constructor(props) {
     super(props);
   }
+
   render() {
-    return e('div', { className: 'project-router' },
-        e('p', { className: 'project-router-name' }, this.props.name)
+    return (
+        <div>
+            <p>{this.props.name}</p>
+        </div>
     );
   }
 }
 
-/*
+export default ProjectRouter;
+
 ProjectRouter.propTypes = {
     name: PropTypes.string
-};
-*/
-
-export default ProjectRouter;
+}

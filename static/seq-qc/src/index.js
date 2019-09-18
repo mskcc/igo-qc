@@ -1,5 +1,5 @@
 import App from './App.js';
-const e = React.createElement;
+var e = React.createElement;
 
-const domContainer = document.querySelector('#react_app');
+var domContainer = document.querySelector('#react_app');
 ReactDOM.render(e(App), domContainer);
