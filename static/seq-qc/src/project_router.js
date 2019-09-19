@@ -15,11 +15,21 @@ class ProjectRouter extends React.Component {
         </th>) }</tr></thead>;
   }
 
+  getRedirectFunction(requestType, requestId) {
+    // Non cell-ranger types should redirect to a /projectId flask mapping that will render a data_table.html
+    // Cell-Ranger types will render their own
+    const CELL_RANGER_APPLICATION = 'Cell-Ranger';      // TODO - Put this into a config file
+    const applicationUrl = requestType === CELL_RANGER_APPLICATION ? 'cellRanger/' : '';
+    const redirect = () => window.location=`${applicationUrl}${requestId}`;
+
+    return redirect;
+  }
+
   renderProjects() {
     const projectElements = [];
     for( const project of this.props.projects ){
         const fields = [ project.pi, project.requestType, project.requestId, project.run, project.date ];
-        const redirect = () => window.location=`${project.requestId}`;
+        const redirect = this.getRedirectFunction(project.requestType, project.requestId);
         const element = <tr className="fill-width project-row" onClick={redirect} key={project.requestId}>
             {
                 fields.map( field => <td className="project-field field-header" key={field}>
