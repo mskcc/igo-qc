@@ -115,6 +115,23 @@ class App extends React.Component {
     return GET_RECENT_DELIVERIES_RESP;
   }
 
+  // TODO - PUT INTO UTIL
+    /**
+     * Returns a Date object in the form of a string, e.g. '2019-09-15 08:17'
+     *
+     * @param date, Date
+     * @returns {string}
+     */
+  dateToDateString(date){
+    const year = date.getFullYear();
+    const month = (date.getMonth()+1).toString(10).padStart(2,'0');
+    const day = date.getDate();
+    const hour = date.getHours();
+    const min = date.getMinutes();
+
+    return `${year}-${month}-${day} ${hour}:${min}`
+  }
+
     /**
      * Enriches project response with fields for categorizing each project
      *
@@ -139,8 +156,8 @@ class App extends React.Component {
       project['run'] = runs.join(', ');
       project['ordering'] = recentDate;
 
-      // TODO - project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-      project['date'] = recentDate;
+      var date = new Date(parseInt(recentDate, 10));
+      project['date'] = this.dateToDateString(date);
     }
 
     review_projects.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
