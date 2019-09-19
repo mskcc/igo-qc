@@ -1,5 +1,6 @@
+// TODO - When fully integrated
 // import React from 'react';
-import './index.css';
+// import './index.css';
 
 import ProjectRouter from './project_router.js';
 import Project from './Project.js';
