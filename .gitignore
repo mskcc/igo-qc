@@ -6,3 +6,4 @@ static/html/FASTQ/*
 static/html/PDF/*
 venv/*
 **/.idea/*
+static/seq-qc/no-jsx-src/*
