@@ -8,6 +8,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 import LikeButton from './like_button.js';
 import ProjectRouter from './project_router.js';
+import Project from './Project.js';
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -15,13 +16,64 @@ var App = function (_React$Component) {
   function App(props) {
     _classCallCheck(this, App);
 
-    return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+
+    _this.state = {
+      projects: []
+    };
+    return _this;
   }
 
   _createClass(App, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.init();
+    }
+  }, {
+    key: 'init',
+    value: function init() {
+      this.setProjects();
+    }
+  }, {
+    key: 'setProjects',
+    value: function setProjects() {
+      var projectResp = this.getProjects();
+      var projects = projectResp.map(function (p) {
+        return new Project(p.pi, p.type, p.requestId, p.recentRuns, p.date);
+      });
+
+      this.setState({ projects: projects });
+    }
+  }, {
+    key: 'getProjects',
+    value: function getProjects() {
+      // TODO - replace w/ service call
+      var projects = [{
+        pi: 'Watson',
+        type: 'HemePact',
+        requestId: 'id_100101',
+        recentRuns: 'recentRuns',
+        date: 'dateOfLatestStats'
+      }, {
+        pi: 'Crick',
+        type: 'WES',
+        requestId: 'id_100101',
+        recentRuns: 'recentRuns',
+        date: 'dateOfLatestStats'
+      }];
+
+      return projects;
+    }
+  }, {
     key: 'render',
     value: function render() {
-      return React.createElement(ProjectRouter, { name: 'test' });
+      return React.createElement(
+        'div',
+        { className: 'router-container' },
+        React.createElement(ProjectRouter, { name: 'Needs Review', projects: this.state.projects }),
+        React.createElement(ProjectRouter, { name: 'Requires Further Sequencing', projects: this.state.projects }),
+        React.createElement(ProjectRouter, { name: 'Recent Deliveries', projects: this.state.projects })
+      );
     }
   }]);
 

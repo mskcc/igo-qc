@@ -10,34 +10,112 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 // import PropTypes from 'prop-types';
 
 var ProjectRouter = function (_React$Component) {
-  _inherits(ProjectRouter, _React$Component);
+    _inherits(ProjectRouter, _React$Component);
 
-  function ProjectRouter(props) {
-    _classCallCheck(this, ProjectRouter);
+    function ProjectRouter(props) {
+        _classCallCheck(this, ProjectRouter);
 
-    return _possibleConstructorReturn(this, (ProjectRouter.__proto__ || Object.getPrototypeOf(ProjectRouter)).call(this, props));
-  }
-
-  _createClass(ProjectRouter, [{
-    key: "render",
-    value: function render() {
-      return React.createElement(
-        "div",
-        null,
-        React.createElement(
-          "p",
-          null,
-          this.props.name
-        )
-      );
+        return _possibleConstructorReturn(this, (ProjectRouter.__proto__ || Object.getPrototypeOf(ProjectRouter)).call(this, props));
     }
-  }]);
 
-  return ProjectRouter;
+    _createClass(ProjectRouter, [{
+        key: "renderHeaders",
+        value: function renderHeaders() {
+            var fields = ["PI", "Type", "Request Id", "Recent Runs", "Date of Latest Stats"];
+            return React.createElement(
+                "div",
+                null,
+                fields.map(function (field) {
+                    return React.createElement(
+                        "div",
+                        { className: "project-field" },
+                        React.createElement(
+                            "p",
+                            { className: "font-size-16 font-bold" },
+                            field
+                        )
+                    );
+                }),
+                " "
+            );
+        }
+    }, {
+        key: "renderProjects",
+        value: function renderProjects() {
+            var projectElements = [];
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.props.projects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var project = _step.value;
+
+                    var fields = [project.pi, project.type, project.requestId, project.recentRuns, project.date];
+                    var element = React.createElement(
+                        "div",
+                        { className: "fill-width" },
+                        fields.map(function (field) {
+                            return React.createElement(
+                                "div",
+                                { className: "project-field field-header" },
+                                React.createElement(
+                                    "p",
+                                    { className: "font-size-12" },
+                                    field
+                                )
+                            );
+                        })
+                    );
+                    projectElements.push(element);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return React.createElement(
+                "div",
+                null,
+                projectElements
+            );
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                null,
+                React.createElement(
+                    "div",
+                    null,
+                    React.createElement(
+                        "p",
+                        { className: "font-size-24" },
+                        this.props.name
+                    )
+                ),
+                this.renderHeaders(),
+                this.renderProjects()
+            );
+        }
+    }]);
+
+    return ProjectRouter;
 }(React.Component);
 
 export default ProjectRouter;
 
 ProjectRouter.propTypes = {
-  name: PropTypes.string
+    name: PropTypes.string
 };

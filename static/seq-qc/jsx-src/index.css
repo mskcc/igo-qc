@@ -1,0 +1,27 @@
+.router-container {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.font-size-24 {
+    font-size: 24px;
+}
+.font-size-16 {
+    font-size: 16px;
+}
+.font-size-12 {
+    font-size: 12px;
+}
+.fill-width {
+    width: 100%;
+}
+.font-bold {
+    font-weight: bold;
+}
+
+.project-field{
+    width: 20%;
+    display: inline-block;
+}
