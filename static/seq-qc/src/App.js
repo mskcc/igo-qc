@@ -43,7 +43,7 @@ class App extends React.Component {
    */
   isProjectReady(project){
     const samples = project['samples'] || [];
-    if(samples.length == 0) return false;
+    if(samples.length === 0) return false;
 
     // Check all samples to see if any have a non-empty basicQcs field, which indicates the project is not ready
     for(const sample of samples){

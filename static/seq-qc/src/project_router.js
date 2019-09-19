@@ -7,31 +7,29 @@
  * Router for Projects
  */
 class ProjectRouter extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   renderHeaders(){
     const fields = [ "PI", "Type", "Request Id", "Recent Runs",	"Date of Latest Stats" ];
-    return <div>{ fields.map( (field) => <div className="project-field">
-                                <p className="font-size-16 font-bold">{field}</p>
-                            </div>) } </div>;
+    return <thead><tr className="fill-width">{ fields.map( (field) =>
+        <th className="project-field" key={field}>
+            <p className="font-size-16 font-bold">{field}</p>
+        </th>) }</tr></thead>;
   }
 
   renderProjects() {
     const projectElements = [];
     for( const project of this.props.projects ){
         const fields = [ project.pi, project.requestType, project.requestId, project.run, project.date ];
-        const element = <div className="fill-width">
+        const redirect = () => window.location=`${project.requestId}`;
+        const element = <tr className="fill-width project-row" onClick={redirect} key={project.requestId}>
             {
-                fields.map( field => <div className="project-field field-header">
+                fields.map( field => <td className="project-field field-header" key={field}>
                         <p className="font-size-12">{field}</p>
-                    </div>)
+                    </td>)
             }
-        </div>;
+        </tr>;
         projectElements.push(element);
     }
-    return <div>{projectElements}</div>;
+    return <tbody>{projectElements}</tbody>;
   }
 
   render() {
@@ -40,8 +38,12 @@ class ProjectRouter extends React.Component {
             <div>
                 <p className="font-size-24">{this.props.name}</p>
             </div>
-            {this.renderHeaders()}
-            {this.renderProjects()}
+            <table className="project-table fill-width">
+                {this.renderHeaders()}
+                {this.renderProjects()}
+            </table>
+
+
         </div>
     );
   }
