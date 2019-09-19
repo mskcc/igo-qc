@@ -8,7 +8,7 @@
     "react-scripts": "3.1.1"
   },
   "scripts": {
-    "jsx": "npx babel --watch jsx-src/ --out-dir src --presets react-app/prod",
+    "jsx": "npx babel --watch src/ --out-dir no-jsx-src --presets react-app/prod",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
