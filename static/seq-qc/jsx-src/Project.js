@@ -1,9 +1,12 @@
+/**
+ * Entity tracking state of an IGO project
+ */
 class Project {
-    constructor(pi, type, requestId, recentRuns, date) {
+    constructor(pi, requestType, requestId, run, date) {
         this.pi = pi;
-        this.type = type;
+        this.requestType = requestType;
         this.requestId = requestId;
-        this.recentRuns = recentRuns;
+        this.run = run;
         this.date = date;
     }
 }

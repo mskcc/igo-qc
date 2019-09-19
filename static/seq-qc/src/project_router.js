@@ -9,6 +9,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 // TODO - When fully integrated
 // import PropTypes from 'prop-types';
 
+/**
+ * Router for Projects
+ */
 var ProjectRouter = function (_React$Component) {
     _inherits(ProjectRouter, _React$Component);
 
@@ -51,7 +54,7 @@ var ProjectRouter = function (_React$Component) {
                 for (var _iterator = this.props.projects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var project = _step.value;
 
-                    var fields = [project.pi, project.type, project.requestId, project.recentRuns, project.date];
+                    var fields = [project.pi, project.requestType, project.requestId, project.run, project.date];
                     var element = React.createElement(
                         "div",
                         { className: "fill-width" },
@@ -117,5 +120,6 @@ var ProjectRouter = function (_React$Component) {
 export default ProjectRouter;
 
 ProjectRouter.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
+    projects: PropTypes.array
 };

@@ -1,6 +1,9 @@
 // TODO - When fully integrated
 // import PropTypes from 'prop-types';
 
+/**
+ * Router for Projects
+ */
 class ProjectRouter extends React.Component {
   constructor(props) {
     super(props);
@@ -8,22 +11,22 @@ class ProjectRouter extends React.Component {
 
   renderHeaders(){
     const fields = [ "PI", "Type", "Request Id", "Recent Runs",	"Date of Latest Stats" ];
-    return <div>{ fields.map( field => <div className="project-field">
+    return <div>{ fields.map( (field) => <div className="project-field">
                                 <p className="font-size-16 font-bold">{field}</p>
-                            </div>) } </div>
+                            </div>) } </div>;
   }
 
   renderProjects() {
     const projectElements = [];
     for( const project of this.props.projects ){
-        const fields = [ project.pi, project.type, project.requestId, project.recentRuns, project.date ];
+        const fields = [ project.pi, project.requestType, project.requestId, project.run, project.date ];
         const element = <div className="fill-width">
             {
                 fields.map( field => <div className="project-field field-header">
                         <p className="font-size-12">{field}</p>
                     </div>)
             }
-        </div>
+        </div>;
         projectElements.push(element);
     }
     return <div>{projectElements}</div>;
@@ -45,5 +48,6 @@ class ProjectRouter extends React.Component {
 export default ProjectRouter;
 
 ProjectRouter.propTypes = {
-    name: PropTypes.string
-}
+    name: PropTypes.string,
+    projects: PropTypes.array
+};
