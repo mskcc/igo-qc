@@ -1,9 +1,3 @@
-.router-container {
-    background-color: white;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid black;
-}
 .font-size-24 {
     font-size: 24px;
 }
@@ -22,4 +16,8 @@
 .project-row:hover {
     cursor: pointer;
     background-color: #d9d9d9;
+}
+.project-router-container {
+    margin-top: 20px;
+    margin-left: 20px;
 }

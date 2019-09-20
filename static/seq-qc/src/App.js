@@ -236,12 +236,24 @@ class App extends React.Component {
     }
 
     render() {
-        return <div className="router-container">
-            <h1>Sequence Analysis</h1>
-            <ProjectRouter name="Needs Review" projects={this.state.projectsToSequenceFurther}/>
-            <ProjectRouter name="Requires Further Sequencing" projects={this.state.projectsToReview}/>
-            <h1>Requests</h1>
-            <ProjectRouter name="Recent Deliveries" projects={this.state.recentDeliveries}/>
+        return <div className="col-sm-14 col-md-14 col-lg-14">
+            <div className="widget-box">
+                <div className="widget-container table-responsive">
+                    <div className="content noPad clearfix">
+                        <h3>Sequence Analysis</h3>
+                        <div className="project-router-container">
+                            <ProjectRouter name="Needs Review" projects={this.state.projectsToSequenceFurther}/>
+                        </div>
+                        <div className="project-router-container">
+                            <ProjectRouter name="Requires Further Sequencing" projects={this.state.projectsToReview}/>
+                        </div>
+                        <h3>Requests</h3>
+                        <div className="project-router-container">
+                            <ProjectRouter name="Recent Deliveries" projects={this.state.recentDeliveries}/>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>;
     }
 }
