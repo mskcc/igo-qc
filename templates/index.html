@@ -75,54 +75,52 @@
                         </div>
                         <div class="widget-container table-responsive">
                             <div class="content noPad clearfix">
-            <h3>Needs Review</h3>
-            <table id=projects class="basic-table">
-             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
-                 {% for project in review_projects %}
-                 {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
-                 {% endif %}
-                 {% endfor %}
-            </table>
-            <h3>Requires Further Sequencing</h3>
-             <table id=projects class="basic-table">
-             <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
-                 {% for project in active_projects %}
-                 {% if project.ready %}
-                 <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
-                 {% endif %}
-                 {% endfor %}
-            </table>
-             <h3>Recent Deliveries</h3>
-            <table id="delivered" class="basic-table">
-            <tr><th>PI</th><th>Request Id</th><th>Date of Latest Stats</th></tr>
-             {% for project in delivery_data %}
-            <tr><td>{{ project.pi }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
-            {% endfor %}
-            </table>
-
-
-                        <h3>Recent Runs</h3>
-                        <table class="basic-table" id="delivered">
-                            <tr>
-                                <th>Report Generated</th>
-                                <th>Lane Summary</th>
-                                <th>Run Stats</th>
-                            </tr>
-                            {% for run in run_data %}
-                            <tr>
-                                <td>{{ run.date }}</td>
-                                <td><a href="{{ run.path }}" style="color:blue">{{ run.run_name }}</a></td>
-                                <td><button class="btn btn-primary" style="margin-bottom:5px;"><a href="{{ url_for('get_interops_data', runId=run.run_name)}}" target="_blank" style="color:white">View Run Stats</a></button></td>
-                            </tr>
-                            {% endfor %}
-                        </table>
+                                <h3>Needs Review</h3>
+                                <table id=projects class="basic-table">
+                                     <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
+                                         {% for project in review_projects %}
+                                         {% if project.ready %}
+                                         <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
+                                         {% endif %}
+                                         {% endfor %}
+                                </table>
+                                <h3>Requires Further Sequencing</h3>
+                                <table id=projects class="basic-table">
+                                     <tr><th>PI</th><th>Type</th><th>Request Id</th><th>Recent Runs</th><th>Date of Latest Stats</th></tr>
+                                         {% for project in active_projects %}
+                                         {% if project.ready %}
+                                         <tr><td>{{ project.pi }}</td><td>{{ project.requestType }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId }}</a></td><td>{{ project.run }}</td><td>{{ project.date }}</td></tr>
+                                         {% endif %}
+                                         {% endfor %}
+                                </table>
+                                <h3>Recent Deliveries</h3>
+                                <table id="delivered" class="basic-table">
+                                    <tr><th>PI</th><th>Request Id</th><th>Date of Latest Stats</th></tr>
+                                    {% for project in delivery_data %}
+                                    <tr><td>{{ project.pi }}</td><td><a href="{{ url_for('data_table', pId=project.requestId) }}" style="color:blue" >{{ project.requestId  }}</a></td><td>{{ project.date }}</td></tr>
+                                    {% endfor %}
+                                </table>
+                                <h3>Recent Runs</h3>
+                                <table class="basic-table" id="delivered">
+                                    <tr>
+                                        <th>Report Generated</th>
+                                        <th>Lane Summary</th>
+                                        <th>Run Stats</th>
+                                    </tr>
+                                    {% for run in run_data %}
+                                    <tr>
+                                        <td>{{ run.date }}</td>
+                                        <td><a href="{{ run.path }}" style="color:blue">{{ run.run_name }}</a></td>
+                                        <td><button class="btn btn-primary" style="margin-bottom:5px;"><a href="{{ url_for('get_interops_data', runId=run.run_name)}}" target="_blank" style="color:white">View Run Stats</a></button></td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
         <!-- Main Container ends here -->
         <!-- Bootstrap core JavaScript
         ================================================== -->
