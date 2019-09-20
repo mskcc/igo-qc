@@ -3,13 +3,46 @@
 // import ReactDOM from 'react-dom';
 // import PropTypes from 'prop-types';
 
+
+const FIELD_MAP = {
+    "pi": "PI",
+    "requestType": "Type",
+    "requestId": "Request Id",
+    "run": "Recent Runs",
+    "date": "Date of Latest Stats"
+};
+
 /**
  * Router for Projects
  */
 class ProjectRouter extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+        fields: [],
+        headers: []
+    };
+  }
+
+  componentDidUpdate(prevProps){
+    if(prevProps.projects !== this.props.projects){
+        this.setFieldsFromProjects(this.props.projects);
+    }
+  }
+
+  setFieldsFromProjects(projects){
+    if(projects && projects.length > 0){
+        const firstProject = projects[0];
+        const fields = Object.keys(FIELD_MAP).filter((field) => {
+            return firstProject[field]
+        });
+        const headers = fields.map((field) => FIELD_MAP[field])
+        this.setState({ fields, headers });
+    }
+  }
+
   renderHeaders(){
-    const fields = [ "PI", "Type", "Request Id", "Recent Runs",	"Date of Latest Stats" ];
-    return <thead><tr className="fill-width">{ fields.map( (field) =>
+    return <thead><tr className="fill-width">{ this.state.headers.map( (field) =>
         <th className="project-field" key={field}>
             <p className="font-size-16 font-bold">{field}</p>
         </th>) }</tr></thead>;
@@ -28,7 +61,7 @@ class ProjectRouter extends React.Component {
   renderProjects() {
     const projectElements = [];
     for( const project of this.props.projects ){
-        const fields = [ project.pi, project.requestType, project.requestId, project.run, project.date ];
+        const fields = this.state.fields.map( (field) => project[field] );
         const redirect = this.getRedirectFunction(project.requestType, project.requestId);
         const element = <tr className="fill-width project-row" onClick={redirect} key={project.requestId}>
             {
@@ -42,18 +75,25 @@ class ProjectRouter extends React.Component {
     return <tbody>{projectElements}</tbody>;
   }
 
+  renderTable(){
+    // Visualize projects if present and state has been populated w/ fields to visualize
+    if(this.props.projects && this.state.fields.length > 0){
+        return <table className="project-table fill-width">
+            {this.renderHeaders()}
+            {this.renderProjects()}
+        </table>
+    } else {
+        return <div></div>
+    }
+  }
+
   render() {
     return (
         <div>
             <div>
                 <p className="font-size-24">{this.props.name}</p>
             </div>
-            <table className="project-table fill-width">
-                {this.renderHeaders()}
-                {this.renderProjects()}
-            </table>
-
-
+            {this.renderTable()}
         </div>
     );
   }

@@ -4,78 +4,165 @@
 
 import ProjectRouter from './project_router.js';
 import Project from './Project.js';
-import GET_RECENT_DELIVERIES_RESP from './getRecentDeliveries.js';
+import { unixTimeStringToDateString } from './utils/format.js';
+import GET_SEQ_ANALYSIS_SAMPLE_RESP from './getRecentDeliveries_seqAnalysis.js';
+import GET_RECENT_DELIVERIES_RESP from './getRecentDeliveries_request.js';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-        activeProjects: [],
-        reviewProjects: []
-    };
-  }
-
-  componentDidMount() {
-    this.init();
-  }
-
-  init() {
-    this.setProjectState();
-  }
-
-    /**
-     * Sets component state to track projects
-     */
-  setProjectState() {
-    const projectResp = this.getProjects();
-    const projects = this.processProjectResponse(projectResp);
-
-    const activeProjects = projects[0].map((p) => new Project(p.pi, p.requestType, p.requestId, p.run, p.date));
-    const reviewProjects = projects[1].map((p) => new Project(p.pi, p.requestType, p.requestId, p.run, p.date));
-
-    this.setState({ activeProjects, reviewProjects });
-  }
-
-  /**
-   * Returns if a project is ready, which is true if none of its samples have 'basicQcs' entries
-   *
-   * @param project, Object - Project entry taken directly from response
-   */
-  isProjectReady(project){
-    const samples = project['samples'] || [];
-    if(samples.length === 0) return false;
-
-    // Check all samples to see if any have a non-empty basicQcs field, which indicates the project is not ready
-    for(const sample of samples){
-        if(sample['basicQcs'] && sample['basicQcs'].length === 0){
-            return false;
-        }
+    constructor(props) {
+        super(props);
+        this.state = {
+            projectsToReview: [],
+            projectsToSequenceFurther: [],
+            recentDeliveries: []
+        };
     }
 
-    return true;
-  }
+    componentDidMount() {
+        this.init();
+    }
 
-  //
+    init() {
+        this.setSeqAnalysisState();
+        this.setRequestState();
+    }
+
+    /**
+    * Sends service call to retrieve most recent deliveries
+    */
+    getSeqAnalysisProjects() {
+        // TODO - Don't mock
+        // TODO - Currently the same endpoint gives very different responses. See GetDelivered.java from GetRecentDeliveries.java
+        // REQUEST: "/LimsRest/getRecentDeliveries"
+        // Table: "SeqAnalysisSampleQC", Query: "DateCreated >  1484508629000 AND SeqQCStatus != 'Passed' AND SeqQCStatus not like 'Failed%'"
+        return GET_SEQ_ANALYSIS_SAMPLE_RESP;
+    }
+
+    /**
+     * Sends service call to retrieve most recent deliveries
+     */
+    getRequestProjects() {
+        // TODO - Don't mock
+        // TODO - Currently the same endpoint gives very different responses. See GetDelivered.java from GetRecentDeliveries.java
+        // REQUEST: "/LimsRest/getRecentDeliveries?time=2&units=d"
+        // Table: "Request", Query: "RecentDeliveryDate > " + searchPoint + " AND (Investigatoremail = '" + investigator + "' OR LabHeadEmail = '" + investigator + "')"
+        return GET_RECENT_DELIVERIES_RESP;
+    }
+
+    /**
+     * Sets component state to track Sequence Analysis entries from LIMS (Table: "SeqAnalysisSampleQC")
+     */
+    setSeqAnalysisState() {
+        const resp = this.getSeqAnalysisProjects();
+        const projects = this.processSeqAnalysisResponse(resp);
+
+        const projectsToReview = projects[0].map((p) => new Project(p.pi, p.requestType, p.requestId, p.run, p.date));
+        const projectsToSequenceFurther = projects[1].map((p) => new Project(p.pi, p.requestType, p.requestId, p.run, p.date));
+
+        this.setState({ projectsToReview, projectsToSequenceFurther });
+    }
+
+    /**
+     * Sets component state to track Request entries from LIMS (Table: "Request")
+     */
+    setRequestState(){
+        const resp = this.getRequestProjects();
+        const projects = this.processRequestResponse(resp)
+
+        const recentDeliveries = projects.map((p) => new Project(p.pi, p.requestType, p.requestId, p.run, p.date));
+        this.setState({ recentDeliveries });
+    }
+
+    /**
+     * Seperates Sequence Analysis response into project categories, "Needs Review" & "Requires Further Sequencing"
+     *
+     * @param projects, Object[] - Response from LIMS containing entries from the Sequence Analysis Table
+     * @returns {[Object[], Object[]]}, Array of two Project lists
+     */
+    processSeqAnalysisResponse(projects){
+        const projectsToReview = [];
+        const projectsToSequenceFurther = [];
+        let runs, recentDate, projectReady;
+        for(const project of projects){
+            projectReady = this.isProjectReady(project);
+            project['ready'] = projectReady;
+
+            if(this.isUnreviewed(project)){
+                projectsToReview.push(project);
+            } else {
+                projectsToSequenceFurther.push(project);
+            }
+
+            runs = this.getRuns(project);
+            recentDate = this.getRecentDate(project);
+            project['run'] = runs.join(', ');
+            project['ordering'] = recentDate;
+
+            project['date'] = unixTimeStringToDateString(recentDate);
+        }
+
+        projectsToReview.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
+        projectsToSequenceFurther.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
+
+        return [projectsToReview, projectsToSequenceFurther];
+    }
+
+    /**
+     * Enriches/sorts response of project requests
+     *
+     * @param projects, Object[] - Response from the LIMS of entries in the Request table
+     * @returns {*}
+     */
+    processRequestResponse(projects){
+        let recentDate;
+        for(const project of projects){
+            recentDate = this.getRecentDate(project);
+            project['ordering'] = recentDate;
+            project['date'] = unixTimeStringToDateString(recentDate);
+        }
+        projects.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
+        return projects;
+    }
+
+    /**
+    * Returns if a project is ready, which is true if none of its samples have 'basicQcs' entries
+    *
+    * @param project, Object - Project entry taken directly from response
+    */
+    isProjectReady(project){
+        const samples = project['samples'] || [];
+        if(samples.length === 0) return false;
+
+        // Check all samples to see if any have a non-empty basicQcs field, which indicates the project is not ready
+        for(const sample of samples){
+            if(sample['basicQcs'] && sample['basicQcs'].length === 0){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Based on the basicQcs::qcStatus of each sample. Only one sample in the project needs to be under-review to be un-reviewed
      *
      * @param project, Object - Project entry taken directly from response
      * @returns {boolean}
      */
-  isUreviewed(project) {
-    const samples = project['samples'] || [];
+    isUnreviewed(project) {
+        const samples = project['samples'] || [];
 
-    let basicQcs, isUnreviewed;
-    for(const sample of samples){
-        basicQcs = sample['basicQcs'] || [];
-        isUnreviewed = basicQcs.reduce((isUnderReview, basicQc) => {
-            return isUnderReview || (basicQc['qcStatus'] && basicQc['qcStatus'] === 'Under-Review');
-        }, false);
-        if(isUnreviewed) return true;
+        let basicQcs, isUnreviewed;
+        for(const sample of samples){
+            basicQcs = sample['basicQcs'] || [];
+            isUnreviewed = basicQcs.reduce((isUnderReview, basicQc) => {
+                return isUnderReview || (basicQc['qcStatus'] && basicQc['qcStatus'] === 'Under-Review');
+            }, false);
+            if(isUnreviewed) return true;
+        }
+
+        return false;
     }
-
-    return false;
-  }
 
     /**
      * Returns recent runs and most date of the most recent sample
@@ -83,7 +170,7 @@ class App extends React.Component {
      * @param project, Object - Project entry taken directly from response
      * @returns {[*, number]}
      */
-    getRunsAndRecentDate(project) {
+    getRecentDate(project) {
         const samples = project['samples'] || [];
         const runs = new Set([]);
         let recentDate = 0;
@@ -104,75 +191,59 @@ class App extends React.Component {
         return [ Array.from(runs), recentDate ];
     }
 
-  /**
-   * Sends service call to retrieve most recent deliveries
-   *
-   */
-  getProjects() {
-      /*
-       TODO - Don't mock
-      */
-    return GET_RECENT_DELIVERIES_RESP;
-  }
-
-  // TODO - PUT INTO UTIL
     /**
-     * Returns a Date object in the form of a string, e.g. '2019-09-15 08:17'
+     * Returns the runs associated with the project
      *
-     * @param date, Date
-     * @returns {string}
+     * @param project
+     * @returns {Object[]}
      */
-  dateToDateString(date){
-    const year = date.getFullYear();
-    const month = (date.getMonth()+1).toString(10).padStart(2,'0');
-    const day = date.getDate();
-    const hour = date.getHours();
-    const min = date.getMinutes();
-
-    return `${year}-${month}-${day} ${hour}:${min}`
-  }
-
-    /**
-     * Enriches project response with fields for categorizing each project
-     *
-     * @param projects
-     * @returns {[[], []]}
-     */
-  processProjectResponse(projects){
-    const review_projects = [];
-    const active_projects = [];
-    let runs, recentDate, projectReady;
-    for(const project of projects){
-      projectReady = this.isProjectReady(project);
-      project['ready'] = projectReady;
-
-      if(this.isUreviewed(project)){
-        review_projects.push(project);
-      } else {
-        active_projects.push(project);
-      }
-
-      [ runs, recentDate ] = this.getRunsAndRecentDate(project);
-      project['run'] = runs.join(', ');
-      project['ordering'] = recentDate;
-
-      var date = new Date(parseInt(recentDate, 10));
-      project['date'] = this.dateToDateString(date);
+    getRuns(project) {
+        const samples = project['samples'] || [];
+        const runs = new Set([]);
+        let basicQcs;
+        for(const sample of samples){
+            basicQcs = sample['basicQcs'] || [];
+            let run;
+            for(const qc of basicQcs){
+                run = qc['run'] || '';
+                const matches = run.match('([A-Z|0-9]+_[0-9]+)');
+                const trimmed = matches[0];
+                runs.add(trimmed);
+            }
+        }
+        return Array.from(runs);
     }
 
-    review_projects.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
-    active_projects.sort( (p1, p2) => { return p1['ordering']-p2['ordering']; });
+    /**
+     * Returns the date of the most recent basic qc analysis
+     *
+     * @param project
+     * @returns {number}
+     */
+    getRecentDate(project) {
+        const samples = project['samples'] || [];
+        let recentDate = 0;
+        let basicQcs;
+        for(const sample of samples){
+            basicQcs = sample['basicQcs'] || [];
+            for(const qc of basicQcs){
+                if(qc['createDate'] > recentDate){
+                    recentDate = qc['createDate'];
+                }
+            }
+        }
+        return recentDate;
+    }
 
-    return [review_projects, active_projects];
-  }
-
-  render() {
-    /* <ProjectRouter name="Recent Deliveries" projects={this.state.projects}/> */
-    return <div className="router-container">
-        <ProjectRouter name="Needs Review" projects={this.state.reviewProjects}/>
-        <ProjectRouter name="Requires Further Sequencing" projects={this.state.activeProjects}/>
-    </div>;
-  }
+    render() {
+        return <div className="router-container">
+            <h1>Sequence Analysis</h1>
+            <ProjectRouter name="Needs Review" projects={this.state.projectsToSequenceFurther}/>
+            <ProjectRouter name="Requires Further Sequencing" projects={this.state.projectsToReview}/>
+            <h1>Requests</h1>
+            <ProjectRouter name="Recent Deliveries" projects={this.state.recentDeliveries}/>
+        </div>;
+    }
 }
 
 export default App;
