@@ -74,61 +74,6 @@ def is_project_id_valid(project_id):
 @app.route('/home', methods=['GET', 'POST'])
 @navbarForm
 def index():
-    r = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False)
-    data = json.loads(r.content)
-    projects = []
-    review_projects = []
-    active_projects = []
-    if len(data) > 0:
-         projects = data
-    for project in projects:
-        unreviewed = False
-        runs =[]
-        recentDate = 0
-        for sample in project['samples']:
-            if 'basicQcs' not in sample or len(sample['basicQcs']) == 0:
-               if 'ready' not in project:
-                  project['ready'] = False
-            else:
-               project['ready'] = True
-               for qc in sample['basicQcs']:
-                  if 'qcStatus' in qc and  qc['qcStatus'] == 'Under-Review':
-                       unreviewed = True
-                  if 'run' not in qc:
-                       continue
-                  trimmed = re.match("([A-Z|0-9]+_[0-9]+)", qc['run']).groups()[0]
-                  if trimmed not in runs:
-                      runs.append(trimmed)
-                  if qc['createDate'] > recentDate:
-                      recentDate = qc['createDate']
-        project['run'] = ", ".join(runs)
-        project['ordering'] = recentDate
-        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-        if unreviewed:
-            review_projects.append(project)
-        else:
-            active_projects.append(project)
-    review_projects.sort(key=itemgetter('ordering'))
-    active_projects.sort(key=itemgetter('ordering'))
-    if uwsgi.cache_exists("delivered", "igoqc"):
-        delivery_data = json.loads(pickle.loads(uwsgi.cache_get("delivered", "igoqc")))
-    else:
-        delReq = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
-        del_content = delReq.content
-        delivery_data = json.loads(del_content)
-        if uwsgi is not None:
-           uwsgi.cache_set("delivered", pickle.dumps(del_content), 3600)
-    for project in delivery_data:
-        recentDate = 0
-        for sample in project['samples']:
-            if 'basicQcs' in sample:
-                for qc in sample['basicQcs']:
-                     if qc['createDate'] > recentDate:
-                         recentDate = qc['createDate']
-        project['ordering'] = recentDate
-        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-    delivery_data.sort(key=itemgetter('ordering'))
-    
     dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
@@ -149,7 +94,6 @@ def index():
             project['run_name'] = tail
             run_data.append(project)
             #print(mod_timestamp + " " + tail)
-
     return render_template("index.html", **locals())
 
 def build_grid_from_samples(samples, pType):
