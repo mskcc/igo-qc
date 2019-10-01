@@ -5,6 +5,18 @@ class Grid:
         self.grid = {}
         self.style = {}
 
+    def get_header(self):
+        return self.header
+
+    def get_val_types(self):
+        return self.val_types
+
+    def get_grid(self):
+        return self.grid
+
+    def get_style(self):
+        return self.style
+
     def set_header(self, header):
         self.header = header
         for col_name in header:
