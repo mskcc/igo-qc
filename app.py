@@ -485,12 +485,19 @@ def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]
 
     requester = {};
-    labels = ['requestId', 'investigator',  'pi', 'projectManager', 'pipelinable', 'analysisRequested', 'cmoProject'];
-    for label in labels:
+    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject'];
+    for label in value_labels:
         if label in project_qc_info:
             requester[label] = project_qc_info[label]
         else:
             requester[label] = 'N/A'
+
+    boolean_labels = [ 'pipelinable', 'analysisRequested' ]
+    for label in boolean_labels:
+        if label in project_qc_info:
+            requester[label] = project_qc_info[label]
+        else:
+            requester[label] = False
 
     # Requested Number of reads must be present and parseable as a float
     is_valid_requested_reads = isinstance(common_sample['requestedNumberOfReads'], float)
