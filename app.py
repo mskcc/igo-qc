@@ -540,20 +540,20 @@ def get_project_type(samples):
     project_qc = common_sample['qc']
     project_type = {
         'recipe': project_recipe,
-        'startable': any('startable' in sample['qc'] for sample in samples),
+        'startable': any('startingAmount' in sample['qc'] for sample in samples),
         'quanted': any('quantIt' in sample['qc'] for sample in samples),
-        'qcControlled': any('qcControlled' in sample['qc'] for sample in samples)
+        'qcControlled': any('qcControl' in sample['qc'] for sample in samples)
     }
     if 'runType' in common_sample:
         project_type['runType'] = common_sample['runType']
-    if  'RNA' in project_recipe or \
+    if 'RNA' in project_recipe or \
             'SMARTerAmpSeq' in project_recipe or \
             '96Well_SmartSeq2' in project_recipe:
         project_type['table'] = 'rna'
     elif 'baitSet' in project_qc:
         project_type['table'] = 'hs'
         project_type['baitSet'] = project_qc['baitSet']
-    elif 'HumanWholeGenome' in project_recipe['recipe']:
+    elif 'HumanWholeGenome' in project_recipe:
         project_type['table'] = 'wgs'
     else:
         project_type['table'] = 'md'
