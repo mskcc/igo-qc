@@ -466,14 +466,17 @@ def project_info(pId):
     charts_links = get_charts_links(project_qc_info)
 
     enriched_samples = enrich_samples(samples)
-    grid = get_grid(enriched_samples)
+    project_type = get_project_type(enriched_samples)
+    grid = get_grid(enriched_samples, project_type)
 
     data = {
         'requester': requester,
         'statuses': statuses,
         'recordIds': record_ids,
         'grid': grid,
-        'chartsLinks': charts_links
+        'chartsLinks': charts_links,
+        'projectType': project_type,
+
     }
 
     return create_resp(True, 'success', data)
@@ -505,13 +508,18 @@ def get_requester_info(project_qc_info, samples):
         name = sample_qc['sampleName']
         if name not in sample_names:
             sample_names.add(name)
-        if sample['tumorOrNormal'] == 'Tumor':
-            tumor_count += 1
-        elif sample['tumorOrNormal'] == 'Tumor':
-            normal_count += 1;
+            if sample['tumorOrNormal'] == 'Tumor':
+                tumor_count += 1
+            elif sample['tumorOrNormal'] == 'Tumor':
+                normal_count += 1
 
     requester['tumorCount'] = tumor_count
-    requester['normalCount'] =  normal_count
+    requester['normalCount'] = normal_count
+
+    if 'sampleNumber' in project_qc_info:
+        requester['numSamples'] = project_qc_info['sampleNumber']
+    else:
+        requester['numSamples'] = len(sample_names)
 
     return requester
 
@@ -596,8 +604,7 @@ def get_header(project_type):
 
     return header
 
-def get_grid(samples):
-    project_type = get_project_type(samples)
+def get_grid(samples, project_type):
     header = get_header(project_type)
 
     grid = Grid.Grid()
