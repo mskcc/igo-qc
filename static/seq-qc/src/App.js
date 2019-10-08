@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import Home from './Home.js';
+import Home from './components/Home.js';
 import CellRanger from './cellranger.js';
 
 function App() {

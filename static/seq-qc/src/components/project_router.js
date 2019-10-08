@@ -1,10 +1,9 @@
 // TODO - When fully integrated
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import PropTypes from 'prop-types';
+ import React from 'react';
+ import PropTypes from 'prop-types';
 
 
-import { CELL_RANGER_APPLICATION } from './constants.js';
+import { CELL_RANGER_APPLICATION } from '../constants.js';
 
 const FIELD_MAP = {
     "pi": "PI",

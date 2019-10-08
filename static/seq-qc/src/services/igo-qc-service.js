@@ -3,8 +3,8 @@ import axios from "axios";
 import config from '../config.js';
 
 // MOCK RESPONSES
-import GET_SEQ_ANALYSIS_SAMPLE_RESP from '../getRecentDeliveries_seqAnalysis.js';
-import GET_RECENT_DELIVERIES_RESP from '../getRecentDeliveries_request.js';
+import GET_SEQ_ANALYSIS_SAMPLE_RESP from '../mocks/getRecentDeliveries_seqAnalysis.js';
+import GET_RECENT_DELIVERIES_RESP from '../mocks/getRecentDeliveries_request.js';
 
 
 const parseResp = (resp) => {
