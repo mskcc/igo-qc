@@ -275,6 +275,123 @@ def format_int(value):
     except ValueError: 
         return value
 
+
+'''
+Returns if a project is ready, which is true if none of its samples have 'basicQcs' entries
+'''
+def isProjectReady(project):
+    samples = project['samples']
+    if len(samples) == 0:
+        return False
+
+    # Only one sample needs to have a non-empty 'basicQcs' field for the project to be considered ready
+    for sample in samples:
+        if 'basicQcs' in sample and len(sample['basicQcs']) > 0:
+            return True
+
+    return False
+
+'''
+Based on the basicQcs::qcStatus of each sample. Only one sample in the project needs to be under-review to be un-reviewed
+@param project, Object - Project entry taken directly from response
+@returns {boolean}
+'''
+def isUnreviewed(project):
+    samples = project['samples']
+
+    for sample in samples:
+        if 'basicQcs' not in sample:
+            continue
+
+        basicQcs = sample['basicQcs']
+        # Entire project is considered under review if one sample is underReview
+        for qc in basicQcs:
+            if 'qcStatus' in qc and qc['qcStatus'] == 'Under-Review':
+                return True
+
+    return False
+
+'''
+Returns recent runs and date of the most recent sample
+
+@param project, Object - Project entry taken directly from response
+@returns {[*, number]}
+'''
+def getRecentDateAndRuns(project):
+    samples = project['samples']
+    runs = set()
+    recentDate = 0
+
+    for sample in samples:
+        if 'basicQcs' not in sample:
+            continue
+        for qc in sample['basicQcs']:
+            run = qc['run']
+            trimmed = re.match("([A-Z|0-9]+_[0-9|A-Z]+)", qc['run']).groups()[0]
+            runs.add(trimmed);
+            if qc['createDate'] > recentDate:
+                recentDate = qc['createDate'];
+    return [ list(runs), recentDate ]
+
+'''
+Returns the recent projects from the Seq Analysis LIMS table
+'''
+@app.route('/getSeqAnalysisProjects', methods=['GET'])
+@navbarForm
+def getSeqAnalysisProjects():
+    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False)
+    # resp = GetSeqAnalysis.resp
+    projects = json.loads(resp.content)
+
+    projectsToReview = []
+    projectsToSequenceFurther = []
+    for project in projects:
+        projectReady = isProjectReady(project)
+        project['ready'] = projectReady
+        [ runs, recentDate ] = getRecentDateAndRuns(project)
+
+        project['run'] = ', '.join(runs)
+        project['ordering'] = recentDate
+        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+
+        if isUnreviewed(project):
+            projectsToReview.append(project)
+        else:
+            projectsToSequenceFurther.append(project)
+
+
+    projectsToReview.sort(key=itemgetter('ordering'))
+    projectsToSequenceFurther.sort(key=itemgetter('ordering'))
+
+    data = {
+        'projectsToReview': projectsToReview,
+        'projectsToSequenceFurther': projectsToSequenceFurther
+    }
+
+    return create_resp(True, 'success', data)
+
+'''
+Returns the recent projects from the Request table
+'''
+@app.route('/getRequestProjects', methods=['GET'])
+@navbarForm
+def getRequestProjects():
+    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
+    # resp = GetRecentDeliveries.resp
+    projects = json.loads(resp.content)
+
+    for project in projects:
+        [ignore, recentDate] = getRecentDateAndRuns(project)
+        project['ordering'] = recentDate
+        project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+    projects.sort(key=itemgetter('ordering'))
+
+    data = {
+        'recentDeliveries': projects
+    }
+    return create_resp(True, 'success', data)
+
+
 # TODO - Remove method once '/projectInfo/<pId>' is stable
 @app.route('/<pId>', methods=['GET', 'POST'])
 @navbarForm
@@ -433,18 +550,38 @@ def add_note():
     r =  s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return redirect(url_for('index'))
 
+# TODO - projectInfo and this endpoint both make a call to 'getProjectQc'
+@app.route('/getProjectQc/<pId>', methods=['GET'])
+def project_qc(pId):
+    if pId == 'undefined' or not is_project_id_valid(pId):
+        return create_resp(False, 'Invalid pId', {})
+
+    get_project_qc_resp = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
+    try:
+        get_project_qc = json.loads(get_project_qc_resp.content)
+    except TypeError:
+        return create_resp(False, 'Error requesting from LIMS', None)
+    if len(get_project_qc) == 0:
+        return create_resp(False, 'No project data', None)
+
+    project_qc_info = get_project_qc[0]
+    return create_resp(True, 'success', project_qc_info)
+
 @app.route('/projectInfo/<pId>', methods=['GET'])
 def project_info(pId):
+    if not is_project_id_valid(pId):
+        return create_resp(False, 'Invalid pId', {})
+
     # TODO - Cache this response
     # TODO - DELETE
     # qc_status_label_resp = s.get(LIMS_API_ROOT + "/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False)
     # get_project_qc_resp = s.get(LIMS_API_ROOT + "/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
 
-    get_project_qc_resp = ProjectQc.resp
-    qc_status_label_resp = GetPickListValue.resp
+    # get_project_qc_resp = ProjectQc.resp
+    # qc_status_label_resp = GetPickListValue.resp
     # TODO - ADD
-    # qc_status_label_resp = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False)
-    # get_project_qc_resp = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
+    qc_status_label_resp = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False)
+    get_project_qc_resp = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
 
     try:
         qc_status_label = json.loads(qc_status_label_resp.content)
@@ -500,8 +637,8 @@ def get_requester_info(project_qc_info, samples):
             requester[label] = False
 
     # Requested Number of reads must be present and parseable as a float
-    is_valid_requested_reads = isinstance(common_sample['requestedNumberOfReads'], float)
-    if(is_valid_requested_reads):
+
+    if 'requestedNumberOfReads' in common_sample and isinstance(common_sample['requestedNumberOfReads'], float):
         requester['requestedNumberOfReads'] = float(common_sample['requestedNumberOfReads'])
     else:
         requester['requestedNumberOfReads'] = 'N/A'
@@ -618,6 +755,18 @@ def get_grid(samples, project_type):
     grid.set_header(header)
     grid.assign_value_types()
     row = 0
+
+    # Samples will not have these values, e.g. 'coverageTarget' if not in the database
+    # TODO - Have a check on fields
+
+    common_sample = samples[0]
+    if 'coverageTarget' not in common_sample:
+        return {
+            'header': grid.get_header(),
+            'val_types': grid.get_val_types(),
+            'grid': grid.get_grid(),
+            'style': grid.get_style()
+        }
 
     for sample in samples:
         qc = sample['qc']

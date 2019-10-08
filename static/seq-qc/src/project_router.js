@@ -4,6 +4,8 @@
 // import PropTypes from 'prop-types';
 
 
+import { CELL_RANGER_APPLICATION } from './constants.js';
+
 const FIELD_MAP = {
     "pi": "PI",
     "requestType": "Type",
@@ -51,8 +53,13 @@ class ProjectRouter extends React.Component {
   getRedirectFunction(requestType, requestId) {
     // Non cell-ranger types should redirect to a /projectId flask mapping that will render a data_table.html
     // Cell-Ranger types will render their own
-    const CELL_RANGER_APPLICATION = 'Cell-Ranger';      // TODO - Put this into a config file
-    const applicationUrl = requestType === CELL_RANGER_APPLICATION ? 'cellRanger/' : '';
+
+    // EVENTUALLY, this will be for all projects. For now, only a few projects will be moved over to the QC site
+    const newPages = new Set([ CELL_RANGER_APPLICATION ]);
+
+
+    // '/project' indicates new page
+    const applicationUrl = !newPages.has(requestType) ? 'project/' : '/';
     const redirect = () => window.location=`${applicationUrl}${requestId}`;
 
     return redirect;
