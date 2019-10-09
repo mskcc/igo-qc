@@ -26,7 +26,7 @@ export function getSeqAnalysisProjects() {
             .then(resp => {return parseResp(resp) })
             .catch(error => {throw new Error('Unable to fetch Seq Analysis Projects') });
     }
-    return GET_SEQ_ANALYSIS_SAMPLE_RESP;
+    return new Promise((resolve) => resolve(GET_SEQ_ANALYSIS_SAMPLE_RESP));
 }
 
 /**
@@ -44,5 +44,5 @@ export function getRequestProjects() {
             .catch(error => { throw new Error('Unable to fetch Request Projects') });
     }
 
-    return GET_RECENT_DELIVERIES_RESP;
+    return new Promise((resolve) => resolve(GET_RECENT_DELIVERIES_RESP));
 }
