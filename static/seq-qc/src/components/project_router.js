@@ -86,7 +86,7 @@ const ProjectRouter = (props) => {
             {renderTable()}
         </div>
     );
-}
+};
 
 export default ProjectRouter;
 
