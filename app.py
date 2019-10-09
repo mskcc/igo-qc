@@ -748,6 +748,14 @@ def get_header(project_type):
 
     return header
 
+def get_sample_value(sample, field, formatter):
+    val = "NOT AVAILABLE"
+    if field in sample:
+        val = sample[field]
+        if formatter:
+            val = formatter(val)
+    return val
+
 def get_grid(samples, project_type):
     header = get_header(project_type)
 
@@ -783,9 +791,15 @@ def get_grid(samples, project_type):
             grid.set_style("Tumor or Normal", row, "text-danger")
         grid.set_value("Concentr.  (nM)", row, format_fp(sample['concentration']))
         grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
-        cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget'] # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
-        grid.set_value("Coverage Target", row, format_int(cov_target))
-        grid.set_value("Requested Reads (Millions)", row, format_int(sample['requestedNumberOfReads']))
+        # TODO: coverageTarget seems dependent on pending data
+        if "coverageTarget" in sample:
+            cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget']  # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
+            grid.set_value("Coverage Target", row, format_int(cov_target))
+        else:
+            # TODO - provide an alert about fields
+            grid.set_value("Coverage Target", row, "NOT AVAILABLE")
+        requestedNumReads = get_sample_value(sample, 'requestedNumberOfReads', format_int)
+        grid.set_value("Requested Reads (Millions)", row, requestedNumReads)
         grid.set_value("Pct. Adapters", row, qc['percentAdapters'] * 100) #
         grid.set_value("Reads Examined", row, format_int(qc['readsExamined']))
         grid.set_value("Unpaired Reads", row, format_int(qc['unpairedReadsExamined']))
