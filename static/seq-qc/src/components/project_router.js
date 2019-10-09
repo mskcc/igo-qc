@@ -1,10 +1,11 @@
 // TODO - When fully integrated
- import React from 'react';
+ import React, { useState, useEffect } from 'react';
  import PropTypes from 'prop-types';
 
-
 import { CELL_RANGER_APPLICATION } from '../constants.js';
+import {Link} from "react-router-dom";
 
+// ALL POSSIBLE FIELDS OF ROWS
 const FIELD_MAP = {
     "pi": "PI",
     "requestType": "Type",
@@ -16,93 +17,75 @@ const FIELD_MAP = {
 /**
  * Router for Projects
  */
-class ProjectRouter extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-        fields: [],
-        headers: []
+const ProjectRouter = (props) => {
+    const [fields, setFields] = useState([]);
+    const [headers, setHeaders] = useState([]);
+
+    useEffect(() => {
+        setFieldsFromProjects(props.projects);
+    }, [props.projects]);
+
+    const setFieldsFromProjects = (projects) => {
+        if(projects && projects.length > 0){
+            // Only take the fields that are present in the project, based on the first project
+            const firstProject = projects[0];
+            const fieldsUpdate = Object.keys(FIELD_MAP).filter((field) => {
+                return firstProject[field]
+            });
+            const headersUpdate = fieldsUpdate.map((field) => FIELD_MAP[field]);
+            setFields(fieldsUpdate);
+            setHeaders(headersUpdate);
+        }
     };
-  }
 
-  componentDidUpdate(prevProps){
-    if(prevProps.projects !== this.props.projects){
-        this.setFieldsFromProjects(this.props.projects);
-    }
-  }
-
-  setFieldsFromProjects(projects){
-    if(projects && projects.length > 0){
-        const firstProject = projects[0];
-        const fields = Object.keys(FIELD_MAP).filter((field) => {
-            return firstProject[field]
-        });
-        const headers = fields.map((field) => FIELD_MAP[field])
-        this.setState({ fields, headers });
-    }
-  }
-
-  renderHeaders(){
-    return <thead><tr className="fill-width">{ this.state.headers.map( (field) =>
-        <th className="project-field" key={field}>
-            <p className="font-size-16 font-bold">{field}</p>
-        </th>) }</tr></thead>;
-  }
-
-  getRedirectFunction(requestType, requestId) {
-    // Non cell-ranger types should redirect to a /projectId flask mapping that will render a data_table.html
-    // Cell-Ranger types will render their own
-
-    // EVENTUALLY, this will be for all projects. For now, only a few projects will be moved over to the QC site
-    const newPages = new Set([ CELL_RANGER_APPLICATION ]);
-
-
-    // '/project' indicates new page
-    const applicationUrl = !newPages.has(requestType) ? 'project/' : '/';
-    const redirect = () => window.location=`${applicationUrl}${requestId}`;
-
-    return redirect;
-  }
-
-  renderProjects() {
-    const projectElements = [];
-    for( const project of this.props.projects ){
-        const fields = this.state.fields.map( (field) => project[field] );
-        const redirect = this.getRedirectFunction(project.requestType, project.requestId);
-        const element = <tr className="fill-width project-row" onClick={redirect} key={project.requestId}>
-            {
-                fields.map( field => <td className="project-field field-header" key={field}>
-                        <p className="font-size-12">{field}</p>
-                    </td>)
+    const renderHeaders = () => {
+        return <thead><tr className="fill-width">
+            <th>LINK</th>
+            { headers.map( (field) =>
+                <th className="project-field" key={field}>
+                    <p className="font-size-16 font-bold">{field}</p>
+                </th>)
             }
-        </tr>;
-        projectElements.push(element);
-    }
-    return <tbody>{projectElements}</tbody>;
-  }
+        </tr></thead>;
+    };
+    const renderProjects = () => {
+        const projectElements = [];
+        for( const project of props.projects ){
+            const values = fields.map( (field) => project[field] );
+            const element = <tr className="fill-width project-row" key={project.requestId}>
+                        <td  className="project-field field-header" key={`${project.requestId}-link`}>
+                            <Link to={`/projects/${project.requestId}`}>link</Link>
+                        </td>
+                        {values.map( field =>
+                            <td className="project-field field-header" key={field}>
+                                <p className="font-size-12">{field}</p>
+                            </td>)
+                        }
+                    </tr>;
+            projectElements.push(element);
+        }
+        return <tbody>{projectElements}</tbody>;
+    };
+    const renderTable = () => {
+        // Visualize projects if present and state has been populated w/ fields to visualize
+        if(props.projects && fields.length > 0){
+            return <table className="project-table fill-width">
+                {renderHeaders()}
+                {renderProjects()}
+            </table>
+        } else {
+            return <div></div>
+        }
+    };
 
-  renderTable(){
-    // Visualize projects if present and state has been populated w/ fields to visualize
-    if(this.props.projects && this.state.fields.length > 0){
-        return <table className="project-table fill-width">
-            {this.renderHeaders()}
-            {this.renderProjects()}
-        </table>
-    } else {
-        return <div></div>
-    }
-  }
-
-  render() {
     return (
         <div>
             <div>
-                <p className="font-size-24">{this.props.name}</p>
+                <p className="font-size-24">{props.name}</p>
             </div>
-            {this.renderTable()}
+            {renderTable()}
         </div>
     );
-  }
 }
 
 export default ProjectRouter;

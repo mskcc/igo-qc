@@ -1,63 +1,36 @@
 // TODO - When fully integrated
-import React, { useState } from 'react';
+import React from 'react';
 
 import '../index.css';
-
 import ProjectRouter from './project_router.js';
-import { unixTimeStringToDateString } from '../utils/format.js';
-import { getSeqAnalysisProjects, getRequestProjects } from '../services/igo-qc-service.js';
+import PropTypes from 'prop-types';
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            projectsToReview: [],
-            projectsToSequenceFurther: [],
-            recentDeliveries: []
-        };
-    }
-
-    componentDidMount() {
-        this.init();
-    }
-
-    init() {
-        this.setSeqAnalysisState();
-        this.setRequestState();
-    }
-
-    setSeqAnalysisState() {
-        getSeqAnalysisProjects()
-            .then((resp) => this.setState({ projectsToReview: resp.projectsToReview || [],
-                                            projectsToSequenceFurther: resp.projectsToSequenceFurther || [] }));
-    }
-
-    setRequestState(){
-        getRequestProjects()
-            .then((resp) => this.setState({ recentDeliveries: resp.recentDeliveries}))
-    }
-
-    render() {
-        return <div className="col-sm-14 col-md-14 col-lg-14">
+const App = (props) => {
+    return <div className="col-sm-14 col-md-14 col-lg-14">
             <div className="widget-box">
                 <div className="widget-container table-responsive">
                     <div className="content noPad clearfix">
                         <h3>Sequence Analysis</h3>
                         <div className="project-router-container">
-                            <ProjectRouter name="Needs Review" projects={this.state.projectsToReview}/>
+                            <ProjectRouter name="Needs Review" projects={props.projectsToReview}/>
                         </div>
                         <div className="project-router-container">
-                            <ProjectRouter name="Requires Further Sequencing" projects={this.state.projectsToSequenceFurther}/>
+                            <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
                         </div>
                         <h3>Requests</h3>
                         <div className="project-router-container">
-                            <ProjectRouter name="Recent Deliveries" projects={this.state.recentDeliveries}/>
+                            <ProjectRouter name="Recent Deliveries" projects={props.recentDeliveries}/>
                         </div>
                     </div>
                 </div>
             </div>
         </div>;
-    }
 }
 
 export default App;
+
+ProjectRouter.propTypes = {
+    projectsToReview: PropTypes.array,
+    projectsToSequenceFurther: PropTypes.array,
+    recentDeliveries: PropTypes.array,
+};
