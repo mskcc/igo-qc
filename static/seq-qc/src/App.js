@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 
 import Home from './components/Home.js';
-import CellRanger from './cellranger.js';
+import CellRanger from './components/cellranger/app.js';
 import { getRequestProjects, getSeqAnalysisProjects } from "./services/igo-qc-service";
 
 function App() {

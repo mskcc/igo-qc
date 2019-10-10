@@ -1,0 +1,109 @@
+.inline-block {
+    display: inline-block;
+}
+.table {
+    display: table;
+}
+.table-cell {
+    display: table-cell;
+}
+.text-align-center {
+    text-align: center;
+}
+.float-left {
+    float: left;
+}
+.float-right {
+    float: right;
+}
+.fill-width {
+    width: 100%;
+}
+.margin-auto {
+    margin: auto;
+}
+.margin-left-20 {
+    margin-left: 20px;
+}
+.margin-hor-5per {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.margin-10 {
+    margin: 10px;
+}
+.margin-vert-5 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.em2 {
+    font-size: 1.2em;
+}
+.em5 {
+    font-size: 1.5em;
+}
+.font-bold {
+    font-weight: bold;
+}
+.center-v {
+    top: 50%;
+    transform: translate(0%, -50%);
+    position: absolute;
+}
+.pos-rel {
+    position: relative;
+}
+.vertical-align-top {
+    vertical-align: top;
+}
+.black-border {
+    border: 1px solid black;
+}
+
+
+
+/* SPECIFIC STYLES */
+.info-block {
+    width: 25%;
+    margin-left: 4%;
+    margin-right: 4%;
+}
+.analysis-section {
+    border: 1px black solid;
+    border-radius: 10px;
+}
+.nav-container {
+    background: #e6e6e6;
+    height: 50px;
+    border: 1px solid black;
+}
+.nav-container:hover {
+    cursor: pointer;
+}
+.dropdown-nav {
+    font-size: 35px;
+    margin-left: 25px;
+}
+.dropdown-closed {
+    max-height: 0px;
+    transition: max-height 0.25s ease-out;
+    overflow: hidden;
+}
+.dropdown-open {
+    max-height: 600px;
+    transition: max-height 0.4s ease-in;
+    overflow: hidden;
+}
+.graph-container {
+    border-top: none;
+    border: 1px solid black;
+}
+.ngs-stats-graphs-container {
+    width: 79%;
+    border-right: 1px solid black;
+    padding: 20px;
+}
+.charts-links-container{
+    width: 15%;
+    padding: 20px;
+}

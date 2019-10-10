@@ -113,7 +113,6 @@
         <!-- Data table plugins -->
         <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
         <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/1.0.3/js/buttons.colvis.min.js"></script>
 
         <!-- Init plugins and custom javascript-->
         <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
@@ -125,7 +124,7 @@
         <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 
         <!-- Load our React component. -->
-        <script src="{{ url_for('static', filename='seq-qc/no-jsx-src/index.js') }}" type="module"></script>
+        <script src="{{ url_for('static', filename='seq-qc/dist/main.js') }}" type="module"></script>
 </body>
 </html>
 
