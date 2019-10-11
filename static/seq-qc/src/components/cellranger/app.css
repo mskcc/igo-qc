@@ -59,7 +59,13 @@
 .black-border {
     border: 1px solid black;
 }
+.black-color {
+    color: black;
+}
 
+button:hover{
+    cursor: pointer;
+}
 
 
 /* SPECIFIC STYLES */

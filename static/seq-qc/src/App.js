@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 import Home from './components/Home.js';
 import CellRanger from './components/cellranger/app.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
     const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState([]);
     const [recentDeliveries, setRecentDeliveries] = useState([]);
     const [recentRuns, setRecentRuns] = useState([]);
+    const [projectSearch, setProjectSearch] = useState('');
 
     // TODO - Implement response caching
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
@@ -45,7 +48,7 @@ function App() {
                 addToProjectMap(projectsToReview);
                 addToProjectMap(projectsToSequenceFurther);
             })
-            .catch(error => {throw new Error(error) });
+            .catch(error => {console.log(error) });
     }, []);
     useEffect(() => {
         // TODO - modal to display error
@@ -54,7 +57,7 @@ function App() {
                 const recentDeliveries = resp.recentDeliveries || [];
                 setRecentDeliveries(recentDeliveries);
             })
-            .catch(error => {throw new Error(error) });
+            .catch(error => {console.log(error) });
     }, []);
     useEffect(() => {
        getRecentRuns()
@@ -62,17 +65,40 @@ function App() {
                const recentRuns = resp.recentRuns || [];
                setRecentRuns(recentRuns);
            })
-           .catch(error => {throw new Error(error) });
+           .catch(error => {console.log(error) });
     }, []);
 
-    return <div>
+    const handleProjectSearch = (evt) => {
+        setProjectSearch(evt.target.value);
+    };
+
+    const ButtonToNavigate = ({ history }) => (
+        <button
+            type="button"
+            onClick={() => history.push('/projects/' + projectSearch)}
+            className={"margin-left-20"}>
+                Search
+        </button>
+    );
+    const SearchButton = () => (
+        <Route path="/" render={(props) => <ButtonToNavigate {...props} title="Navigate to project" />} />
+    );
+
+    return <div className={"margin-hor-5per"}>
             <Router>
                 <div>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                    </ul>
+                    <div className={"inline-block"}>
+                        <Link to="/">
+                            <FontAwesomeIcon className={"black-color em5"} icon={faHome}/>
+                        </Link>
+                    </div>
+                    <div className={"inline-block margin-left-20"}>
+                        <label>
+                            Project Search:
+                            <input type="text" value={projectSearch} onChange={handleProjectSearch} />
+                        </label>
+                    </div>
+                    <SearchButton/>
                 </div>
                 <Switch>
                     <Route exact path="/">

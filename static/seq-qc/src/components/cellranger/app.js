@@ -132,11 +132,11 @@ function App(props){
                 <p className={"text-align-center"}>No Graphs are available</p>
             </div>
         };
-        const selected = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
-        // const selected = ngsStatsData.filter(sample => sample.id === sampleId);
-        if(selected.length === 0) return <div></div>
 
-        const sample = selected[0];
+        // const selected = ngsStatsData.filter(sample => sample.id === sampleId);
+        if(ngsStatsData.length === 0) return <div></div>
+        const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
+
         const graphs = sample.graphs || [];
         const chartsLinks = projectInfo.chartsLinks || {};
         const chartNames = Object.keys(chartsLinks);
@@ -203,7 +203,7 @@ function App(props){
             </div>;
     };
 
-    return <div className={"margin-hor-5per"}>
+    return <div>
             {renderSummary(projectInfo)}
             {renderNgsGraphs(selectedSample)}
             {renderGrid(gridData,headers)}
