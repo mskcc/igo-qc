@@ -57,12 +57,12 @@ $ npm run wbpk
 A new `static/seq-qc/dist/main.js` is being created.
 
 React is used to inject the new javascript code into the existing index.html. 
-Webpack bundles our code into the `main.js` that will be injected.
+Webpack bundles our code into the `bundle.js` that will be injected.
 
 See `templates/index.html`,
 ```
 <!-- Entry point for react -->
 <div class="row" id="react_app"></div>
 ...
-<script src="{{ url_for('static', filename='seq-qc/dist/main.js') }}" type="module"></script>
+<script src="{{ url_for('static', filename='seq-qc/dist/bundle.js') }}" type="module"></script>
 ```
