@@ -12,6 +12,9 @@ import config from '../config.js';
  * return Object[]
  */
 export const getNgsStatsData = (recipe, projectId) => {
+    // TODO - Remove once data is available
+    return getCellRangerData(projectId);
+
     switch(recipe) {
         // TODO - Should be like 10x
         // TOOD - Put in constant
