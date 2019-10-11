@@ -1,27 +1,37 @@
+const webpack = require('webpack');
 const path = require('path');
 
-module.exports = {
+const config = {
     entry: './src/index.js',
-    mode: 'production',
     output: {
-        filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
     },
-    node: {Buffer: false},
-    // Loaders
     module: {
         rules: [
-            // JavaScript/JSX Files
             {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: ['babel-loader'],
+                test: /\.(js|jsx)$/,
+                use: 'babel-loader',
+                exclude: /node_modules/
             },
-            // CSS Files
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
+                use: [
+                    'style-loader',
+                    'css-loader'
+                ]
             }
         ]
+    },
+    resolve: {
+        extensions: [
+            '.js',
+            '.jsx'
+        ]
+    },
+    devServer: {
+        contentBase: './dist'
     }
 };
+
+module.exports = config;
