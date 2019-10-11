@@ -21,11 +21,15 @@ const App = (props) => {
                         <div className="project-router-container">
                             <ProjectRouter name="Recent Deliveries" projects={props.recentDeliveries}/>
                         </div>
+                        <h3>Recent Runs</h3>
+                        <div className="project-router-container">
+                            <ProjectRouter projects={props.recentRuns}/>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>;
-}
+};
 
 export default App;
 
@@ -33,4 +37,5 @@ ProjectRouter.propTypes = {
     projectsToReview: PropTypes.array,
     projectsToSequenceFurther: PropTypes.array,
     recentDeliveries: PropTypes.array,
+    recentRuns: PropTypes.array
 };

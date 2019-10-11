@@ -24,5 +24,15 @@ export function getRequestProjects() {
     return axios
         .get(config.IGO_QC + '/getRequestProjects')
         .then(resp => { return parseResp(resp) })
-        .catch(error => { throw new Error('Unable to fetch Request Projects') });
+        .catch(error => { throw new Error('Unable to fetch Request Projects: ' + error) });
+}
+
+/**
+ * Sends service call to retrieve chart data about most recent runs
+ */
+export function getRecentRuns() {
+    return axios
+        .get(config.IGO_QC + '/getRecentRuns')
+        .then(resp => {return parseResp(resp) })
+        .catch(error => {throw new Error('Unable to fetch Recent Runs: ' + error) });
 }

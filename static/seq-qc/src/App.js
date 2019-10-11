@@ -3,12 +3,13 @@ import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 
 import Home from './components/Home.js';
 import CellRanger from './components/cellranger/app.js';
-import { getRequestProjects, getSeqAnalysisProjects } from "./services/igo-qc-service";
+import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
     const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState([]);
     const [recentDeliveries, setRecentDeliveries] = useState([]);
+    const [recentRuns, setRecentRuns] = useState([]);
 
     // TODO - Implement response caching
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
@@ -55,6 +56,14 @@ function App() {
             })
             .catch(error => {throw new Error(error) });
     }, []);
+    useEffect(() => {
+       getRecentRuns()
+           .then((resp) => {
+               const recentRuns = resp.recentRuns || [];
+               setRecentRuns(recentRuns);
+           })
+           .catch(error => {throw new Error(error) });
+    }, []);
 
     return <div>
             <Router>
@@ -69,7 +78,8 @@ function App() {
                     <Route exact path="/">
                         <Home recentDeliveries={recentDeliveries}
                               projectsToReview={projectsToReview}
-                              projectsToSequenceFurther={projectsToSequenceFurther}/>
+                              projectsToSequenceFurther={projectsToSequenceFurther}
+                              recentRuns={recentRuns}/>
                     </Route>
                     <Route
                       path='/projects/:pid'

@@ -391,6 +391,31 @@ def getRequestProjects():
     }
     return create_resp(True, 'success', data)
 
+@app.route('/getRecentRuns', methods=['GET', 'POST'])
+@navbarForm
+def get_recent_runs():
+    dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
+    dir_data = glob.glob(dir_path + "*.html")
+    dir_data.sort(key=os.path.getmtime, reverse=True)
+
+    datenow = datetime.datetime.now()
+
+    # Add Recent Runs data for links to HTML files
+    run_data = []
+    for eachfile in dir_data:
+        print("File:" + eachfile)
+        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
+        if (datenow - mtime).days < 7:
+            project = {}
+            mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
+            project['date'] = mod_timestamp
+            head, tail = os.path.split(eachfile)
+            project['path'] = "static/html/FASTQ/" + tail
+            project['run_name'] = tail
+            run_data.append(project)
+
+    data = { 'recentRuns': run_data }
+    return create_resp(True, 'success', data)
 
 # TODO - Remove method once '/projectInfo/<pId>' is stable
 @app.route('/<pId>', methods=['GET', 'POST'])
