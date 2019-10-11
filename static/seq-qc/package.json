@@ -16,7 +16,6 @@
     "react-hot-loader": "^4.12.15"
   },
   "devDependencies": {
-    "webpack-dev-server": "^3.8.2",
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
