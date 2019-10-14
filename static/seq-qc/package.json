@@ -31,9 +31,10 @@
   },
   "scripts": {
     "start-dev": "react-scripts start",
+    "wbpk-remind": "echo 'REMBER TO REPLACE in 'node_modules/plotly.js/dist/plotly.js',\nthis,\nif (typeof define === \"function\" && define.amd) this.d3 = d3, define(d3); else if (typeof module === \"object\" && module.exports) module.exports = d3; else this.d3 = d3;\n}();\nwith this,\nif (typeof define === \"function\" && define.amd) this.d3 = d3, define(d3); else if (typeof module === \"object\" && module.exports) module.exports = d3; else this.d3 = d3;\n}.apply(self);'\nREF - https://github.com/plotly/plotly.js/issues/3518",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "wbpk": "webpack -p --mode production",
+    "wbpk": "npm run wbpk-remind && webpack -p --mode production",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
