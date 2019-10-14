@@ -3,6 +3,7 @@ import React from 'react';
 
 import '../index.css';
 import ProjectRouter from './project_router.js';
+import RunRouter from './run_router';
 import PropTypes from 'prop-types';
 
 const App = (props) => {
@@ -23,7 +24,7 @@ const App = (props) => {
                         </div>
                         <h3>Recent Runs</h3>
                         <div className="project-router-container">
-                            <ProjectRouter projects={props.recentRuns}/>
+                            <RunRouter projects={props.recentRuns}/>
                         </div>
                     </div>
                 </div>
