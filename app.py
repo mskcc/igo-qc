@@ -422,7 +422,8 @@ def get_recent_runs():
             project['date'] = mod_timestamp
             head, tail = os.path.split(eachfile)
             project['path'] = "static/html/FASTQ/" + tail
-            project['run_name'] = tail
+            project['runName'] = tail
+            project['runStats'] = "getInterOpsData?runId=" + tail
             run_data.append(project)
 
     data = { 'recentRuns': run_data }
