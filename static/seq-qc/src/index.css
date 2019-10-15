@@ -14,10 +14,18 @@
     font-weight: bold;
 }
 .project-row:hover {
-    cursor: pointer;
     background-color: #d9d9d9;
+}
+.project-row .project-row-link:hover{
+    cursor: pointer;
 }
 .project-router-container {
     margin-top: 20px;
     margin-left: 20px;
+}
+.margin-auto {
+    margin: auto;
+}
+.border-collapse {
+    border-collapse: collapse;
 }
