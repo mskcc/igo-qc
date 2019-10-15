@@ -391,6 +391,17 @@ def getRequestProjects():
     }
     return create_resp(True, 'success', data)
 
+'''
+Rerender the index when the projects page is reloaded.
+This should allow react to reload the projects page from the homepage.
+Occurs when user loads the projects page directly, e.g. refreshes page on /projects/<pId>
+'''
+@app.route('/projects/<pId>', methods=['GET', 'POST'])
+@navbarForm
+def projects_tmp(pId):
+    print("Reloading page for project %s" % pId)
+    return index()
+
 @app.route('/getRecentRuns', methods=['GET', 'POST'])
 @navbarForm
 def get_recent_runs():
