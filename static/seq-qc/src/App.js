@@ -5,7 +5,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons';
 import Home from './components/Home.js';
 import CellRanger from './components/cellranger/app.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
