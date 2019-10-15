@@ -184,7 +184,9 @@ function App(props){
 
     const renderSummary = (projectInfo) => {
         if(Object.keys(projectInfo).length === 0){
-            return <div><p className={"text-align-center"}>LOADING</p></div>
+            return <div>
+                <div className="loader margin-auto"></div>
+            </div>
         };
         return <Summary requester={projectInfo.requester || {}}
                  statuses={projectInfo.statuses || {}}
@@ -193,10 +195,10 @@ function App(props){
 
     const renderGrid = (gridData, headers) => {
         const hideGrid = (gridData.length === 0 || headers.length === 0)
-        const display = hideGrid ? 'inline-block' : 'none';
+        const display = hideGrid ? 'block' : 'none';
 
         return <div className={"black-border"} style={{width:'inherit'}}>
-                <p style={{ display}}>LOADING</p>
+            <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
                          onSelect={onSelect}/>
