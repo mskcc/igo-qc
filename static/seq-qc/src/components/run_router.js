@@ -45,7 +45,7 @@ const RunRouter = (props) => {
                 {renderRuns()}
             </table>
         } else {
-            return <div></div>;
+            return <div className="loader margin-auto"></div>;
         }
     };
 
