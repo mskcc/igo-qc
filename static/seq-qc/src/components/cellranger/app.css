@@ -127,3 +127,29 @@ button:hover{
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* MODAL */
+.modal-container {
+    position: fixed;
+    left: 50%;
+    z-index: 1;
+    transform: translate(-50%,0%);
+}
+.modal {
+    width: 500px;
+    height: auto;
+    top: 0%;
+    margin: auto;
+    padding: 5px 20px;
+    margin-bottom: 3px;
+    text-align: center;
+    border-radius: 5px;
+}
+.modal-success {
+    background: #b3e6cc;
+}
+.modal-fail {
+    background: #ffb3b3;
+}
+.display-none {
+    display: none;
+}

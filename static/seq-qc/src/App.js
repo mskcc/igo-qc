@@ -6,6 +6,7 @@ import Home from './components/Home.js';
 import CellRanger from './components/cellranger/app.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Modal from './components/modal';
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
@@ -13,9 +14,51 @@ function App() {
     const [recentDeliveries, setRecentDeliveries] = useState([]);
     const [recentRuns, setRecentRuns] = useState([]);
     const [projectSearch, setProjectSearch] = useState('');
+    const [modalUpdate, setModalUpdate] = useState({});
 
     // TODO - Implement response caching
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
+
+    const addErrorToModal = (error) => {
+        const modalUpdate = {
+            msg: error.message || 'ERROR',
+            type: 'ERROR',
+            delay: 5000
+        };
+        setModalUpdate(modalUpdate);
+    };
+
+    useEffect(() => {
+        // TODO - modal to display error
+        getSeqAnalysisProjects()
+            .then((resp) => {
+                const projectsToReview = resp.projectsToReview || [];
+                const projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
+                setProjectsToReview(projectsToReview);
+                setProjectsToSequenceFurther(projectsToSequenceFurther);
+
+                addToProjectMap(projectsToReview);
+                addToProjectMap(projectsToSequenceFurther);
+            })
+            .catch(error => {addErrorToModal(error) });
+    }, []);
+    useEffect(() => {
+        // TODO - modal to display error
+        getRequestProjects()
+            .then((resp) => {
+                const recentDeliveries = resp.recentDeliveries || [];
+                setRecentDeliveries(recentDeliveries);
+            })
+            .catch(error => {addErrorToModal(error) });
+    }, []);
+    useEffect(() => {
+       getRecentRuns()
+           .then((resp) => {
+               const recentRuns = resp.recentRuns || [];
+               setRecentRuns(recentRuns);
+           })
+           .catch(error => {addErrorToModal(error) });
+    }, []);
 
     const addToProjectMap = (projectList) => {
         if(projectList.length === 0) return;
@@ -36,38 +79,6 @@ function App() {
         setProjectMap(projectMap);
     };
 
-    useEffect(() => {
-        // TODO - modal to display error
-        getSeqAnalysisProjects()
-            .then((resp) => {
-                const projectsToReview = resp.projectsToReview || [];
-                const projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
-                setProjectsToReview(projectsToReview);
-                setProjectsToSequenceFurther(projectsToSequenceFurther);
-
-                addToProjectMap(projectsToReview);
-                addToProjectMap(projectsToSequenceFurther);
-            })
-            .catch(error => {console.log(error) });
-    }, []);
-    useEffect(() => {
-        // TODO - modal to display error
-        getRequestProjects()
-            .then((resp) => {
-                const recentDeliveries = resp.recentDeliveries || [];
-                setRecentDeliveries(recentDeliveries);
-            })
-            .catch(error => {console.log(error) });
-    }, []);
-    useEffect(() => {
-       getRecentRuns()
-           .then((resp) => {
-               const recentRuns = resp.recentRuns || [];
-               setRecentRuns(recentRuns);
-           })
-           .catch(error => {console.log(error) });
-    }, []);
-
     const handleProjectSearch = (evt) => {
         setProjectSearch(evt.target.value);
     };
@@ -85,6 +96,7 @@ function App() {
     );
 
     return <div className={"margin-hor-5per"}>
+            <Modal update={modalUpdate}/>
             <Router>
                 <div>
                     <div className={"inline-block"}>
