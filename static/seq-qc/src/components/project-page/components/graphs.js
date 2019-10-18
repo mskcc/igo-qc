@@ -20,7 +20,7 @@ const Graph = (props) => {
         <Plot data={props.chart.data}
               layout={props.chart.layout}
               config={props.chart.config}
-              style={{'z-index': '-1', 'position': 'relative'}}/>
+              style={{'zIndex': '-1', 'position': 'relative'}}/>
     </div>;
 };
 
