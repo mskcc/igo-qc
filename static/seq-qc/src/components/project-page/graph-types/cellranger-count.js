@@ -44,8 +44,6 @@ const CellRangerCount = (props) => {
         else setSelectedFilter('');         // Deleted
     };
 
-    console.log(`Selected: ${selectedFilter}`);
-
     return <div>
         <p className={"text-align-center font-bold em2"}>{props.title}</p>
         <div className={"table margin-auto"}>
