@@ -11,6 +11,8 @@ import './app.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import CellRangerCount from "./graph-types/cellranger-count";
+import CellRangerVdj from "./graph-types/cellranger-vdj";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -158,36 +160,12 @@ function App(props){
         const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
 
         const graphs = sample.graphs || [];
-        // const graphs = sample.graphs.slice(1,9);
         const chartsLinks = projectInfo.chartsLinks || {};
         const chartNames = Object.keys(chartsLinks);
-        const sampleTitle = `Sample ${selectedSample} Graphs`;
+        const title = `Sample ${selectedSample} Graphs`;
 
-
-        /*
-            <!-- NOTE: multiple charts depend on this -->
-    <div ng-repeat="(title, filter) in data.filters" class="cluster-filter">
-        <div class="btn-group filter-btn-group" uib-dropdown>
-            <button id="filter-{{ $index }}" type="button" class="btn btn-primary" uib-dropdown-toggle>
-                {{ filter.selected }} &nbsp; <span class="caret"></span>
-            </button>
-            <ul uib-dropdown-menu role="menu" aria-labelledby="filter-{{ $index }}" class="dropdown-menu-right cluster-menu">
-                <li ng-repeat="value in filter.values" role="menuitem">
-                    <a href ng-click="selectFilterValue(filter, value)">{{ value }}</a>
-                </li>
-            </ul>
-        </div>
-        <h4 class="filter-title">{{ title }}:</h4>
-    </div><div class="summary">
-    <div class="chart_card_column">
-        <div class="chart_card" ng-repeat="chart in charts" ng-if="chart.name == 'tsne_counts'">
-            <div class="has_desc" onclick="show_description(event)" ng-cloak>
-                <div class="summary_description">{{ chart.description }}</div>
-            </div>
-            <h2>{{ chart.title }}</h2>
-            <div chart-div chart="chart" id="chart-div-{{ $index }}"></div>
-        </div>  </div>
-         */
+        // TODO - make dynamic
+        const type = 'count';
 
         return <div>
             <div className={"pos-rel nav-container"} onClick={toggleGraph}>
@@ -200,14 +178,14 @@ function App(props){
             <div className={`${showNgsGraphs ? "dropdown-open" : "dropdown-closed"}`}>
                 <div className={'graph-container'}>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
-                        <p className={"text-align-center font-bold em2"}>{sampleTitle}</p>
-                        <div className={"table margin-auto"}>
-                            {graphs.map((chart, idx) => {
-                                return <div key={`${chart.name}-${idx}`} className='table-cell vertical-align-top'>
-                                    <Graph chart={chart}></Graph>
-                                </div>
-                            })}
-                        </div>
+                        {
+                            type === 'count'?
+                                <CellRangerCount title={title}
+                                                 graphs={graphs}/>
+                        :
+                                <CellRangerVdj title={title}
+                                               graphs={graphs}/>
+                        }
                     </div>
                     { chartNames.length > 0 ?
                         <div className={'charts-links-container vertical-align-top inline-block'}>
