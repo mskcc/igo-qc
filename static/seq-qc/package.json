@@ -7,14 +7,17 @@
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.5",
     "@handsontable/react": "^3.0.0",
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
     "axios": "^0.19.0",
     "handsontable": "^7.1.1",
     "lz-string": "^1.4.4",
+    "mui-downshift": "^1.4.1",
+    "plotly.js": "^1.49.5",
     "react": "^16.6.1",
     "react-dom": "^16.6.3",
     "react-hot-loader": "^4.12.15",
     "react-plotly.js": "^2.3.0",
-    "plotly.js": "^1.49.5",
     "react-router-dom": "^5.1.2"
   },
   "devDependencies": {
