@@ -29,6 +29,7 @@ function App(props){
     const [headers, setHeaders] = useState([]);
     const [selectedSample, setSelectedSample] = useState('mocks'); // TODO - change this once real data available
     const [showNgsGraphs, setShowNgsGraphs] = useState(true);
+    const [serviceErrors, setServiceErrors] = useState({});
 
     // pId should be passed in by the route
     const pId = props.match ? props.match.params.pid : '';
@@ -53,7 +54,10 @@ function App(props){
                 setNgsStatsData(data);
             })
             .catch((err) => {
-                debugger
+                const se = Object.assign({}, serviceErrors);
+                // TODO - constant
+                se['ngs-stats'] = true;
+                setServiceErrors(se);
             });
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
     // TODO: this service response should be cached because it will always be the same.
@@ -65,7 +69,13 @@ function App(props){
             setProjectInfo(data);
             setProjectInfoGridData(data);
             setProjectInfoHeaders(data);
-        });
+        })
+        .catch((err) => {
+            const se = Object.assign({}, serviceErrors);
+            // TODO - constant
+            se['project-info'] = true;
+            setServiceErrors(se);
+        })
     }, [pId]);
 
     const handleToggle = () => {
@@ -126,10 +136,16 @@ function App(props){
     };
 
     const renderNgsGraphs = (sampleId) => {
+        if(serviceErrors['ngs-stats']){
+            return <div>
+                <p className={'text-align-center'}>Error loading NgsGraphs - contact streidd@mskcc.org</p>
+            </div>
+        }
+
         if(ngsStatsData.length === 0 &&
             (!projectInfo.chartsLinks || Object.keys(projectInfo.chartsLinks).length === 0)){
             return <div className={"black-border"}>
-                <p className={"text-align-center"}>No Graphs are available</p>
+                <div className="loader margin-auto"></div>
             </div>
         };
 
@@ -183,6 +199,12 @@ function App(props){
     };
 
     const renderSummary = (projectInfo) => {
+        if(serviceErrors['project-info']){
+            return <div>
+                <p className={'text-align-center'}>Error loading Project Info stats - contact streidd@mskcc.org</p>
+            </div>
+        }
+
         if(Object.keys(projectInfo).length === 0){
             return <div>
                 <div className="loader margin-auto"></div>
@@ -194,6 +216,12 @@ function App(props){
     };
 
     const renderGrid = (gridData, headers) => {
+        if(serviceErrors['project-info']){
+            return <div>
+                <p className={'text-align-center'}>Error loading Project Info stats - contact streidd@mskcc.org</p>
+            </div>
+        }
+
         const hideGrid = (gridData.length === 0 || headers.length === 0)
         const display = hideGrid ? 'block' : 'none';
 

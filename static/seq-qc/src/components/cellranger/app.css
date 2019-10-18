@@ -2,6 +2,9 @@
 .inline-block {
     display: inline-block;
 }
+.display-none {
+    display: none;
+}
 .table {
     display: table;
 }
@@ -149,7 +152,4 @@ button:hover{
 }
 .modal-fail {
     background: #ffb3b3;
-}
-.display-none {
-    display: none;
 }
