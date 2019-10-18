@@ -101,6 +101,7 @@ function App(props){
             const rows = Object.values(grid);
             gridData.push(...rows);
             setGridData(gridData);
+            setSelectedSample(gridData[0]['IGO Id']);
         }
     };
 
