@@ -2,7 +2,7 @@
  import React, { useState, useEffect } from 'react';
  import PropTypes from 'prop-types';
 
-import { CELL_RANGER_APPLICATION } from '../constants.js';
+import { CELL_RANGER_APPLICATION } from '../../constants.js';
 import {Link} from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

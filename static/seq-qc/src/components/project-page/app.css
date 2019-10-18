@@ -100,7 +100,7 @@ button:hover{
     overflow: hidden;
 }
 .dropdown-open {
-    max-height: 600px;
+    max-height: 900px;
     transition: max-height 0.4s ease-in;
     overflow: hidden;
 }
@@ -109,9 +109,10 @@ button:hover{
     border: 1px solid black;
 }
 .ngs-stats-graphs-container {
-    width: 79%;
+    width: 100%;
     border-right: 1px solid black;
     padding: 20px;
+    overflow-x: scroll;
 }
 .charts-links-container{
     width: 15%;

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 
-import Home from './components/Home.js';
-import CellRanger from './components/cellranger/app.js';
+import Home from './components/routers/main-router.js';
+import CellRanger from './components/project-page/app.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Modal from './components/modal';
+import Modal from './components/common/modal';
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);

@@ -30,7 +30,7 @@ const getCellRangerData = (projectId) => {
     // TODO - This should probably be by just project since "getProjectQc" request to LIMS rest only takes project
     // TODO - Add Back
     // TODO - Take project & type as params
-    return axios.get(`${config.NGS_STATS}/getCellRangerSample?project=cellranger&type=vdj`)
+    return axios.get(`${config.NGS_STATS}/getCellRangerSample?project=cellranger&type=count`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };
