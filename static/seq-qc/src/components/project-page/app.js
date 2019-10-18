@@ -144,7 +144,7 @@ function App(props){
 
     const renderNgsGraphs = (sampleId) => {
         if(serviceErrors['ngs-stats']){
-            return <div>
+            return <div className={"black-border"}>
                 <p className={'text-align-center'}>Error loading NgsGraphs - contact streidd@mskcc.org</p>
             </div>
         }
