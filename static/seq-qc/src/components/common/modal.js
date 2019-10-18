@@ -43,13 +43,12 @@ class Modal extends React.Component {
                     const type = this.state.queue[update].type || 'ERROR';
                     const modalClass = type === 'ERROR'? 'modal modal-fail' : 'modal modal-success';
 
-                    debugger;
                     if(this.state.queue[update].closed){
                         // User closed modal via onClick
                         return <div></div>;
                     } else {
                         return <div className={modalClass} key={update}>
-                            <FontAwesomeIcon className={"float-right"}
+                            <FontAwesomeIcon className={"float-right hover"}
                                              icon={faTimes}
                                              onClick={() => this.closeModal(update)}/>
                             <p>{update}</p>

@@ -70,7 +70,9 @@
 button:hover{
     cursor: pointer;
 }
-
+.hover:hover{
+    cursor: pointer;
+}
 
 /* SPECIFIC STYLES */
 .info-block {
