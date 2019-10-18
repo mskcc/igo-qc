@@ -69,11 +69,14 @@ const CellRangerCount = (props) => {
                     })}
                 />
                 <div>
-                    {tsneGraphs.filter((chart) => chart['filters']['Clustering Type'] === selectedFilter).map((chart) => {
-                        return <div key={chart.name} className='table-cell vertical-align-top'>
-                            <Graph chart={chart}></Graph>
-                        </div>
-                    })}
+                    {
+                        tsneGraphs.filter((chart) => chart['filters']['Clustering Type'] === selectedFilter)
+                               .map((chart) => {
+                                    return <div key={chart.name} className='table-cell vertical-align-top'>
+                                        <Graph chart={chart}></Graph>
+                                    </div>
+                                })
+                    }
                 </div>
             </div>
         </div>
