@@ -1,0 +1,33 @@
+/* TODO: DELETE UNLESS CHECKBOX is being used */
+.handsontable td.unselected,
+.handsontable td.selected {
+    text-align: center
+}
+.handsontable td.unselected {
+    background: #f2f2f2
+}
+.handsontable td.selected {
+    background: #d9d9d9
+}
+
+
+
+.status-change {
+    position: absolute;
+    background-color: #f2f2f2;
+    z-index: 1;
+    top: -400px;
+    left: 10px;
+    height: 390px;
+    width: 500px;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+.status-change-displays {
+    height: 340px;
+}
+.status-change-close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}

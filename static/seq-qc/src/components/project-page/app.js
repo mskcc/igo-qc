@@ -239,6 +239,7 @@ function App(props){
             <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
+                         qcStatuses={projectInfo.statuses}
                          onSelect={onSelect}/>
             </div>;
     };
