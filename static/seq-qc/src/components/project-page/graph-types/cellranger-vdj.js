@@ -22,5 +22,5 @@ export default CellRangerVdj;
 
 CellRangerCount.propTypes = {
     title: PropTypes.string,
-    graphs: PropTypes.object
+    graphs: PropTypes.array
 };
