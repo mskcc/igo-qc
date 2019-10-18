@@ -65,5 +65,5 @@ export default CellRangerCount;
 
 CellRangerCount.propTypes = {
     title: PropTypes.string,
-    graphs: PropTypes.object
+    graphs: PropTypes.array
 };
