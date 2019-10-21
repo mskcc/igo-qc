@@ -117,7 +117,8 @@ class QcTable extends React.Component {
                         type="submit"
                         onClick={this.submitStatusChange}
                         className={"margin-10 fill-width"}
-                        disabled={this.state.statusChange === ''}>
+                        disabled={this.state.statusChange === ''}
+                        size={"small"}>
                         <p>Submit</p>
                     </MuiButton>
                 </div>

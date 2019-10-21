@@ -9,25 +9,25 @@
 .handsontable td.selected {
     background: #d9d9d9
 }
-
-
-
 .status-change {
     position: absolute;
     background-color: #f2f2f2;
     z-index: 1;
-    top: -480px;
+    top: -455px;
     left: 10px;
-    height: 470px;
+    height: 445px;
     width: 500px;
     border-radius: 5px;
     border: 1px solid black;
 }
 .status-change-displays {
-    height: 390px;
+    height: 375px;
 }
 .status-change-close{
     position: absolute;
     right: 10px;
     top: 10px;
+}
+.status-change-submit {
+    height: 50px;
 }
