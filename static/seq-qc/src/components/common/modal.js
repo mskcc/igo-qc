@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faAngleDown, faAngleRight, faTimes} from '@fortawesome/free-solid-svg-icons';
+import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../constants";
 
 class Modal extends React.Component {
     constructor(props) {
@@ -15,6 +16,7 @@ class Modal extends React.Component {
         const update = this.props.update || {};
         const msg = update.msg || '';
 
+        // Check for unique updates
         if(prevProps.update !== this.props.update && !(msg in update)){
             const queue = Object.assign({}, this.state.queue);
             queue[msg] = {...update, closed: false};
@@ -41,7 +43,21 @@ class Modal extends React.Component {
                 { Object.keys(this.state.queue).map( (update) => {
                     // TODO - constant
                     const type = this.state.queue[update].type || 'ERROR';
-                    const modalClass = type === 'ERROR'? 'modal modal-fail' : 'modal modal-success';
+
+                    let modalClass = 'modal';
+                    switch(type) {
+                        case MODAL_ERROR:
+                            modalClass += ' modal-fail';
+                            break;
+                        case MODAL_UPDATE:
+                            modalClass += ' modal-update';
+                            break;
+                        case MODAL_SUCCESS:
+                            modalClass += ' modal-success';
+                            break;
+                        default:
+                            throw new Error('Invalid modal update');
+                    }
 
                     if(this.state.queue[update].closed){
                         // User closed modal via onClick

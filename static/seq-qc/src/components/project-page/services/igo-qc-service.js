@@ -21,3 +21,9 @@ export const getProjectQc = (projectId) => {
         .then(getData)
         .catch(handleError)
 };
+
+export const setRunStatus = (run, project, status, recipe) => {
+    return axios.get(`${config.IGO_QC}/changeRunStatus?run=${run}&project=${project}&status=${status}&recipe=${recipe}`)
+            .then(getData)
+            .catch(handleError)
+};

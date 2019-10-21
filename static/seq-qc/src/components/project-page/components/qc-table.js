@@ -6,6 +6,10 @@ import './qc-table.css';
 import Handsontable from 'handsontable';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
+import MuiButton from '@material-ui/core/Button';
+
+import { setRunStatus } from '../services/igo-qc-service';
+import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../constants";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -13,7 +17,8 @@ class QcTable extends React.Component {
         this.state = {
             data: [],
             hotTableRef: React.createRef(),
-            selected: []
+            selected: [],
+            statusChange: ''
         }
     }
 
@@ -28,15 +33,14 @@ class QcTable extends React.Component {
             this.setState({data});
         }
     }
-
     afterSelection = (r1, c1, r2, c2) => {
         this.props.onSelect(this.state.data[r1]);
 
-        const min = r1 < r2 ? r1 : r2;
-        const max = r1 < r2 ? r2 : r1;
-
-        const selected = this.state.data.slice(min, max+1).map((row) => row['IGO Id']);
-        this.setState({selected});
+        const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
+        const selected = this.state.data.slice(min, max+1)
+                                        .map((row) => row['Run'])
+        const unique_selected = selected.filter((run, idx) => selected.indexOf(run) === idx);
+        this.setState({selected: unique_selected});
     };
 
     // REF - https://handsontable.com/blog/articles/2016/12/getting-started-with-cell-renderers
@@ -49,6 +53,29 @@ class QcTable extends React.Component {
         }
     }
 
+
+    setStatusChange = (evt, data) => {
+        const statusChange = evt.target.textContent || '';
+        this.setState({statusChange});
+    };
+    // Sends request to submit status change
+    submitStatusChange = () => {
+        const selected = this.state.selected.join(',');
+        const project = this.props.project;
+        const statusChange = this.state.statusChange;
+        const recipe = this.props.recipe;
+        const successMsg = `Set Runs ${selected} to ${statusChange}`;
+
+        this.props.addModalUpdate(MODAL_UPDATE, `Submitting Status Change Request`);
+
+        // Reset: Close modal
+        this.setState({'selected': []});
+
+        setRunStatus(selected, project, statusChange, recipe)
+            .then((resp) => this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`))
+            .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Contact streidd@mskcc.org w/: ${err}`));
+    };
+
     renderStatusModal() {
         if(!this.props.qcStatuses || this.state.selected.length === 0) return <div></div>
         return <div className={'pos-rel'}>
@@ -58,26 +85,41 @@ class QcTable extends React.Component {
                                  onClick={() => this.setState({'selected': []})}/>
                 <div className={'half-width inline-block status-change-displays vertical-align-top'}>
                     <div className={'margin-10'}>
-                        <p className={'font-bold text-align-center'}>Current Status</p>
+                        <p className={'font-bold text-align-center'}>Selected Runs</p>
                         {
                             this.state.selected.map((id) => {
-                                return <p>{id}</p>
+                                return <div className={"text-align-center black-border-bottom"} key={`${id}-sample`}>
+                                    <p className={"margin-5em"}>{id}</p>
+                                </div>
                             })
                         }
                     </div>
                 </div>
                 <div className={'half-width inline-block status-change-displays vertical-align-top'}>
                     <div className={'margin-10'}>
-                    <p className={'font-bold text-align-center'}>New Status</p>
+                        <label className={'font-bold text-align-center'}>New Status</label>
                         {
                             Object.keys(this.props.qcStatuses).map((status) => {
-                                return <p>{status}</p>
+                                const commonClasses = 'black-border curved-border text-align-center hover';
+                                const statusClass = (status === this.state.statusChange) ? 'selected-color' : 'unselected-color';
+                                return <div key={`${status}`}
+                                            className={`${commonClasses} ${statusClass}`}
+                                            onClick={this.setStatusChange}>
+                                    <p className={"margin-5em"}>{status}</p>
+                                </div>
                             })
                         }
                     </div>
                 </div>
                 <div className={'margin-auto half-width'}>
-                    <button className={"margin-10 fill-width"}>Submit</button>
+                    <MuiButton
+                        variant="contained"
+                        type="submit"
+                        onClick={this.submitStatusChange}
+                        className={"margin-10 fill-width"}
+                        disabled={this.state.statusChange === ''}>
+                        <p>Submit</p>
+                    </MuiButton>
                 </div>
             </div>
         </div>
@@ -147,6 +189,9 @@ export default QcTable;
 QcTable.propTypes = {
     data: PropTypes.array,
     headers: PropTypes.array,
-    qcStatuses: PropTypes.array,
-    onSelect: PropTypes.func
+    qcStatuses: PropTypes.object,
+    onSelect: PropTypes.func,
+    project: PropTypes.string,
+    recipe: PropTypes.string,
+    addModalUpdate: PropTypes.func
 };

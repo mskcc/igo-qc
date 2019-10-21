@@ -16,15 +16,15 @@
     position: absolute;
     background-color: #f2f2f2;
     z-index: 1;
-    top: -400px;
+    top: -480px;
     left: 10px;
-    height: 390px;
+    height: 470px;
     width: 500px;
     border-radius: 5px;
     border: 1px solid black;
 }
 .status-change-displays {
-    height: 340px;
+    height: 390px;
 }
 .status-change-close{
     position: absolute;

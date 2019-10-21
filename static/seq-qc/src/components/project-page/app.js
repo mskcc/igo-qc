@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
+import {MODAL_ERROR} from "../../constants";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -23,6 +24,7 @@ import CellRangerVdj from "./graph-types/cellranger-vdj";
  * @constructor
  */
 function App(props){
+    // TODO - pass props of ngsStatsData/projectInfo in for caching
     const [recipe, setRecipe] = useState(null);
     const [ngsStatsData, setNgsStatsData] = useState([]);
     const [pickListValues, setPickListValues] = useState([]);
@@ -60,11 +62,13 @@ function App(props){
                 // TODO - constant
                 se['ngs-stats'] = true;
                 setServiceErrors(se);
+                props.addModalUpdate(MODAL_ERROR, 'Failed to fetch NgsGraphs');
             });
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
     // TODO: this service response should be cached because it will always be the same.
     useEffect(() => {
-        getPickListValues().then((data) => setPickListValues(data));
+        getPickListValues().then((data) => setPickListValues(data))
+                           .catch((err) => { props.addModalUpdate(MODAL_ERROR, 'Failed to fetch PickList') });
     }, [pId]);
     useEffect(() => {
         getProjectInfo(pId).then((data) => {
@@ -76,6 +80,7 @@ function App(props){
             const se = Object.assign({}, serviceErrors);
             // TODO - constant
             se['project-info'] = true;
+            props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err)
             setServiceErrors(se);
         })
     }, [pId]);
@@ -234,13 +239,15 @@ function App(props){
 
         const hideGrid = (gridData.length === 0 || headers.length === 0)
         const display = hideGrid ? 'block' : 'none';
-
         return <div className={"black-border"} style={{width:'inherit'}}>
             <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
-                         qcStatuses={projectInfo.statuses}
-                         onSelect={onSelect}/>
+                         qcStatuses={projectInfo.statuses || {}}
+                         onSelect={onSelect}
+                         project={pId}
+                         recipe={recipe}
+                         addModalUpdate={props.addModalUpdate}/>
             </div>;
     };
 
@@ -254,5 +261,6 @@ function App(props){
 export default App;
 
 App.propTypes = {
-    projectMap: PropTypes.object
+    projectMap: PropTypes.object,
+    addModalUpdate: PropTypes.func
 };

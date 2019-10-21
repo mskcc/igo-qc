@@ -7,6 +7,7 @@ import CellRanger from './components/project-page/app.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
+import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
@@ -19,10 +20,11 @@ function App() {
     // TODO - Implement response caching
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
 
-    const addErrorToModal = (error) => {
+    // TODO - constants for modal type
+    const addModalUpdate = (type, msg) => {
         const modalUpdate = {
-            msg: error.message || 'ERROR',
-            type: 'ERROR',
+            msg: msg,
+            type: type,
             delay: 5000
         };
         setModalUpdate(modalUpdate);
@@ -40,7 +42,7 @@ function App() {
                 addToProjectMap(projectsToReview);
                 addToProjectMap(projectsToSequenceFurther);
             })
-            .catch(error => {addErrorToModal(error) });
+            .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR') });
     }, []);
     useEffect(() => {
         // TODO - modal to display error
@@ -49,7 +51,7 @@ function App() {
                 const recentDeliveries = resp.recentDeliveries || [];
                 setRecentDeliveries(recentDeliveries);
             })
-            .catch(error => {addErrorToModal(error) });
+            .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR') });
     }, []);
     useEffect(() => {
        getRecentRuns()
@@ -57,7 +59,7 @@ function App() {
                const recentRuns = resp.recentRuns || [];
                setRecentRuns(recentRuns);
            })
-           .catch(error => {addErrorToModal(error) });
+           .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR')});
     }, []);
 
     const addToProjectMap = (projectList) => {
@@ -121,7 +123,7 @@ function App() {
                     </Route>
                     <Route
                       path='/projects/:pid'
-                      render={(props) => <CellRanger {...props} projectMap={projectMap} />}
+                      render={(props) => <CellRanger {...props} projectMap={projectMap} addModalUpdate={addModalUpdate}/>}
                     />
                 </Switch>
             </Router>

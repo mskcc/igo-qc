@@ -554,6 +554,7 @@ def displayJSON(pId):
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
+# TODO - remove later
 #route to post the qc status
 @app.route('/post_<pId>_<recordId>_<qcStatus>')
 def post_qcStatus(pId, recordId, qcStatus):
@@ -561,6 +562,22 @@ def post_qcStatus(pId, recordId, qcStatus):
     url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
     r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
+
+#route to post the qc status
+@app.route('/changeRunStatus')
+def change_run_status():
+    run = request.args.get("run")
+    prj = request.args.get("project")
+    status = request.args.get("status")
+    recipe = request.args.get("recipe")
+
+    payload = {'record': run, 'status': status, 'recipe': recipe, 'project': prj}
+    # url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+    # r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
+
+    print(str(payload))
+
+    return make_response(str(payload), 200, None)
 
 #route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
