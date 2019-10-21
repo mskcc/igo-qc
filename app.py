@@ -566,23 +566,34 @@ def post_qcStatus(pId, recordId, qcStatus):
 #route to post the qc status
 @app.route('/changeRunStatus')
 def change_run_status():
-    run = request.args.get("run")
-    prj = request.args.get("project")
+    run_arg = request.args.get("run")
+    project = request.args.get("project")
     status = request.args.get("status")
     recipe = request.args.get("recipe")
+    runs = run_arg.split(',')
 
-    payload = {'record': run, 'status': status, 'recipe': recipe, 'project': prj}
-    # url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
-    # r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-
-    print(str(payload))
-
-    return make_response(str(payload), 200, None)
+    successful_requests = []
+    failed_requests = []
+    for run in runs:
+        payload = {'record': run, 'status': status, 'project': project, 'recipe': recipe}
+        url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+        resp = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
+        if 'FAILURE' in resp.text or resp.status_code == 500:
+            failed_requests.append(run)
+        else:
+            successful_requests.append(run)
+    success = len(failed_requests) == 0
+    status = 'Set QC Status' if success else 'Failed to set run statuses'
+    data = {
+        'successfulRequests': successful_requests,
+        'failedRequests': failed_requests,
+        'status': status
+    }
+    return create_resp(success, status, data)
 
 #route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
 def postall_qcStatus(qcStatus, pId):
-
     recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
         payload = {'record': recordId, 'status': qcStatus}

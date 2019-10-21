@@ -21,11 +21,11 @@ function App() {
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
 
     // TODO - constants for modal type
-    const addModalUpdate = (type, msg) => {
+    const addModalUpdate = (type, msg, delay) => {
         const modalUpdate = {
             msg: msg,
             type: type,
-            delay: 5000
+            delay: delay || 5000
         };
         setModalUpdate(modalUpdate);
     };

@@ -66,13 +66,22 @@ class QcTable extends React.Component {
         const recipe = this.props.recipe;
         const successMsg = `Set Runs ${selected} to ${statusChange}`;
 
-        this.props.addModalUpdate(MODAL_UPDATE, `Submitting Status Change Request`);
+        this.props.addModalUpdate(MODAL_UPDATE, `Submitting Status Change Request`, 2000);
 
         // Reset: Close modal
         this.setState({'selected': []});
 
         setRunStatus(selected, project, statusChange, recipe)
-            .then((resp) => this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`))
+            .then((resp) => {
+                if(resp.success){
+                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
+                    // TODO - update page
+                } else {
+                    const status = resp.status || 'ERROR';
+                    const failedRuns = resp.failedRequests || '';
+                    this.props.addModalUpdate(MODAL_ERROR, `${status} ${failedRuns}`);
+                }
+            })
             .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Contact streidd@mskcc.org w/: ${err}`));
     };
 
