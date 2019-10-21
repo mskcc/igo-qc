@@ -71,6 +71,10 @@ function App(props){
                            .catch((err) => { props.addModalUpdate(MODAL_ERROR, 'Failed to fetch PickList') });
     }, [pId]);
     useEffect(() => {
+        updateProjectInfo(pId);
+    }, [pId]);
+
+    const updateProjectInfo = (pId) => {
         getProjectInfo(pId).then((data) => {
             setProjectInfo(data);
             setProjectInfoGridData(data);
@@ -83,7 +87,7 @@ function App(props){
             props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err)
             setServiceErrors(se);
         })
-    }, [pId]);
+    };
 
     const handleToggle = () => {
         const wrapper = document.getElementById('wrapper');
@@ -104,9 +108,8 @@ function App(props){
         if(gridObject){
             const grid = gridObject.grid || {};
             const rows = Object.values(grid);
-            gridData.push(...rows);
-            setGridData(gridData);
-            setSelectedSample(gridData[0]['IGO Id']);
+            setGridData(rows);
+            setSelectedSample(rows[0]['IGO Id']);
         }
     };
 
@@ -247,7 +250,8 @@ function App(props){
                          onSelect={onSelect}
                          project={pId}
                          recipe={recipe}
-                         addModalUpdate={props.addModalUpdate}/>
+                         addModalUpdate={props.addModalUpdate}
+                         updateProjectInfo={updateProjectInfo}/>
             </div>;
     };
 

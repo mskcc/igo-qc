@@ -23,7 +23,11 @@ class QcTable extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.props.data.length > 0 && this.state.data.length === 0){
+        if(prevProps.data !== this.props.data){
+            if(this.state.data.length > 0){
+                // ONLY ADJUST MODAL - If state hasn't been set, this is the first update
+                this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for ${this.props.project}`);
+            };
             // Enrich data, e.g. w/ checkmark field
             const data = Object.assign([], this.props.data);
             data.map((d) => {
@@ -38,7 +42,7 @@ class QcTable extends React.Component {
 
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
         const selected = this.state.data.slice(min, max+1)
-                                        .map((row) => row['Run'])
+                                        .map((row) => row['QC Record Id'])
         const unique_selected = selected.filter((run, idx) => selected.indexOf(run) === idx);
         this.setState({selected: unique_selected});
     };
@@ -52,7 +56,6 @@ class QcTable extends React.Component {
             td.className = 'unselected'
         }
     }
-
 
     setStatusChange = (evt, data) => {
         const statusChange = evt.target.textContent || '';
@@ -75,7 +78,8 @@ class QcTable extends React.Component {
             .then((resp) => {
                 if(resp.success){
                     this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
-                    // TODO - update page
+                    // Parent component should make another call to obtain the updated projectInfo
+                    this.props.updateProjectInfo(this.props.project);
                 } else {
                     const status = resp.status || 'ERROR';
                     const failedRuns = resp.failedRequests || '';
@@ -203,5 +207,6 @@ QcTable.propTypes = {
     onSelect: PropTypes.func,
     project: PropTypes.string,
     recipe: PropTypes.string,
-    addModalUpdate: PropTypes.func
+    addModalUpdate: PropTypes.func,
+    updateProjectInfo: PropTypes.func
 };

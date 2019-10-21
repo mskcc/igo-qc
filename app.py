@@ -566,28 +566,30 @@ def post_qcStatus(pId, recordId, qcStatus):
 #route to post the qc status
 @app.route('/changeRunStatus')
 def change_run_status():
-    run_arg = request.args.get("run")
+    recordIds_arg = request.args.get("recordId")
     project = request.args.get("project")
     status = request.args.get("status")
     recipe = request.args.get("recipe")
-    runs = run_arg.split(',')
+    recordIds = recordIds_arg.split(',')
 
     successful_requests = []
     failed_requests = []
-    for run in runs:
-        payload = {'record': run, 'status': status, 'project': project, 'recipe': recipe}
+    for id in recordIds:
+        payload = {'record': id, 'status': status, 'project': project, 'recipe': recipe}
         url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
         resp = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-        if 'FAILURE' in resp.text or resp.status_code == 500:
-            failed_requests.append(run)
+        if 'NewStatus' in resp.text and resp.status_code == 200:
+            successful_requests.append(id)
         else:
-            successful_requests.append(run)
+            failed_requests.append(id)
+
     success = len(failed_requests) == 0
     status = 'Set QC Status' if success else 'Failed to set run statuses'
     data = {
         'successfulRequests': successful_requests,
         'failedRequests': failed_requests,
-        'status': status
+        'status': status,
+        'success': success
     }
     return create_resp(success, status, data)
 
@@ -678,7 +680,6 @@ def project_info(pId):
         'grid': grid,
         'chartsLinks': charts_links,
         'projectType': project_type,
-
     }
 
     return create_resp(True, 'success', data)
