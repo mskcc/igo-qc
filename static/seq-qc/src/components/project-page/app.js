@@ -32,24 +32,40 @@ function App(props){
     const [gridData, setGridData] = useState([]);
     const [headers, setHeaders] = useState([]);
     const [selectedSample, setSelectedSample] = useState('mocks'); // TODO - change this once real data available
-    const [showNgsGraphs, setShowNgsGraphs] = useState(true);
+    const [showNgsGraphs, setShowNgsGraphs] = useState(false);
     const [serviceErrors, setServiceErrors] = useState({});
 
-    // pId should be passed in by the route
-    const pId = props.match ? props.match.params.pid : '';
-    // TODO - We need to fetch the recipe, which requires the projectMap. This should fire when projectMap is available
-    if(!recipe && (props.projectMap[pId] || Object.keys(projectInfo).length > 0)){
-        if(props.projectMap[pId]){
-            setRecipe(props.projectMap[pId]['recipe']);
+    const pId = props.match ? props.match.params.pid : '';  // pId should be passed in by the route
+
+    /**
+     * Fetches recipe if not currently available using the pId
+     *
+     *      If,
+     *      recipe is available,                                                         DO NOTHING
+     *      recipe/projectInfo isn't available and projectInfo data has not been cached  DO NOTHING
+     *      recipe isn't available and cached response is available                      TAKE RECIPE FROM CACHE
+     *      recipe isn't available and projectInfo is available                          TAKE RECIPE FROM PROJECT_INFO
+     *
+     * @param pId
+     */
+    const fetchRecipe = (pId) => {
+        // TODO - We need to fetch the recipe, which requires the projectMap. This should fire when projectMap is available
+        if(!recipe && (props.projectMap[pId] || Object.keys(projectInfo).length > 0)){
+            if(props.projectMap[pId]){
+                setRecipe(props.projectMap[pId]['recipe']);
+            }
+            else if(Object.keys(projectInfo).length > 0){
+                const projectType = projectInfo['projectType'];
+                const recipe = projectType['recipe'];
+                setRecipe(recipe);
+            }
         }
-        else if(Object.keys(projectInfo).length > 0){
-            const projectType = projectInfo['projectType'];
-            const recipe = projectType['recipe'];
-            setRecipe(recipe);
-        }
-    }
+    };
+
+    fetchRecipe(pId);
 
     useEffect(() => {
+        // Recipe needs to be available, see "fetchRecipe" recipe
         if(!recipe) return;
 
         getNgsStatsData(recipe, pId)
@@ -89,11 +105,9 @@ function App(props){
         })
     };
 
-    const handleToggle = () => {
-        const wrapper = document.getElementById('wrapper');
-        wrapper.classList.toggle('dropdown-open');
-    };
-
+    /**
+     * OnClick event that should toggle flag to show/unshow Ngs Graphs
+     */
     const toggleGraph = () => {
         setShowNgsGraphs(!showNgsGraphs);
     };
@@ -133,6 +147,7 @@ function App(props){
         setSelectedSample(selectedIgoId);
     };
 
+    // TODO - Add ngsStats data to the grid
     const setNgsStatsGridData = (ngsResp) => {
         if(ngsResp.length > 0){
             // Add Headers
