@@ -159,9 +159,8 @@ function App(props){
             </div>
         };
 
-        // const selected = ngsStatsData.filter(sample => sample.id === sampleId);
         if( ngsStatsData.length === 0 &&
-            Object.keys(projectInfo.chartsLinks).length === 0) {
+            Object.keys(projectInfo.chartsLinks || []).length === 0) {
             return <div className={"black-border"}>
                         <p className={'text-align-center'}>No Graph data is available for this project</p>
                    </div>;
