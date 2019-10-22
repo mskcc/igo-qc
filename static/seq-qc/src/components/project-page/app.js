@@ -146,10 +146,6 @@ function App(props){
         }
     };
 
-    const shouldTheGraphBeRendered = () => {
-
-    };
-
     const renderNgsGraphs = (sampleId) => {
         if(serviceErrors['ngs-stats']){
             return <div className={"black-border"}>
@@ -157,15 +153,14 @@ function App(props){
             </div>
         }
 
-        if(!ngsStatsData &&
-            (!projectInfo.chartsLinks || Object.keys(projectInfo.chartsLinks).length === 0)){
+        if(ngsStatsData === null){
             return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
             </div>
         };
 
         // const selected = ngsStatsData.filter(sample => sample.id === sampleId);
-        if( ngsStatsData.length === 0 ||
+        if( ngsStatsData.length === 0 &&
             Object.keys(projectInfo.chartsLinks).length === 0) {
             return <div className={"black-border"}>
                         <p className={'text-align-center'}>No Graph data is available for this project</p>
