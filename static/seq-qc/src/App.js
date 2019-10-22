@@ -11,10 +11,15 @@ import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
 import MuiButton from "@material-ui/core/Button/Button";
 
 function App() {
-    const [projectsToReview, setProjectsToReview] = useState([]);
-    const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState([]);
-    const [recentDeliveries, setRecentDeliveries] = useState([]);
-    const [recentRuns, setRecentRuns] = useState([]);
+    /*
+        Project lists are initialised as null so "Loading" indicators can distinguish between pending service calls
+        and responses that do not return data. IF RENDERED, A DEFAULT VALUE MUST BE PROVIDED (e.g. "recentRuns || []")
+    */
+    const [projectsToReview, setProjectsToReview] = useState(null);
+    const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState(null);
+    const [recentDeliveries, setRecentDeliveries] = useState(null);
+    const [recentRuns, setRecentRuns] = useState(null);
+
     const [projectSearch, setProjectSearch] = useState('');
     const [modalUpdate, setModalUpdate] = useState({});
 

@@ -21,6 +21,7 @@ const FIELD_MAP = {
  * Router for Projects
  */
 const ProjectRouter = (props) => {
+    // Bit convoluted, but props.projects should be null initially as it is loaded from a service call.
     const [fields, setFields] = useState([]);
     const [headers, setHeaders] = useState([]);
 
@@ -28,8 +29,18 @@ const ProjectRouter = (props) => {
         setFieldsFromProjects(props.projects);
     }, [props.projects]);
 
+    /**
+     * Determines whether input is valid list of projects that can be rendered
+     *
+     * @param projects, Object[]
+     * @returns {*|boolean}
+     */
+    const validProjects = (projects) => {
+        return projects && projects.length > 0;
+    };
+
     const setFieldsFromProjects = (projects) => {
-        if(projects && projects.length > 0){
+        if(validProjects(projects)){
             // Only take the fields that are present in the project, based on the first project
             const firstProject = projects[0];
             const fieldsUpdate = Object.keys(FIELD_MAP).filter((field) => {
@@ -73,13 +84,20 @@ const ProjectRouter = (props) => {
     };
     const renderTable = () => {
         // Visualize projects if present and state has been populated w/ fields to visualize
-        if(props.projects && fields.length > 0){
+        if(validProjects(props.projects)){
+            // LOADED - Data Available
             return <table className="project-table fill-width border-collapse">
                 {renderHeaders()}
                 {renderProjects()}
             </table>
-        } else {
+        } else if (props.projects === null) {
+            // LOADING - Input properties are still loading
             return <div className="loader margin-auto"></div>
+        } else {
+            // LOADED - No Data
+            return <div>
+                <p className={'text-align-center'}>No Projects available</p>
+            </div>
         }
     };
 
@@ -97,5 +115,5 @@ export default ProjectRouter;
 
 ProjectRouter.propTypes = {
     name: PropTypes.string,
-    projects: PropTypes.array
+    projects: PropTypes.array   // NULL ALLOWED
 };

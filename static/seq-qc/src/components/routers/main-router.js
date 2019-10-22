@@ -35,8 +35,8 @@ const App = (props) => {
 export default App;
 
 ProjectRouter.propTypes = {
-    projectsToReview: PropTypes.array,
-    projectsToSequenceFurther: PropTypes.array,
-    recentDeliveries: PropTypes.array,
-    recentRuns: PropTypes.array
+    projectsToReview: PropTypes.array,              // NULL ALLOWED
+    projectsToSequenceFurther: PropTypes.array,     // NULL ALLOWED
+    recentDeliveries: PropTypes.array,              // NULL ALLOWED
+    recentRuns: PropTypes.array                     // NULL ALLOWED
 };

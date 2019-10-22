@@ -26,7 +26,7 @@ class QcTable extends React.Component {
         if(prevProps.data !== this.props.data){
             if(this.state.data.length > 0){
                 // ONLY ADJUST MODAL - If state hasn't been set, this is the first update
-                this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`);
+                this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`, 2000);
             };
             // Enrich data, e.g. w/ checkmark field
             const data = Object.assign([], this.props.data);
@@ -77,7 +77,7 @@ class QcTable extends React.Component {
         setRunStatus(selected, project, statusChange, recipe)
             .then((resp) => {
                 if(resp.success){
-                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`, 350000);
+                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
                     // Parent component should make another call to obtain the updated projectInfo
                     this.props.updateProjectInfo(this.props.project);
                 } else {
