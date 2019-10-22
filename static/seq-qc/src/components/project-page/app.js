@@ -26,7 +26,7 @@ import {MODAL_ERROR} from "../../constants";
 function App(props){
     // TODO - pass props of ngsStatsData/projectInfo in for caching
     const [recipe, setRecipe] = useState(null);
-    const [ngsStatsData, setNgsStatsData] = useState([]);
+    const [ngsStatsData, setNgsStatsData] = useState(null);
     const [pickListValues, setPickListValues] = useState([]);
     const [projectInfo, setProjectInfo] = useState({});
     const [gridData, setGridData] = useState([]);
@@ -157,7 +157,7 @@ function App(props){
             </div>
         }
 
-        if(ngsStatsData.length === 0 &&
+        if(!ngsStatsData &&
             (!projectInfo.chartsLinks || Object.keys(projectInfo.chartsLinks).length === 0)){
             return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
@@ -165,7 +165,12 @@ function App(props){
         };
 
         // const selected = ngsStatsData.filter(sample => sample.id === sampleId);
-        if(ngsStatsData.length === 0) return <div></div>
+        if( ngsStatsData.length === 0 ||
+            Object.keys(projectInfo.chartsLinks).length === 0) {
+            return <div className={"black-border"}>
+                        <p className={'text-align-center'}>No Graph data is available for this project</p>
+                   </div>;
+        }
         const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
 
         const graphs = sample.graphs || [];
@@ -178,7 +183,7 @@ function App(props){
 
         return <div>
             <div className={"pos-rel nav-container"} onClick={toggleGraph}>
-                <div className={"margin-left-20 inline-block"}>
+                <div className={"margin-left-10 inline-block"}>
                     <p className={"text-align-center"}>Graphs</p>
                 </div>
                 <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
@@ -218,13 +223,13 @@ function App(props){
 
     const renderSummary = (projectInfo) => {
         if(serviceErrors['project-info']){
-            return <div>
+            return <div className={"black-border"}>
                 <p className={'text-align-center'}>Error loading Project Info stats - contact streidd@mskcc.org</p>
             </div>
         }
 
         if(Object.keys(projectInfo).length === 0){
-            return <div>
+            return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
             </div>
         };
