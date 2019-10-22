@@ -42,7 +42,13 @@ class QcTable extends React.Component {
 
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
         const selected = this.state.data.slice(min, max+1)
-                                        .map((row) => row['QC Record Id'])
+                                        .map((row) => {
+                                            // TODO - constant
+                                            return {
+                                                'record': row['QC Record Id'],
+                                                'sample': row['Sample']
+                                            }
+                                        });
         const unique_selected = selected.filter((run, idx) => selected.indexOf(run) === idx);
         this.setState({selected: unique_selected});
     };
@@ -63,11 +69,13 @@ class QcTable extends React.Component {
     };
     // Sends request to submit status change
     submitStatusChange = () => {
-        const selected = this.state.selected.join(',');
+        const records = this.state.selected.map((record) => record['record']);
+        const samples = this.state.selected.map((record) => record['sample']).join(', ');
+        const selected = records.join(',');
         const project = this.props.project;
         const statusChange = this.state.statusChange;
         const recipe = this.props.recipe;
-        const successMsg = `Set Runs ${selected} to ${statusChange}`;
+        const successMsg = `Set Samples [${samples}] to ${statusChange}`;
 
         this.props.addModalUpdate(MODAL_UPDATE, `Submitting "${statusChange}" Status Change Request`, 2000);
 
@@ -96,14 +104,13 @@ class QcTable extends React.Component {
                 <FontAwesomeIcon className={"status-change-close hover"}
                                  icon={faTimes}
                                  onClick={() => this.setState({'statusChange': '', 'selected': []})}/>
-
                 <div className={'half-width inline-block status-change-displays vertical-align-top'}>
-                    <p className={'font-bold text-align-center'}>Selected Runs</p>
+                    <p className={'font-bold text-align-center'}>Selected Samples</p>
                     <div className={'black-border overflow-y-scroll height-inherit margin-10'}>
                         {
                             this.state.selected.map((id) => {
-                                return <div className={"background-white text-align-center black-border-bottom"} key={`${id}-sample`}>
-                                    <p className={"padding-for-margin"}>{id}</p>
+                                return <div className={"background-white text-align-center black-border-bottom"} key={`${id['sample']}-sample`}>
+                                    <p className={"padding-for-margin"}>{id['sample']}</p>
                                 </div>
                             })
                         }
