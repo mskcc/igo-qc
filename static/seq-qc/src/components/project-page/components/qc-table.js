@@ -125,7 +125,7 @@ class QcTable extends React.Component {
                         }
                     </div>
                 </div>
-                <div className={'status-change-displays margin-auto half-width'}>
+                <div className={'margin-auto half-width'}>
                     <MuiButton
                         variant="contained"
                         type="submit"
