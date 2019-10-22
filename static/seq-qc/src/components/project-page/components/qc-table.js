@@ -26,7 +26,7 @@ class QcTable extends React.Component {
         if(prevProps.data !== this.props.data){
             if(this.state.data.length > 0){
                 // ONLY ADJUST MODAL - If state hasn't been set, this is the first update
-                this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for ${this.props.project}`);
+                this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`);
             };
             // Enrich data, e.g. w/ checkmark field
             const data = Object.assign([], this.props.data);
@@ -69,15 +69,15 @@ class QcTable extends React.Component {
         const recipe = this.props.recipe;
         const successMsg = `Set Runs ${selected} to ${statusChange}`;
 
-        this.props.addModalUpdate(MODAL_UPDATE, `Submitting Status Change Request`, 2000);
+        this.props.addModalUpdate(MODAL_UPDATE, `Submitting "${statusChange}" Status Change Request`, 2000);
 
         // Reset: Close modal
-        this.setState({'selected': []});
+        this.setState({'selected': [], 'statusChange': ''});
 
         setRunStatus(selected, project, statusChange, recipe)
             .then((resp) => {
                 if(resp.success){
-                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
+                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`, 350000);
                     // Parent component should make another call to obtain the updated projectInfo
                     this.props.updateProjectInfo(this.props.project);
                 } else {
@@ -95,41 +95,42 @@ class QcTable extends React.Component {
             <div className={'status-change'}>
                 <FontAwesomeIcon className={"status-change-close hover"}
                                  icon={faTimes}
-                                 onClick={() => this.setState({'selected': []})}/>
+                                 onClick={() => this.setState({'statusChange': '', 'selected': []})}/>
+
                 <div className={'half-width inline-block status-change-displays vertical-align-top'}>
-                    <div className={'margin-10'}>
-                        <p className={'font-bold text-align-center'}>Selected Runs</p>
+                    <p className={'font-bold text-align-center'}>Selected Runs</p>
+                    <div className={'black-border overflow-y-scroll height-inherit margin-10'}>
                         {
                             this.state.selected.map((id) => {
-                                return <div className={"text-align-center black-border-bottom"} key={`${id}-sample`}>
-                                    <p className={"margin-5em"}>{id}</p>
+                                return <div className={"background-white text-align-center black-border-bottom"} key={`${id}-sample`}>
+                                    <p className={"padding-for-margin"}>{id}</p>
                                 </div>
                             })
                         }
                     </div>
                 </div>
-                <div className={'half-width inline-block status-change-displays vertical-align-top'}>
-                    <div className={'margin-10'}>
-                        <label className={'font-bold text-align-center'}>New Status</label>
+                <div className={'half-width inline-block vertical-align-top'}>
+                    <p className={'font-bold text-align-center'}>New Status</p>
+                    <div className={'status-change-displays margin-10'}>
                         {
                             Object.keys(this.props.qcStatuses).map((status) => {
                                 const commonClasses = 'black-border curved-border text-align-center hover';
-                                const statusClass = (status === this.state.statusChange) ? 'selected-color' : 'unselected-color';
+                                const statusClass = (status === this.state.statusChange) ? 'selected-color' : 'background-white';
                                 return <div key={`${status}`}
                                             className={`${commonClasses} ${statusClass}`}
                                             onClick={this.setStatusChange}>
-                                    <p className={"margin-5em"}>{status}</p>
+                                    <p className={"padding-for-margin"}>{status}</p>
                                 </div>
                             })
                         }
                     </div>
                 </div>
-                <div className={'margin-auto half-width'}>
+                <div className={'status-change-displays margin-auto half-width'}>
                     <MuiButton
                         variant="contained"
                         type="submit"
                         onClick={this.submitStatusChange}
-                        className={"margin-10 fill-width"}
+                        className={"action-button margin-10 fill-width"}
                         disabled={this.state.statusChange === ''}
                         size={"small"}>
                         <p>Submit</p>

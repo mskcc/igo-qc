@@ -11,19 +11,19 @@ const App = (props) => {
             <div className="widget-box">
                 <div className="widget-container table-responsive">
                     <div className="content noPad clearfix">
-                        <h3>Sequence Analysis</h3>
-                        <div className="project-router-container">
+                        <h3 className={"margin-0"}>Sequence Analysis</h3>
+                        <div className="black-border-bottom padding-vert-15 project-router-container">
                             <ProjectRouter name="Needs Review" projects={props.projectsToReview}/>
                         </div>
-                        <div className="project-router-container">
+                        <div className="black-border-bottom padding-vert-15 project-router-container">
                             <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
                         </div>
-                        <h3>Requests</h3>
-                        <div className="project-router-container">
+                        <h3 className={"margin-0"}>Requests</h3>
+                        <div className="black-border-bottom padding-vert-15 project-router-container">
                             <ProjectRouter name="Recent Deliveries" projects={props.recentDeliveries}/>
                         </div>
-                        <h3>Recent Runs</h3>
-                        <div className="project-router-container">
+                        <h3 className={"margin-0"}>Recent Runs</h3>
+                        <div className="padding-vert-15 project-router-container">
                             <RunRouter projects={props.recentRuns}/>
                         </div>
                     </div>

@@ -67,7 +67,7 @@ class Modal extends React.Component {
                             <FontAwesomeIcon className={"float-right hover"}
                                              icon={faTimes}
                                              onClick={() => this.closeModal(update)}/>
-                            <p>{update}</p>
+                            <p className="word-break">{update}</p>
                         </div>
                     }
                 })}

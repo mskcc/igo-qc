@@ -8,6 +8,7 @@ import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./ser
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
 import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
+import MuiButton from "@material-ui/core/Button/Button";
 
 function App() {
     const [projectsToReview, setProjectsToReview] = useState([]);
@@ -84,48 +85,54 @@ function App() {
     const handleProjectSearch = (evt) => {
         setProjectSearch(evt.target.value);
     };
-
     const ButtonToNavigate = ({ history }) => (
-        <button
-            type="button"
+        <MuiButton
+            variant="contained"
+            type="submit"
             onClick={() => history.push('/projects/' + projectSearch)}
-            className={"margin-left-20"}>
-                Search
-        </button>
+            className={"project-search-submit vertical-align-top project-search margin-left-10"}
+            disabled={false}
+            size={"small"}>
+            <p className={"margin-0"}>Submit</p>
+        </MuiButton>
     );
     const SearchButton = () => (
         <Route path="/" render={(props) => <ButtonToNavigate {...props} title="Navigate to project" />} />
     );
 
-    return <div className={"margin-hor-5per"}>
+    return <div>
             <Modal update={modalUpdate}/>
             <Router>
-                <div>
+                <header className={"padding-hor-24"}>
                     <div className={"inline-block"}>
                         <Link to="/">
-                            <FontAwesomeIcon className={"black-color em5"} icon={faHome}/>
+                            <FontAwesomeIcon className={"white-color em5"} icon={faHome}/>
                         </Link>
                     </div>
-                    <div className={"inline-block margin-left-20"}>
+                    <div className={"inline-block margin-left-10"}>
                         <label>
-                            Project Search:
-                            <input type="text" value={projectSearch} onChange={handleProjectSearch} />
+                            <h6 className={"inline white-color"}>Project Search:</h6>
                         </label>
+                        <input className={"inline vertical-align-top project-search margin-left-10"}
+                               type="text"
+                               value={projectSearch} onChange={handleProjectSearch} />
                     </div>
                     <SearchButton/>
+                </header>
+                <div className={"margin-top-15 padding-hor-5per"}>
+                    <Switch>
+                        <Route exact path="/">
+                            <Home recentDeliveries={recentDeliveries}
+                                  projectsToReview={projectsToReview}
+                                  projectsToSequenceFurther={projectsToSequenceFurther}
+                                  recentRuns={recentRuns}/>
+                        </Route>
+                        <Route
+                            path='/projects/:pid'
+                            render={(props) => <CellRanger {...props} projectMap={projectMap} addModalUpdate={addModalUpdate}/>}
+                        />
+                    </Switch>
                 </div>
-                <Switch>
-                    <Route exact path="/">
-                        <Home recentDeliveries={recentDeliveries}
-                              projectsToReview={projectsToReview}
-                              projectsToSequenceFurther={projectsToSequenceFurther}
-                              recentRuns={recentRuns}/>
-                    </Route>
-                    <Route
-                      path='/projects/:pid'
-                      render={(props) => <CellRanger {...props} projectMap={projectMap} addModalUpdate={addModalUpdate}/>}
-                    />
-                </Switch>
             </Router>
         </div>
 }

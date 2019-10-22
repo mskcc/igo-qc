@@ -2,13 +2,16 @@
 .inline-block {
     display: inline-block;
 }
+.inline {
+    display: inline;
+}
 .selected-color{
     background-color: #808080
 }
 .selected-color {
     color: white;
 }
-.unselected-color {
+.background-white {
     background-color: white;
 }
 .display-none {
@@ -35,11 +38,14 @@
 .half-width {
     width: 50%;
 }
+.height-inherit {
+    height: inherit;
+}
 .margin-auto {
     margin: auto;
 }
-.margin-left-20 {
-    margin-left: 20px;
+.margin-left-10 {
+    margin-left: 10px;
 }
 .margin-hor-5per {
     margin-left: 5%;
@@ -49,18 +55,39 @@
     margin: 10px;
 }
 /* FOR <p> elements */
-.margin-5em {
-    margin: 0.5em;
+.padding-for-margin {
+    margin: 0px;
+    padding: 0.5em;
 }
 .margin-vert-5 {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+.margin-top-15 {
+    margin-top: 15px;
+}
+.margin-0 {
+    margin: 0px;
+}
+.padding-hor-24 {
+    padding: 24px;
+}
+.padding-vert-15 {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+.padding-hor-5per {
+    padding-left: 5%;
+    padding-right: 5%;
 }
 .em2 {
     font-size: 1.2em;
 }
 .em5 {
     font-size: 1.5em;
+}
+.word-break {
+    word-break: break-word;
 }
 .font-bold {
     font-weight: bold;
@@ -88,15 +115,98 @@
 .black-color {
     color: black;
 }
+.white-color {
+    color: white;
+}
+.overflow-y-scroll {
+    overflow-y: scroll;
+}
 
+
+
+/* COLORS */
+.mskcc-blue{
+    color: #007cba;
+}
+.mskcc-orange{
+    color: #df4602;
+}
+.mskcc-dark-blue{
+     color: #006098;
+ }
+.mskcc-medium-blue{
+     color: #40b4e5;
+ }
+.mskcc-light-blue{
+    color: #8fc7e8;
+}
+.mskcc-dark-orange{
+    color: #c24d00;
+}
+.mskcc-medium-orange{
+    color: #f29934;
+}
+.mskcc-light-orange{
+    color: #f6c65b;
+}
+.mskcc-dark-violet{
+    color: #83276b;
+}
+.mskcc-light-violet{
+    color: #b687b8;
+}
+.mskcc-dark-magenta{
+    color: #e92076;
+}
+.mskcc-light-magenta{
+    color: #efb3cb;
+}
+.mskcc-red{
+    color: #b1132d;
+}
+.mskcc-dark-green{
+    color: #4c8b2b;
+}
+.mskcc-light-green{
+    color: #a6ce39;
+}
+.mskcc-dark-turquoise{
+    color: #006c68;
+}
+.mskcc-light-turquoise{
+    color: #009490;
+}
+.mskcc-dark-yellow{
+    color: #ffc20e;
+}
+.mskcc-light-yellow{
+    color: #ffe100;
+}
+.mskcc-dark-gray{
+    color: #9e9e98;
+}
+.mskcc-light-gray{
+    color: #d5d4c7;
+}
+.material-gray{
+    color: #eceff1;
+}
+/* SPECIFIC STYLES */
+/* BUTTONS */
 button:hover{
     cursor: pointer;
 }
 .hover:hover{
     cursor: pointer;
 }
-
-/* SPECIFIC STYLES */
+.project-search {
+    line-height: 1.8em;
+}
+.project-search-submit {
+    vertical-align: top !important;
+    height: 2em;
+    margin-left: 20px !important;
+}
 .info-block {
     width: 25%;
     margin-left: 4%;
@@ -144,8 +254,8 @@ button:hover{
 }
 /* LOADER, REF: https://www.w3schools.com/howto/howto_css_loader.asp */
 .loader {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
+    border: 16px solid #d5d4c7; /* mskcc-light-gray{ */
+    border-top: 16px solid #8fc7e8; /* mskcc-light-blue */
     border-radius: 50%;
     width: 120px;
     height: 120px;
@@ -159,6 +269,7 @@ button:hover{
 .modal-container {
     position: fixed;
     left: 50%;
+    top: 10px;
     z-index: 1;
     transform: translate(-50%,0%);
 }
@@ -180,4 +291,8 @@ button:hover{
 }
 .modal-fail {
     background: #ffb3b3;
+}
+
+header {
+    background-color: #319ae8;
 }

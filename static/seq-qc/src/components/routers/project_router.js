@@ -58,7 +58,7 @@ const ProjectRouter = (props) => {
             const element = <tr className="fill-width project-row" key={project.requestId}>
                         <td  className="project-field field-header project-row-link" key={`${project.requestId}-link`}>
                             <Link to={`/projects/${project.requestId}`}>
-                                <FontAwesomeIcon className="em5" icon={faArrowAltCircleRight}/>
+                                <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faArrowAltCircleRight}/>
                             </Link>
                         </td>
                         {values.map( field =>
@@ -86,7 +86,7 @@ const ProjectRouter = (props) => {
     return (
         <div>
             <div>
-                <p className="font-size-24">{props.name}</p>
+                <p className="margin-0 font-size-24">{props.name}</p>
             </div>
             {renderTable()}
         </div>

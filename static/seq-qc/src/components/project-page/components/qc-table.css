@@ -11,17 +11,17 @@
 }
 .status-change {
     position: absolute;
-    background-color: #f2f2f2;
+    background-color: #eceff1;
     z-index: 1;
-    top: -455px;
+    top: -465px;
     left: 10px;
-    height: 445px;
+    height: 455px;
     width: 500px;
     border-radius: 5px;
     border: 1px solid black;
 }
 .status-change-displays {
-    height: 375px;
+    height: 330px;
 }
 .status-change-close{
     position: absolute;
