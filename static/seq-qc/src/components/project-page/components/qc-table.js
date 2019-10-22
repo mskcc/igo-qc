@@ -39,7 +39,6 @@ class QcTable extends React.Component {
     }
     afterSelection = (r1, c1, r2, c2) => {
         this.props.onSelect(this.state.data[r1]);
-
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
         const selected = this.state.data.slice(min, max+1)
                                         .map((row) => {
@@ -172,6 +171,7 @@ class QcTable extends React.Component {
         headers.unshift('check');
         */
 
+        // TODO - Have removable columns
         return (
             <div>
                 {this.renderStatusModal()}
@@ -183,15 +183,11 @@ class QcTable extends React.Component {
                     colHeaders={this.props.headers}
                     rowHeaders={true}
                     filters="true"
-                    dropdownMenu={['filter_by_value', 'filter_action_bar', 'remove_col']}
-                    columnSorting="true"
+                    dropdownMenu={['filter_by_value', 'filter_action_bar']} // 'remove_col'
+                    // allowRemoveColumn={true}
+                    columnSorting={true}
                     columns={this.props.headers.map((header)=>{
                         const col = { 'data': header };
-                        /*
-                        if(header === 'check'){
-                            col['renderer'] = this.checkRenderer;
-                        }
-                         */
                         return col;
                     })}
                     fixedRowsTop={0}
