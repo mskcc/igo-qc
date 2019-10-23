@@ -2,7 +2,7 @@ import axios from "axios";
 
 import config from '../config.js';
 import { handleError } from "../components/project-page/utils/service-utils";
-import seqAnalysisProjects from '../components/project-page/mocks/getSeqAnalysisProjects.js';
+import seqAnalysisProjects from '../mocks/getSeqAnalysisProjects.js';
 import projectInfo from '../mocks/projectInfo';
 
 const getData = (resp) => {
