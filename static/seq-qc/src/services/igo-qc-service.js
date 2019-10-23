@@ -39,7 +39,6 @@ export function getRequestProjects() {
         .catch(error => { throw new Error('Unable to fetch Request Projects: ' + error) });
 }
 export const getProjectInfo = (projectId) => {
-    debugger;
     return new Promise((resolve) => resolve(projectInfo))
         .then(getData)
         .catch(handleError);

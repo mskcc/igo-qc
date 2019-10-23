@@ -70,7 +70,7 @@ const ProjectRouter = (props) => {
                             </Link>
                         </td>
                         {values.map( field =>
-                            <td className="project-field field-header" key={field}>
+                            <td className="project-field field-header text-align-center" key={field}>
                                 <p className="font-size-12">{field}</p>
                             </td>)
                         }
