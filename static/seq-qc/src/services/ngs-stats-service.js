@@ -1,7 +1,7 @@
 import axios from "axios";
-import { handleError } from "../components/project-page/utils/service-utils";
+import { handleError } from "../utils/service-utils";
 import LZString from "lz-string";
-import { preProcess } from '../components/project-page/utils/browser-utils';
+import { preProcess } from '../utils/browser-utils';
 
 import config from '../config.js';
 import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../constants";

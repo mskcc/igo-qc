@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import config from '../config.js';
-import { handleError } from "../components/project-page/utils/service-utils";
+import { handleError } from "../utils/service-utils";
 import seqAnalysisProjects from '../mocks/getSeqAnalysisProjects.js';
 import projectInfo from '../mocks/projectInfo';
 
