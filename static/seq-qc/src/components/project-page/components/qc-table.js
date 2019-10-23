@@ -15,10 +15,12 @@ class QcTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            data: [],                       // true state of data. Contains all rows w/o filter
+            displayedData: [],              // Data that has been filterd by user
             hotTableRef: React.createRef(),
             selected: [],
-            statusChange: ''
+            statusChange: '',
+            searchTerm: ''
         }
     }
 
@@ -34,13 +36,13 @@ class QcTable extends React.Component {
                 d['check'] = false;
                 return d;
             });
-            this.setState({data});
+            this.setState({data, displayedData: data});
         }
     }
     afterSelection = (r1, c1, r2, c2) => {
-        this.props.onSelect(this.state.data[r1]);
+        this.props.onSelect(this.state.displayedData[r1]);
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
-        const selected = this.state.data.slice(min, max+1)
+        const selected = this.state.displayedData.slice(min, max+1)
                                         .map((row) => {
                                             // TODO - constant
                                             return {
@@ -94,6 +96,23 @@ class QcTable extends React.Component {
                 }
             })
             .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Contact streidd@mskcc.org w/: ${err}`));
+    };
+
+    /**
+     * Filters the state's data and assigns to displayedData
+     * TODO - Test
+     * @param evt
+     */
+    runSearch = (evt) => {
+        const searchTerm = evt.target.value;
+        const filteredData = this.state.data.filter((row) => {
+            const values = Object.values(row);
+            for(const value of values){
+                if(value.toString().toLowerCase().includes(searchTerm.toLowerCase())) return true;
+            }
+            return false;
+        });
+        this.setState({searchTerm, displayedData: filteredData});
     };
 
     renderStatusModal() {
@@ -175,11 +194,19 @@ class QcTable extends React.Component {
         return (
             <div>
                 {this.renderStatusModal()}
+                <div>
+                    <label>
+                        <h6 className={"inline white-color"}>Project Search:</h6>
+                    </label>
+                    <input className={"inline vertical-align-top project-search margin-left-10"}
+                           type="text"
+                           value={this.state.searchTerm} onChange={this.runSearch} />
+                </div>
                 <HotTable
                     ref={this.hotTableRef}
                     licenseKey="non-commercial-and-evaluation"
                     id="qc-grid"
-                    data={this.state.data}
+                    data={this.state.displayedData}
                     colHeaders={this.props.headers}
                     rowHeaders={true}
                     filters="true"
