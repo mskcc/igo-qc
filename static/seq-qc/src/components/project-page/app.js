@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { getPickListValues } from './services/lims-service'
 import { getNgsStatsData } from './services/ngs-stats-service';
-import { getProjectInfo, getProjectQc } from './services/igo-qc-service';
-import Graph from './components/graphs';
+import { getProjectInfo } from './services/igo-qc-service';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
 import './app.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleRight, faAngleDown, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
-import {MODAL_ERROR} from "../../constants";
+import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR } from "../../constants";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -27,7 +25,6 @@ function App(props){
     // TODO - pass props of ngsStatsData/projectInfo in for caching
     const [recipe, setRecipe] = useState(null);
     const [ngsStatsData, setNgsStatsData] = useState(null);
-    const [pickListValues, setPickListValues] = useState([]);
     const [projectInfo, setProjectInfo] = useState({});
     const [gridData, setGridData] = useState([]);
     const [headers, setHeaders] = useState([]);
@@ -40,16 +37,15 @@ function App(props){
     /**
      * Fetches recipe if not currently available using the pId
      *
-     *      If,
-     *      recipe is available,                                                         DO NOTHING
-     *      recipe/projectInfo isn't available and projectInfo data has not been cached  DO NOTHING
+     *   If,
+     *      recipe is available,                                                         DO NOTHING, WAIT
+     *      recipe/projectInfo isn't available and projectInfo data has not been cached  DO NOTHING, WAIT
      *      recipe isn't available and cached response is available                      TAKE RECIPE FROM CACHE
      *      recipe isn't available and projectInfo is available                          TAKE RECIPE FROM PROJECT_INFO
      *
      * @param pId
      */
     const fetchRecipe = (pId) => {
-        // TODO - We need to fetch the recipe, which requires the projectMap. This should fire when projectMap is available
         if(!recipe && (props.projectMap[pId] || Object.keys(projectInfo).length > 0)){
             if(props.projectMap[pId]){
                 setRecipe(props.projectMap[pId]['recipe']);
@@ -61,12 +57,10 @@ function App(props){
             }
         }
     };
-
-    fetchRecipe(pId);
+    fetchRecipe(pId);   // Conditionally fetches the recipe if unavailable
 
     useEffect(() => {
-        // Recipe needs to be available, see "fetchRecipe" recipe
-        if(!recipe) return;
+        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
 
         getNgsStatsData(recipe, pId)
             .then((data) => {
@@ -81,20 +75,19 @@ function App(props){
                 props.addModalUpdate(MODAL_ERROR, 'Failed to fetch NgsGraphs');
             });
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
-    // TODO: this service response should be cached because it will always be the same.
-    useEffect(() => {
-        getPickListValues().then((data) => setPickListValues(data))
-                           .catch((err) => { props.addModalUpdate(MODAL_ERROR, 'Failed to fetch PickList') });
-    }, [pId]);
     useEffect(() => {
         updateProjectInfo(pId);
     }, [pId]);
 
+    /**
+     * Submits request to retrieve data for project from the projectId
+     *
+     * @param pId, Project ID
+     */
     const updateProjectInfo = (pId) => {
         getProjectInfo(pId).then((data) => {
             setProjectInfo(data);
-            setProjectInfoGridData(data);
-            setProjectInfoHeaders(data);
+            setGridInfo(data);
         })
         .catch((err) => {
             const se = Object.assign({}, serviceErrors);
@@ -106,11 +99,19 @@ function App(props){
     };
 
     /**
+     * Populates rows, headers, etc. with data
+     *
+     * @param data
+     */
+    const setGridInfo = (data) => {
+        setProjectInfoGridData(data);
+        setProjectInfoHeaders(data);
+    };
+
+    /**
      * OnClick event that should toggle flag to show/unshow Ngs Graphs
      */
-    const toggleGraph = () => {
-        setShowNgsGraphs(!showNgsGraphs);
-    };
+    const toggleGraph = () => { setShowNgsGraphs(!showNgsGraphs); };
 
     /**
      * Adds the ProjectInfo rows to the rendered grid.
@@ -141,9 +142,13 @@ function App(props){
         }
     };
 
+    /**
+     * On select of row in child component, QcTable, this should be invoked to set selectedSample in this component.
+     *
+     * @param row, Object
+     */
     const onSelect = (row) => {
         const selectedIgoId = row['IGO Id'];
-        console.log(`Setting sample to ${selectedIgoId}`);
         setSelectedSample(selectedIgoId);
     };
 
@@ -167,28 +172,23 @@ function App(props){
                 <p className={'text-align-center'}>Error loading NgsGraphs - contact streidd@mskcc.org</p>
             </div>
         }
-
         if(ngsStatsData === null){
             return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
             </div>
         };
-
         if( ngsStatsData.length === 0 &&
             Object.keys(projectInfo.chartsLinks || []).length === 0) {
             return <div className={"black-border"}>
                         <p className={'text-align-center'}>No Graph data is available for this project</p>
                    </div>;
         }
-        const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
 
+        const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
         const graphs = sample.graphs || [];
         const chartsLinks = projectInfo.chartsLinks || {};
         const chartNames = Object.keys(chartsLinks);
         const title = `Sample ${selectedSample} Graphs`;
-
-        // TODO - make dynamic
-        const type = 'count';
 
         return <div>
             <div className={"pos-rel nav-container"} onClick={toggleGraph}>
@@ -202,7 +202,7 @@ function App(props){
                 <div className={'graph-container'}>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
                         {
-                            type === 'count'?
+                            recipe === CELL_RANGER_APPLICATION_COUNT?
                                 <CellRangerCount title={title}
                                                  graphs={graphs}/>
                         :

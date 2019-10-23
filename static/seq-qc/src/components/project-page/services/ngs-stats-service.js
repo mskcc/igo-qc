@@ -4,6 +4,7 @@ import LZString from "lz-string";
 import { preProcess } from '../utils/browser-utils';
 
 import config from '../config.js';
+import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../../../constants";
 
 /**
  * Queries ngs-stats for additional data based on the recipe
@@ -12,25 +13,24 @@ import config from '../config.js';
  * return Object[]
  */
 export const getNgsStatsData = (recipe, projectId) => {
-    // TODO - Remove once data is available
-    return getCellRangerData(projectId);
-
     switch(recipe) {
-        // TODO - Should be like 10x
-        // TOOD - Put in constant
-        case 'cell-ranger':
-            return getCellRangerData(projectId);
+        case CELL_RANGER_APPLICATION_COUNT || CELL_RANGER_APPLICATION_VDJ:
+            return getCellRangerData(projectId, recipe);
+        /*
+        case [CASE]:
+            return PROCESSING_FUNCTION();
+        */
         default:
             break;
     }
     return new Promise((resolve) => resolve([]));
 };
 
-const getCellRangerData = (projectId) => {
-    // TODO - This should probably be by just project since "getProjectQc" request to LIMS rest only takes project
-    // TODO - Add Back
-    // TODO - Take project & type as params
-    return axios.get(`${config.NGS_STATS}/getCellRangerSample?project=controller&type=count`)
+/**
+ * PROCESSING FUNCTION: All 'case' statements in 'getNgsStatsData' should have a corresponding function below
+ */
+const getCellRangerData = (projectId, type) => {
+    return axios.get(`${config.NGS_STATS}/getCellRangerSample?project=${projectId}&type=${type}`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };
@@ -52,7 +52,12 @@ const processCellRangerResponse = (resp) => {
 
     return data;
 };
-
+/**
+ * Decompresses string of decompressed data for graphs taken directly from web_summary.html page
+ *
+ * @param compressedGraphData, String
+ * @returns {[]}
+ */
 const decompressGraphData = (compressedGraphData) => {
     let graphs = [];
     if(compressedGraphData) {

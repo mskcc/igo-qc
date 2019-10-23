@@ -1,12 +1,9 @@
-// TODO - When fully integrated
- import React, { useState, useEffect } from 'react';
- import PropTypes from 'prop-types';
-
-import { CELL_RANGER_APPLICATION } from '../../constants.js';
-import {Link} from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faArrowAltCircleRight, faCheckSquare, faSquare} from '@fortawesome/free-solid-svg-icons'
+import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
 
 // ALL POSSIBLE FIELDS OF ROWS
 const FIELD_MAP = {

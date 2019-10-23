@@ -18,10 +18,6 @@ const Summary = (props) => {
                     <p className={"float-right"}>{props.requester.pi}</p>
                 </div>
                 <div className={"fill-width float-left"}>
-                    <p className={"float-left"}>Project Manager</p>
-                    <p className={"float-right"}>{props.requester.projectManager}</p>
-                </div>
-                <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Pipelinable</p>
                     <FontAwesomeIcon className="float-right em2 margin-10" icon={props.requester.pipelinable === true ? faCheckSquare : faSquare}/>
                 </div>
