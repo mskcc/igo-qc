@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { getNgsStatsData } from './services/ngs-stats-service';
-import { getProjectInfo } from './services/igo-qc-service';
+import { getNgsStatsData } from '../../services/ngs-stats-service';
+import { getProjectInfo } from '../../services/igo-qc-service.js';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
 import './app.css';

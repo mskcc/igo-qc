@@ -4,11 +4,11 @@ import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 import Handsontable from 'handsontable';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTimes} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
 
-import { setRunStatus } from '../services/igo-qc-service';
+import { setRunStatus } from '../../../services/igo-qc-service';
 import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../constants";
 
 class QcTable extends React.Component {
