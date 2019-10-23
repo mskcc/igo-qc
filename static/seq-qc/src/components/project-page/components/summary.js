@@ -26,7 +26,7 @@ const Summary = (props) => {
                     <FontAwesomeIcon className="float-right em2 margin-10" icon={props.requester.pipelinable === true ? faCheckSquare : faSquare}/>
                 </div>
                 <div className={"fill-width float-left"}>
-                    <p className={"float-left"}>Analyais Requested</p>
+                    <p className={"float-left"}>Analysis Requested</p>
                     <FontAwesomeIcon className="float-right em2 margin-10" icon={props.requester.analysisRequested === true ? faCheckSquare : faSquare}/>
                 </div>
                 <div className={"fill-width float-left"}>
