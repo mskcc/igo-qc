@@ -5,7 +5,6 @@ import { getNgsStatsData } from '../../services/ngs-stats-service';
 import { getProjectInfo } from '../../services/igo-qc-service.js';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
-import './app.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +20,7 @@ import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR } from "../../constants";
  * @returns {*}
  * @constructor
  */
-function App(props){
+function ProjectPage(props){
     // TODO - pass props of ngsStatsData/projectInfo in for caching
     const [recipe, setRecipe] = useState(null);
     const [ngsStatsData, setNgsStatsData] = useState(null);
@@ -276,9 +275,9 @@ function App(props){
         </div>;
 }
 
-export default App;
+export default ProjectPage;
 
-App.propTypes = {
+ProjectPage.propTypes = {
     projectMap: PropTypes.object,
     addModalUpdate: PropTypes.func
 };

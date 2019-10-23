@@ -1,5 +1,4 @@
 import React from 'react';
-import '../app.css';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons'

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Plot from "react-plotly.js";
 import PropTypes from 'prop-types';
 
-import '../app.css';
 import {faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
