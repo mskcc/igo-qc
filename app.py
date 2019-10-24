@@ -568,23 +568,40 @@ def post_qcStatus(pId, recordId, qcStatus):
 def change_run_status():
     recordIds_arg = request.args.get("recordId")
     project = request.args.get("project")
-    status = request.args.get("status")
+    qc_status = request.args.get("status")
     recipe = request.args.get("recipe")
     recordIds = recordIds_arg.split(',')
 
-    successful_requests = []
-    failed_requests = []
+    successful_requests = {}
+    failed_requests = {}
     for id in recordIds:
-        payload = {'record': id, 'status': status, 'project': project, 'recipe': recipe}
-        url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
-        resp = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
-        if 'NewStatus' in resp.text and resp.status_code == 200:
-            successful_requests.append(id)
+        id_status_fail = []
+        id_status_success = []
+
+        # Repool requests must also modify the samples table
+        if(should_repool_sample(recipe, qc_status)):
+            repool_success = request_repool(id, recipe, qc_status)
+            if repool_success:
+                # TODO - Make these constants
+                id_status_success.append("repool")
+            else:
+                id_status_fail.append("repool")
+
+        qc_status_change_success = request_qc_status_change(id, qc_status, project, recipe)
+        if qc_status_change_success:
+            id_status_success.append("qc status")
         else:
-            failed_requests.append(id)
+            id_status_fail.append("qc status")
+
+        if len(id_status_fail) > 0:
+            failed_requests[id] = id_status_fail
+        if len(id_status_success) > 0:
+            successful_requests[id] = id_status_success
 
     success = len(failed_requests) == 0
-    status = 'Set QC Status' if success else 'Failed to set run statuses'
+    status = ('Set QC Status' if success else "Failed to set modify samples/QC. See 'failedRequests' for details")
+
+    # TODO - Make status more descriptive about successful/failed requests
     data = {
         'successfulRequests': successful_requests,
         'failedRequests': failed_requests,
@@ -592,6 +609,27 @@ def change_run_status():
         'success': success
     }
     return create_resp(success, status, data)
+
+def should_repool_sample(recipe, status):
+    print('Recipe: %s, Status: %s' % (recipe,status))
+    return (recipe == 'HemePACT_v4' or recipe == ' IMPACT') and status == 'Repool-Sample'
+
+def request_qc_status_change(id, qc_status, project, recipe):
+    set_qc_payload = { 'record': id, 'status': qc_status, 'project': project, 'recipe': recipe }
+    set_qc_url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+
+    resp = s.post(set_qc_url, params=set_qc_payload,  auth=(USER, PASSW), verify=False)
+    return 'NewStatus' in resp.text and resp.status_code == 200
+
+def request_repool(id, recipe, qc_status):
+    print("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
+
+    set_pooled_url = "http://localhost:5007/setPooledSampleStatus"      # TODO - replace w/ LIMS_API_ROOT
+    # Status should be that expected by LIMS for SAMPLES, not the QC site
+    set_pooled_payload = {'record': id, 'status': "Ready for - Pooling of Sample Libraries for Sequencing"}
+    set_pooled_resp = s.post(set_pooled_url, params=set_pooled_payload,  auth=(USER, PASSW), verify=False)
+
+    return set_pooled_resp.status_code == 200
 
 #route to post all the qc status
 @app.route('/postall_<pId>_<qcStatus>')
