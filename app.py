@@ -14,6 +14,7 @@ import re
 import time,datetime, glob
 import uwsgi, pickle
 from operator import itemgetter
+from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS
 import Grid
 
 
@@ -563,7 +564,11 @@ def post_qcStatus(pId, recordId, qcStatus):
     r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
 
-#route to post the qc status
+"""
+Modifies Sample QC Status.
+Side Effects:
+    1) If request is for "repool" of recipe: "HemePact"/"Impact", then also submit request to repool Sample
+"""
 @app.route('/changeRunStatus')
 def change_run_status():
     recordIds_arg = request.args.get("recordId")
@@ -583,15 +588,15 @@ def change_run_status():
             repool_success = request_repool(id, recipe, qc_status)
             if repool_success:
                 # TODO - Make these constants
-                id_status_success.append("repool")
+                id_status_success.append(LIMS_TASK_REPOOL)
             else:
-                id_status_fail.append("repool")
+                id_status_fail.append(LIMS_TASK_REPOOL)
 
         qc_status_change_success = request_qc_status_change(id, qc_status, project, recipe)
         if qc_status_change_success:
-            id_status_success.append("qc status")
+            id_status_success.append(LIMS_TASK_SET_QC_STATUS)
         else:
-            id_status_fail.append("qc status")
+            id_status_fail.append(LIMS_TASK_SET_QC_STATUS)
 
         if len(id_status_fail) > 0:
             failed_requests[id] = id_status_fail
