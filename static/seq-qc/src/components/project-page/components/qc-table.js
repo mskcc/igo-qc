@@ -5,7 +5,7 @@ import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faSearch } from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
 
 import { setRunStatus } from '../../../services/igo-qc-service';
@@ -166,41 +166,18 @@ class QcTable extends React.Component {
     }
 
     render() {
-        // TODO - this was done to prevent any rendering of hot-table. Needed?
-        // if(this.props.data.length === 0 || this.props.headers.length === 0) return <div></div>
-        /*
-        const data = this.props.data.map((d) => {
-            d['QC Status'] = '<div><button>TEST</button></div>';
-            return d;
-        });
-         */
-        /*
-        debugger;
-        const data = this.props.data.map((d) => {
-            d['check'] = false;
-            return d;
-        });
-        */
-
-        // const headers = this.props.headers;
-
-        // TODO - put in state
-        /*
-        const headers = Object.assign([], this.props.headers);
-        headers.unshift('check');
-        */
-
         // TODO - Have removable columns
         return (
             <div>
                 {this.renderStatusModal()}
-                <div>
-                    <label>
-                        <h6 className={"inline white-color"}>Project Search:</h6>
-                    </label>
-                    <input className={"inline vertical-align-top project-search margin-left-10"}
-                           type="text"
-                           value={this.state.searchTerm} onChange={this.runSearch} />
+                <div className={"table-tools pos-rel"}>
+                    <div className={"center-v table-search-container"}>
+                        <FontAwesomeIcon className={"em5"}
+                                         icon={faSearch}/>
+                        <input className={"inline vertical-align-top project-search margin-left-10"}
+                               type="text"
+                               value={this.state.searchTerm} onChange={this.runSearch} />
+                    </div>
                 </div>
                 <HotTable
                     ref={this.hotTableRef}

@@ -31,3 +31,16 @@
 .status-change-submit {
     height: 50px;
 }
+.table-tools {
+    height: 30px;
+    background-color: #eceff1;
+}
+.table-search-container{
+    width: 200px;
+    border-radius: 20px;
+    border: 1px solid black;
+    padding-left: 20px;
+    position: absolute;
+    right: 0px;
+    background-color: white;
+}
