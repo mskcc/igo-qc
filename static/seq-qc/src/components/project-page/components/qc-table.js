@@ -171,7 +171,7 @@ class QcTable extends React.Component {
             <div>
                 {this.renderStatusModal()}
                 {
-                    this.state.displayedData.length > 0 ?
+                    this.state.data.length > 0 ?
                         <div className={"table-tools pos-rel"}>
                             <div className={"center-v table-search-container"}>
                                 <FontAwesomeIcon className={"em5"}
