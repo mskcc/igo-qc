@@ -36,8 +36,8 @@
     "start-dev": "react-scripts start",
     "wbpk-remind": "python reminder.py",
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "wbpk": "npm run wbpk-remind && webpack -p --mode production",
+    "build": "REACT_APP_STAGE=production react-scripts build",
+    "wbpk": "REACT_APP_STAGE=production npm run wbpk-remind && webpack -p --mode production",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
