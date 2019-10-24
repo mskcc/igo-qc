@@ -14,7 +14,8 @@ import re
 import time,datetime, glob
 import uwsgi, pickle
 from operator import itemgetter
-from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS
+from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
+
 import Grid
 
 
@@ -571,10 +572,10 @@ Side Effects:
 """
 @app.route('/changeRunStatus')
 def change_run_status():
-    recordIds_arg = request.args.get("recordId")
-    project = request.args.get("project")
-    qc_status = request.args.get("status")
-    recipe = request.args.get("recipe")
+    recordIds_arg = request.args.get(API_RECORD_ID)
+    project = request.args.get(API_PROJECT)
+    qc_status = request.args.get(API_QC_STATUS)
+    recipe = request.args.get(API_RECIPE)
     recordIds = recordIds_arg.split(',')
 
     successful_requests = {}
@@ -617,7 +618,7 @@ def change_run_status():
 
 def should_repool_sample(recipe, status):
     print('Recipe: %s, Status: %s' % (recipe,status))
-    return (recipe == 'HemePACT_v4' or recipe == ' IMPACT') and status == 'Repool-Sample'
+    return (recipe == RECIPE_HEMEPACT or recipe == RECIPE_IMPACT) and status == 'Repool-Sample'
 
 def request_qc_status_change(id, qc_status, project, recipe):
     set_qc_payload = { 'record': id, 'status': qc_status, 'project': project, 'recipe': recipe }
