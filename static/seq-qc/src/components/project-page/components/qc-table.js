@@ -168,7 +168,7 @@ class QcTable extends React.Component {
     render() {
         // TODO - Have removable columns
         return (
-            <div>
+            <div className={"overflow-x-scroll"}>
                 {this.renderStatusModal()}
                 {
                     this.state.data.length > 0 ?
@@ -202,7 +202,7 @@ class QcTable extends React.Component {
                     })}
                     fixedRowsTop={0}
                     fixedColumnsLeft={0}
-                    preventOverflow="horizontal"
+                    // preventOverflow="horizontal"
                     selectionMode={"multiple"}
                     outsideClickDeselects={true}
                     afterSelection={this.afterSelection}

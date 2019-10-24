@@ -268,7 +268,7 @@ function ProjectPage(props){
             </div>;
     };
 
-    return <div>
+    return <div className={"margin-bottom-75"}>
             {renderSummary(projectInfo)}
             {renderNgsGraphs(selectedSample)}
             {renderGrid(gridData,headers)}
