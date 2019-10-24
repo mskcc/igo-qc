@@ -170,15 +170,21 @@ class QcTable extends React.Component {
         return (
             <div>
                 {this.renderStatusModal()}
-                <div className={"table-tools pos-rel"}>
-                    <div className={"center-v table-search-container"}>
-                        <FontAwesomeIcon className={"em5"}
-                                         icon={faSearch}/>
-                        <input className={"inline vertical-align-top project-search margin-left-10"}
-                               type="text"
-                               value={this.state.searchTerm} onChange={this.runSearch} />
-                    </div>
-                </div>
+                {
+                    this.state.displayedData.length > 0 ?
+                        <div className={"table-tools pos-rel"}>
+                            <div className={"center-v table-search-container"}>
+                                <FontAwesomeIcon className={"em5"}
+                                                 icon={faSearch}/>
+                                <input className={"inline vertical-align-top project-search margin-left-10"}
+                                       type="text"
+                                       value={this.state.searchTerm} onChange={this.runSearch} />
+                            </div>
+                        </div>
+                    :
+                        <div></div>
+                }
+
                 <HotTable
                     ref={this.hotTableRef}
                     licenseKey="non-commercial-and-evaluation"
