@@ -17,33 +17,6 @@
             <!-- Entry point for react -->
             <div class="row" id="react_app"></div>
         </div>
-        <!-- Main Container ends here -->
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-
-        <!-- Important js put in all pages -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>
-            window.jQuery || document.write('<script src="js/jquery.js"><\/script>')
-        </script>
-        <script src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
-
-        <script src="{{ url_for('static', filename="js/react-dependencies/prop-types.min.js") }}"></script>
-
-        <!-- Data table plugins -->
-        <script src="{{ url_for('static', filename="js/jquery.dataTables.min.js") }}"></script>
-        <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
-
-        <!-- Init plugins and custom javascript-->
-        <script src="{{ url_for('static', filename="js/custom.js") }}"></script>
-
-
-        <!-- Load React. -->
-        <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
-        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-
         <!-- Load our React component. -->
         <script src="{{ url_for('static', filename='seq-qc/dist/bundle.js') }}" type="module"></script>
     </body>
