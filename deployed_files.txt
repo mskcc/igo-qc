@@ -1,7 +1,8 @@
 Makefile
 requirements.txt
 lims_user_config
-igo-qc.ini
+new-igo-qc.ini
 Grid.py
 constants.py
 app.py
+settings.py

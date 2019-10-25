@@ -13,4 +13,12 @@ pkg:
 	cp -rf ./templates ./dist && \
 	mkdir -p dist/static/seq-qc/dist && cp static/seq-qc/dist/bundle.js dist/static/seq-qc/dist
 
+clean:
+	rm -rf dist
+
+move:
+	scp -r dist igo:deployments/new-igo-qc
+
+deploy:
+	make clean && make pkg && make move
 
