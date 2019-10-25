@@ -20,7 +20,8 @@ class QcTable extends React.Component {
             hotTableRef: React.createRef(),
             selected: [],
             statusChange: '',
-            searchTerm: ''
+            searchTerm: '',
+            rowHeight: 23                   // This shouldn't change. It is the height of each row in the HotTable
         }
     }
 
@@ -165,50 +166,77 @@ class QcTable extends React.Component {
         </div>
     }
 
-    render() {
-        // TODO - Have removable columns
-        return (
-            <div className={"overflow-x-scroll"}>
-                {this.renderStatusModal()}
-                {
-                    this.state.data.length > 0 ?
-                        <div className={"table-tools pos-rel"}>
-                            <div className={"center-v table-search-container"}>
-                                <FontAwesomeIcon className={"em5"}
-                                                 icon={faSearch}/>
-                                <input className={"inline vertical-align-top project-search margin-left-10"}
-                                       type="text"
-                                       value={this.state.searchTerm} onChange={this.runSearch} />
-                            </div>
-                        </div>
-                    :
-                        <div></div>
-                }
+    /**
+     * We calculate the height because implementing HotTable w/ overflow can create excess height when there are many
+     * rows (REF: https://github.com/handsontable/handsontable/issues/4141#issuecomment-360429985)
+     *      We calculate the height as a product of the state's rowHeight & displayedData length
+     *
+     * @returns {string}, "100vh" or "{HEIGHT}px"
+     */
+    calculateHeight = () => {
+        // REF - https://stackoverflow.com/a/28241682/3874247
+        const availableHeight = window.innerHeight
+            || document.documentElement.clientHeight
+            || document.body.clientHeight;
+        const neededHeight = this.state.displayedData.length * this.state.rowHeight;
 
-                <HotTable
-                    ref={this.hotTableRef}
-                    licenseKey="non-commercial-and-evaluation"
-                    id="qc-grid"
-                    data={this.state.displayedData}
-                    colHeaders={this.props.headers}
-                    rowHeaders={true}
-                    filters="true"
-                    dropdownMenu={['filter_by_value', 'filter_action_bar']} // 'remove_col'
-                    // allowRemoveColumn={true}
-                    columnSorting={true}
-                    columns={this.props.headers.map((header)=>{
-                        const col = { 'data': header };
-                        return col;
-                    })}
-                    fixedRowsTop={0}
-                    fixedColumnsLeft={0}
-                    // preventOverflow="horizontal"
-                    selectionMode={"multiple"}
-                    outsideClickDeselects={true}
-                    afterSelection={this.afterSelection}
-                />
-            </div>
-        );
+        // If we are already exceeding the window height, just return the full viewport height
+        if(neededHeight > availableHeight) return '100vh';
+
+        const headerSize = 45;
+        return `${neededHeight + headerSize}px`;
+    };
+
+    render() {
+        /*
+            Return an empty div if there is no data to render. This is REQUIRED b/c rendering the HotTable before data
+            is available will cause rendering height issues as we calculate this dynamically based on window height
+            and provide an overflow-y.
+         */
+        if(this.state.data.length === 0) return <div></div>;
+
+        const style = { "height": `${this.calculateHeight()}`, "overflow-y": "scroll" };
+        return (<div>
+                    {this.renderStatusModal()}
+                    {
+                        this.state.data.length > 0 ?
+                            <div className={"table-tools pos-rel"}>
+                                <div className={"center-v table-search-container"}>
+                                    <FontAwesomeIcon className={"em5"}
+                                                     icon={faSearch}/>
+                                    <input className={"inline vertical-align-top project-search margin-left-10"}
+                                           type="text"
+                                           value={this.state.searchTerm} onChange={this.runSearch} />
+                                </div>
+                            </div>
+                        :
+                            <div></div>
+                    }
+                    <HotTable
+                        ref={this.hotTableRef}
+                        licenseKey="non-commercial-and-evaluation"
+                        id="qc-grid"
+                        data={this.state.displayedData}
+                        colHeaders={this.props.headers}
+                        rowHeaders={true}
+                        filters="true"
+                        dropdownMenu={['filter_by_value', 'filter_action_bar']} // 'remove_col'
+                        // allowRemoveColumn={true}
+                        columnSorting={true}
+                        columns={this.props.headers.map((header)=>{
+                            const col = { 'data': header };
+                            return col;
+                        })}
+                        fixedRowsTop={0}
+                        fixedColumnsLeft={0}
+                        preventOverflow="horizontal"
+                        selectionMode={"multiple"}
+                        outsideClickDeselects={true}
+                        afterSelection={this.afterSelection}
+                        rowHeights={`${this.state.rowHeight}px`}
+                        style={style}
+                    />
+                </div>);
     }
 }
 
