@@ -6,4 +6,5 @@ static/html/FASTQ/*
 static/html/PDF/*
 venv/*
 **/.idea/*
+dist/*
 static/seq-qc/dist/*
