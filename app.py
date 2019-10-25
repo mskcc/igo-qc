@@ -379,7 +379,6 @@ Returns the recent projects from the Request table
 @navbarForm
 def getRequestProjects():
     resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
-    # resp = GetRecentDeliveries.resp
     projects = json.loads(resp.content)
 
     for project in projects:
