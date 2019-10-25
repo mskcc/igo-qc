@@ -341,7 +341,7 @@ Returns the recent projects from the Seq Analysis LIMS table
 @app.route('/getSeqAnalysisProjects', methods=['GET'])
 @navbarForm
 def getSeqAnalysisProjects():
-    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False)
+    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False, timeout=10)
     # resp = GetSeqAnalysis.resp
     projects = json.loads(resp.content)
 
@@ -378,7 +378,7 @@ Returns the recent projects from the Request table
 @app.route('/getRequestProjects', methods=['GET'])
 @navbarForm
 def getRequestProjects():
-    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False)
+    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False, timeout=10)
     projects = json.loads(resp.content)
 
     for project in projects:
