@@ -4,8 +4,8 @@ const dev = {
     NGS_STATS: 'http://localhost:8080'
 };
 const prod = {
-    IGO_QC: 'http://localhost:9009',                                 // In production, client will be served from server
-    NGS_STATS: 'http://localhost:8080'
+    IGO_QC: '',                                 // In production, client will be served from server
+    NGS_STATS: 'http://delphi.mskcc.org:8080'
 };
 
 const config = process.env.REACT_APP_STAGE === 'production'
