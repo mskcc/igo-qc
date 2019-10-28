@@ -364,7 +364,7 @@ Returns the recent projects from the Seq Analysis LIMS table
 def getSeqAnalysisProjects():
     seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
     app.logger.info("Sending request to %s" % seq_analysis_projects_url)
-    resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
+    resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
     projects = json.loads(resp.content)
 
     # Logging
@@ -406,7 +406,7 @@ Returns the recent projects from the Request table
 def getRequestProjects():
     req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
     app.logger.info("Sending request to %s" % req_projects_url)
-    resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
+    resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
     projects = json.loads(resp.content)
 
     # Logging
