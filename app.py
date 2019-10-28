@@ -6,7 +6,6 @@ from collections import defaultdict
 import requests
 import os, json, re, yaml
 from settings import APP_STATIC
-app = Flask(__name__)
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
@@ -15,6 +14,28 @@ import time,datetime, glob
 import uwsgi, pickle
 from operator import itemgetter
 from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
+
+import logging
+from logging.config import dictConfig
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(message)s'
+            # 'format': '[%(asctime)s] SAMPLE.REC.BE %(levelname)s in %(module)s: %(message)s'
+        }
+    },
+    'handlers': {
+        'wsgi': {
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://flask.logging.wsgi_errors_stream',
+            'formatter': 'default',
+        }
+    },
+    'root': {'level': 'INFO', 'handlers': ['wsgi']},
+})
+
+app = Flask(__name__)
 
 import Grid
 
@@ -342,13 +363,13 @@ Returns the recent projects from the Seq Analysis LIMS table
 @navbarForm
 def getSeqAnalysisProjects():
     seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
-    print("Sending request to %s" % seq_analysis_projects_url)
+    app.logger.info("Sending request to %s" % seq_analysis_projects_url)
     resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
     projects = json.loads(resp.content)
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    print("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     projectsToReview = []
     projectsToSequenceFurther = []
@@ -384,13 +405,13 @@ Returns the recent projects from the Request table
 @navbarForm
 def getRequestProjects():
     req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
-    print("Sending request to %s" % req_projects_url)
+    app.logger.info("Sending request to %s" % req_projects_url)
     resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
     projects = json.loads(resp.content)
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    print("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     for project in projects:
         [ignore, recentDate] = getRecentDateAndRuns(project)
@@ -421,7 +442,7 @@ def get_recent_runs():
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
 
-    print("Found %d runs at %s" % (len(dir_data), dir_path))
+    app.logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
 
     # Add Recent Runs data for links to HTML files
     datenow = datetime.datetime.now()
