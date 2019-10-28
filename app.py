@@ -341,9 +341,14 @@ Returns the recent projects from the Seq Analysis LIMS table
 @app.route('/getSeqAnalysisProjects', methods=['GET'])
 @navbarForm
 def getSeqAnalysisProjects():
-    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries", auth=(USER, PASSW), verify=False, timeout=10)
-    # resp = GetSeqAnalysis.resp
+    seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
+    print("Sending request to %s" % seq_analysis_projects_url)
+    resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
     projects = json.loads(resp.content)
+
+    # Logging
+    request_names = map(lambda p: p['requestId'], projects)
+    print("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     projectsToReview = []
     projectsToSequenceFurther = []
@@ -378,8 +383,14 @@ Returns the recent projects from the Request table
 @app.route('/getRequestProjects', methods=['GET'])
 @navbarForm
 def getRequestProjects():
-    resp = s.get(LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d", auth=(USER, PASSW), verify=False, timeout=10)
+    req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
+    print("Sending request to %s" % req_projects_url)
+    resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False, timeout=10)
     projects = json.loads(resp.content)
+
+    # Logging
+    request_names = map(lambda p: p['requestId'], projects)
+    print("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     for project in projects:
         [ignore, recentDate] = getRecentDateAndRuns(project)
@@ -410,9 +421,10 @@ def get_recent_runs():
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
 
-    datenow = datetime.datetime.now()
+    print("Found %d runs at %s" % (len(dir_data), dir_path))
 
     # Add Recent Runs data for links to HTML files
+    datenow = datetime.datetime.now()
     run_data = []
     for eachfile in dir_data:
         print("File:" + eachfile)
