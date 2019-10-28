@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
 import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
 import MuiButton from "@material-ui/core/Button/Button";
+import config from './config.js';
 
 function App() {
     /*
@@ -48,7 +49,12 @@ function App() {
                 addToProjectMap(projectsToReview);
                 addToProjectMap(projectsToSequenceFurther);
             })
-            .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR') });
+            .catch(error => {
+                // Allow rendering of an empty list
+                setProjectsToReview([]);
+                setProjectsToSequenceFurther([]);
+                addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
+            });
     }, []);
     useEffect(() => {
         // TODO - modal to display error
@@ -57,7 +63,11 @@ function App() {
                 const recentDeliveries = resp.recentDeliveries || [];
                 setRecentDeliveries(recentDeliveries);
             })
-            .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR') });
+            .catch(error => {
+                // Allow rendering of an empty list
+                setRecentDeliveries([]);
+                addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
+            });
     }, []);
     useEffect(() => {
        getRecentRuns()
@@ -65,7 +75,10 @@ function App() {
                const recentRuns = resp.recentRuns || [];
                setRecentRuns(recentRuns);
            })
-           .catch(error => {addModalUpdate(MODAL_ERROR, error.message || 'ERROR')});
+           .catch(error => {
+               setRecentRuns([]);
+               addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
+           });
     }, []);
 
     const addToProjectMap = (projectList) => {
@@ -126,14 +139,14 @@ function App() {
                 </header>
                 <div className={"margin-top-15 padding-hor-5per"}>
                     <Switch>
-                        <Route exact path="/">
+                        <Route exact path={config.SITE_HOME}>
                             <Home recentDeliveries={recentDeliveries}
                                   projectsToReview={projectsToReview}
                                   projectsToSequenceFurther={projectsToSequenceFurther}
                                   recentRuns={recentRuns}/>
                         </Route>
                         <Route
-                            path='/projects/:pid'
+                            path={`${config.SITE_HOME}projects/:pid`}
                             render={(props) => <CellRanger {...props} projectMap={projectMap} addModalUpdate={addModalUpdate}/>}
                         />
                     </Switch>

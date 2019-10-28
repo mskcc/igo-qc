@@ -11,6 +11,10 @@ import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
 import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR } from "../../constants";
+import { addServiceError } from '../../utils/service-utils';
+
+const NGS_STATS = 'ngs-stats';
+const PROJECT_INFO = 'project-info';
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -67,10 +71,7 @@ function ProjectPage(props){
                 setNgsStatsData(data);
             })
             .catch((err) => {
-                const se = Object.assign({}, serviceErrors);
-                // TODO - constant
-                se['ngs-stats'] = true;
-                setServiceErrors(se);
+                addServiceError(NGS_STATS, serviceErrors,setServiceErrors);
                 props.addModalUpdate(MODAL_ERROR, 'Failed to fetch NgsGraphs');
             });
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
@@ -89,11 +90,8 @@ function ProjectPage(props){
             setGridInfo(data);
         })
         .catch((err) => {
-            const se = Object.assign({}, serviceErrors);
-            // TODO - constant
-            se['project-info'] = true;
-            props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err)
-            setServiceErrors(se);
+            addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
+            props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err);
         })
     };
 
@@ -166,7 +164,7 @@ function ProjectPage(props){
     };
 
     const renderNgsGraphs = (sampleId) => {
-        if(serviceErrors['ngs-stats']){
+        if(serviceErrors[NGS_STATS]){
             return <div className={"black-border"}>
                 <p className={'text-align-center'}>Error loading NgsGraphs - contact streidd@mskcc.org</p>
             </div>
@@ -230,7 +228,7 @@ function ProjectPage(props){
     };
 
     const renderSummary = (projectInfo) => {
-        if(serviceErrors['project-info']){
+        if(serviceErrors[PROJECT_INFO]){
             return <div className={"black-border"}>
                 <p className={'text-align-center'}>Error loading Project Info stats - contact streidd@mskcc.org</p>
             </div>
@@ -247,7 +245,7 @@ function ProjectPage(props){
     };
 
     const renderGrid = (gridData, headers) => {
-        if(serviceErrors['project-info']){
+        if(serviceErrors[PROJECT_INFO]){
             return <div>
                 <p className={'text-align-center'}>Error loading Project Info stats - contact streidd@mskcc.org</p>
             </div>

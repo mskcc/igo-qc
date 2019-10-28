@@ -33,11 +33,13 @@
     "react-scripts": "3.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "REACT_APP_STAGE=production react-scripts build",
-    "wbpk": "REACT_APP_STAGE=production npm run wbpk-remind && webpack -p --mode production",
+    "start": "npm run cfg:dev && react-scripts start",
+    "build": "npm run cfg:prod && react-scripts build",
+    "cfg:prod": "cp ./src/config.prod.js ./src/config.js",
+    "cfg:dev": "cp ./src/config.dev.js ./src/config.js",
+    "wbpk": "npm run wbpk-remind && npm run cfg:dev && webpack -p --mode production",
     "wbpk-remind": "python reminder.py",
-    "test": "react-scripts test",
+    "test": "npm run cfg:dev && react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

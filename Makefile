@@ -11,6 +11,7 @@ pkg:
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
 	cp -rf ./templates ./dist && \
+	cd ./static/seq-qc && npm run wbpk && cd - && \
 	mkdir -p dist/static/seq-qc/dist && cp static/seq-qc/dist/bundle.js dist/static/seq-qc/dist
 
 clean:

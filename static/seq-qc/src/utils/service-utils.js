@@ -4,3 +4,10 @@ export const handleError = (err) => {
     throw new Error(err);
     return [];
 };
+
+
+export const addServiceError = (type, serviceErrors, setServiceErrors) => {
+    const se = Object.assign({}, serviceErrors);
+    se[type] = true;
+    setServiceErrors(se);
+}
