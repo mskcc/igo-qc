@@ -1123,7 +1123,9 @@ def get_interops_data():
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
     runName = get_flowcell_id(request.args.get("runId"))
-    r = s.get(LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName, auth=(USER, PASSW), verify=False)
+    interops_data_url = LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName
+    app.logger.info("Sending %s" % interops_data_url)
+    r = s.get(interops_data_url, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
