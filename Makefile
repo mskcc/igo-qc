@@ -5,7 +5,7 @@ init:
 
 run:
 	source venv/bin/activate && \
-	uwsgi igo-qc.ini;
+	uwsgi new-igo-qc.ini;
 
 run-client:
 	python3 settings_writer.py dev && \
