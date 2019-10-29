@@ -7,6 +7,10 @@ run:
 	source venv/bin/activate && \
 	uwsgi igo-qc.ini;
 
+run-client:
+	python3 settings_writer.py dev && \
+    cd ./static/seq-qc/ && npm run start
+
 pkg:
 	python3 settings_writer.py prod && \
 	mkdir -p dist && \
