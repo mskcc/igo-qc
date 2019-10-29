@@ -293,6 +293,11 @@ button:hover{
     transition: max-height 0.4s ease-in;
     overflow: hidden;
 }
+.run-info-button {
+    width: 65px;
+    height: 40px;
+    border-radius: 5px;
+}
 .graph-container {
     border-top: none;
     border: 1px solid black;

@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChartBar, faFile } from '@fortawesome/free-solid-svg-icons'
+
 import config from '../../config.js';
 
 /**
@@ -7,7 +10,7 @@ import config from '../../config.js';
  */
 const RunRouter = (props) => {
     const renderHeaders = () => {
-        const headers = ["Date", "Lane Summary", "Run Stats"];
+        const headers = ["Lane Name", "Date", "Lane Summary", "Run Stats"];
 
         return <thead><tr className="fill-width">
             { headers.map( (field) =>
@@ -17,19 +20,37 @@ const RunRouter = (props) => {
             }
         </tr></thead>;
     };
+
+    const formatRunName = (htmlName) =>{
+        if(!htmlName) return "";
+
+        const name = htmlName.split("_laneBarcode.html")[0]
+        return name;
+    };
+
     const renderRuns = () => {
         const runElements = [];
         for( const run of props.projects ){
+            const name = formatRunName(run.runName);
             const element = <tr className="fill-width project-row" key={run.requestId}>
-                <td className="project-field field-header" key={`${run.requestId}-date`}>
-                    <p className="font-size-12">{run.date}</p>
+                <td className="project-field field-header text-align-center" key={`${name}-href`}>
+                    <p>{ name }</p>
                 </td>
-                <td className="project-field field-header" key={`${run.runName}-href`}>
-                    <a href={run.path}>{ run.runName }</a>
+                <td className="project-field field-header text-align-center" key={`${run.requestId}-date`}>
+                    <p>{run.date}</p>
                 </td>
-                <td>
-                    <button className="btn btn-primary">
-                        <a href={`${config.SITE_HOME}${run.runStats}`} target="_blank">View Run Stats</a>
+                <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
+                    <button className="btn btn-primary run-info-button">
+                        <a href={run.path} target="_blank">
+                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
+                        </a>
+                    </button>
+                </td>
+                <td className={"text-align-center"}>
+                    <button className="btn btn-primary run-info-button">
+                        <a href={`${config.SITE_HOME}${run.runStats}`} target="_blank">
+                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
+                        </a>
                     </button>
                 </td>
             </tr>;

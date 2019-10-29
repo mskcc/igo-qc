@@ -94,7 +94,7 @@ const ProjectRouter = (props) => {
         } else {
             // LOADED - No Data
             return <div>
-                <p className={'text-align-center'}>{`No "${props.name}" Projects`}</p>
+                <p className={'text-align-center'}>No Projects</p>
             </div>
         }
     };

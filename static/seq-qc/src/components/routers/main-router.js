@@ -18,9 +18,9 @@ const App = (props) => {
                         <div className="black-border-bottom padding-vert-15 project-router-container">
                             <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
                         </div>
-                        <h3 className={"margin-0"}>Requests</h3>
+                        <h3 className={"margin-0"}>Recent Deliveries</h3>
                         <div className="black-border-bottom padding-vert-15 project-router-container">
-                            <ProjectRouter name="Recent Deliveries" projects={props.recentDeliveries}/>
+                            <ProjectRouter name="" projects={props.recentDeliveries}/>
                         </div>
                         <h3 className={"margin-0"}>Recent Runs</h3>
                         <div className="padding-vert-15 project-router-container">
