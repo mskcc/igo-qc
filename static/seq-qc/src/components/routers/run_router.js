@@ -41,7 +41,7 @@ const RunRouter = (props) => {
                 </td>
                 <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
                     <button className="btn btn-primary run-info-button">
-                        <a href={run.path} target="_blank">
+                        <a href={`/seq-qc/${run.path}`} target="_blank">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
                         </a>
                     </button>
