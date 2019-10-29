@@ -35,12 +35,15 @@ dictConfig({
     'root': {'level': 'INFO', 'handlers': ['wsgi']},
 })
 
+CACHE_TIME_LONG = 21600     # 6 hours
+CACHE_TIME_SHORT = 300      # 5 minutes
+CACHE_NAME = "igoqc"        # Take from .ini file
+
+
 app = Flask(__name__)
 
 import Grid
 
-
-# TODO - Add Logging
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
@@ -342,10 +345,15 @@ Returns the recent projects from the Seq Analysis LIMS table
 @app.route('/getSeqAnalysisProjects', methods=['GET'])
 @navbarForm
 def getSeqAnalysisProjects():
-    seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
-    app.logger.info("Sending request to %s" % seq_analysis_projects_url)
-    resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
-    projects = json.loads(resp.content)
+    cache_key = "seq-analysis-projects"
+    content = get_cached_data(cache_key)
+    if not content:
+        seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
+        app.logger.info("Sending request to %s" % seq_analysis_projects_url)
+        resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
+        content = resp.content
+        cache_data(cache_key, content, CACHE_TIME_SHORT)
+    projects = json.loads(content)
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
@@ -375,7 +383,6 @@ def getSeqAnalysisProjects():
         'projectsToReview': projectsToReview,
         'projectsToSequenceFurther': projectsToSequenceFurther
     }
-
     return create_resp(True, 'success', data)
 
 '''
@@ -384,10 +391,15 @@ Returns the recent projects from the Request table
 @app.route('/getRequestProjects', methods=['GET'])
 @navbarForm
 def getRequestProjects():
-    req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
-    app.logger.info("Sending request to %s" % req_projects_url)
-    resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
-    projects = json.loads(resp.content)
+    cache_key = "request-projects"
+    content = get_cached_data(cache_key)
+    if not content:
+        req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
+        app.logger.info("Sending request to %s" % req_projects_url)
+        resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
+        content = resp.content
+        cache_data(cache_key, content, CACHE_TIME_SHORT)
+    projects = json.loads(content)
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
@@ -1123,12 +1135,32 @@ def get_interops_data():
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
     runName = get_flowcell_id(request.args.get("runId"))
+
+    cache_key = "interOps-%s" % runName
+    run_summary = get_cached_data(cache_key)
+    if run_summary:
+        if(len(run_summary) > 0):
+            # Only cache if data is returned, otherwise there may be a LimsRest issue
+            cache_data(cache_key, run_summary, CACHE_TIME_LONG)
+        return render_template('run_summary.html', run_summary=json.loads(run_summary))
+
     interops_data_url = LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName
     app.logger.info("Sending %s" % interops_data_url)
     r = s.get(interops_data_url, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
+def get_cached_data(key):
+    if uwsgi.cache_exists(key, CACHE_NAME):
+        data = uwsgi.cache_get(key, CACHE_NAME)
+        app.logger.info("Using cached data for %s" % key)
+        return data
+    app.logger.info("No data cached for %s" % key)
+    return None
+
+def cache_data(key, content, time):
+    app.logger.info("Caching %s for %d seconds" % (key, time))
+    uwsgi.cache_set(key, content, time, CACHE_NAME)
 
 if __name__ == '__main__':
     app.run()
