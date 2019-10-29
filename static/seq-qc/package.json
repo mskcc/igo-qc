@@ -37,7 +37,8 @@
     "build": "npm run cfg:prod && react-scripts build",
     "cfg:prod": "cp ./src/config.prod.js ./src/config.js",
     "cfg:dev": "cp ./src/config.dev.js ./src/config.js",
-    "wbpk": "npm run wbpk-remind && npm run cfg:prod && webpack -p --mode production",
+    "wbpk:prod": "npm run wbpk-remind && npm run cfg:prod && webpack -p --mode production",
+    "wbpk:dev": "npm run wbpk-remind && npm run cfg:dev && webpack -p --mode production",
     "wbpk-remind": "python reminder.py",
     "test": "npm run cfg:dev && react-scripts test",
     "eject": "react-scripts eject"

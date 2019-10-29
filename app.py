@@ -5,7 +5,7 @@ from functools import wraps
 from collections import defaultdict
 import requests
 import os, json, re, yaml
-from settings import APP_STATIC
+from settings import APP_STATIC, FASTQ_PATH
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
@@ -98,26 +98,6 @@ def is_project_id_valid(project_id):
 @app.route('/home', methods=['GET', 'POST'])
 @navbarForm
 def index():
-    dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
-    dir_data = glob.glob(dir_path + "*.html")
-    dir_data.sort(key=os.path.getmtime, reverse=True)
-
-    datenow = datetime.datetime.now()
-
-    # Add Recent Runs data for links to HTML files
-    run_data = []
-    for eachfile in dir_data:
-        print("File:" + eachfile)
-        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
-        if (datenow - mtime).days < 7:
-            project = {}
-            mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
-            project['date'] = mod_timestamp
-            head, tail = os.path.split(eachfile)
-            project['path'] = "static/html/FASTQ/" + tail
-            project['run_name'] = tail
-            run_data.append(project)
-            #print(mod_timestamp + " " + tail)
     return render_template("index.html", **locals())
 
 def build_grid_from_samples(samples, pType):
@@ -438,7 +418,7 @@ def projects_tmp(pId):
 @app.route('/getRecentRuns', methods=['GET', 'POST'])
 @navbarForm
 def get_recent_runs():
-    dir_path = "/srv/www/vassals/igo-qc/static/html/FASTQ/"
+    dir_path = FASTQ_PATH
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
 
@@ -446,11 +426,14 @@ def get_recent_runs():
 
     # Add Recent Runs data for links to HTML files
     datenow = datetime.datetime.now()
+    latest_age = 7
+    app.logger.info("Returning files last modified less than %d days ago" % latest_age)
     run_data = []
     for eachfile in dir_data:
-        print("File:" + eachfile)
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
-        if (datenow - mtime).days < 7:
+        last_modified = (datenow - mtime).days
+        app.logger.info("File: %s. Modified %s days ago" % (eachfile, str(last_modified)))
+        if last_modified < latest_age:
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
