@@ -7,10 +7,9 @@ import config from '../../config.js';
  */
 const RunRouter = (props) => {
     const renderHeaders = () => {
-        const headers = ["Report Generated", "Lane Summary", "Run Stats"];
+        const headers = ["Date", "Lane Summary", "Run Stats"];
 
         return <thead><tr className="fill-width">
-            <th>LINK</th>
             { headers.map( (field) =>
                 <th className="project-field" key={field}>
                     <p className="font-size-16 font-bold">{field}</p>
