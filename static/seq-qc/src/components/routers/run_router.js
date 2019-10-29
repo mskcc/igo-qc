@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import config from '../../config.js';
 
 /**
  * Router for Recent Runs
@@ -29,7 +30,7 @@ const RunRouter = (props) => {
                 </td>
                 <td>
                     <button className="btn btn-primary">
-                        <a href={run.runStats} target="_blank">View Run Stats</a>
+                        <a href={`${config.SITE_HOME}${run.runStats}`} target="_blank">View Run Stats</a>
                     </button>
                 </td>
             </tr>;
