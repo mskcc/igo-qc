@@ -107,7 +107,7 @@ function App() {
         <MuiButton
             variant="contained"
             type="submit"
-            onClick={() => history.push('/projects/' + projectSearch)}
+            onClick={() => history.push(`${config.SITE_HOME}projects/` + projectSearch)}
             className={"project-search-submit vertical-align-top project-search margin-left-10"}
             disabled={false}
             size={"small"}>
@@ -123,7 +123,7 @@ function App() {
             <Router>
                 <header className={"padding-hor-24"}>
                     <div className={"inline-block"}>
-                        <Link to="/">
+                        <Link to={config.SITE_HOME}>
                             <FontAwesomeIcon className={"white-color em5"} icon={faHome}/>
                         </Link>
                     </div>

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
+import config from '../../config.js';
 
 // ALL POSSIBLE FIELDS OF ROWS
 const FIELD_MAP = {
@@ -65,7 +66,7 @@ const ProjectRouter = (props) => {
             const values = fields.map( (field) => project[field] );
             const element = <tr className="fill-width project-row" key={project.requestId}>
                         <td  className="project-field field-header project-row-link" key={`${project.requestId}-link`}>
-                            <Link to={`/projects/${project.requestId}`}>
+                            <Link to={`${config.SITE_HOME}projects/${project.requestId}`}>
                                 <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faArrowAltCircleRight}/>
                             </Link>
                         </td>
