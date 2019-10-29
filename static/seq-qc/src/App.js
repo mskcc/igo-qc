@@ -37,6 +37,18 @@ function App() {
         setModalUpdate(modalUpdate);
     };
 
+    // NOTE - Ordering matters. RecentRuns request doesn't query the LIMS so this will return faster
+    useEffect(() => {
+        getRecentRuns()
+            .then((resp) => {
+                const recentRuns = resp.recentRuns || [];
+                setRecentRuns(recentRuns);
+            })
+            .catch(error => {
+                setRecentRuns([]);
+                addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
+            });
+    }, []);
     useEffect(() => {
         // TODO - modal to display error
         getSeqAnalysisProjects()
@@ -68,17 +80,6 @@ function App() {
                 setRecentDeliveries([]);
                 addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
             });
-    }, []);
-    useEffect(() => {
-       getRecentRuns()
-           .then((resp) => {
-               const recentRuns = resp.recentRuns || [];
-               setRecentRuns(recentRuns);
-           })
-           .catch(error => {
-               setRecentRuns([]);
-               addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
-           });
     }, []);
 
     const addToProjectMap = (projectList) => {
