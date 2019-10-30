@@ -758,8 +758,8 @@ def project_info(pId):
 def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]
 
-    requester = {};
-    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject'];
+    requester = {}
+    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject']
     for label in value_labels:
         if label in project_qc_info:
             requester[label] = project_qc_info[label]
@@ -791,7 +791,7 @@ def get_requester_info(project_qc_info, samples):
             sample_names.add(name)
             if sample['tumorOrNormal'] == 'Tumor':
                 tumor_count += 1
-            elif sample['tumorOrNormal'] == 'Tumor':
+            elif sample['tumorOrNormal'] == 'Normal':
                 normal_count += 1
 
     requester['tumorCount'] = tumor_count
