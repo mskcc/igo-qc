@@ -1,9 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 const Summary = (props) => {
+
+    const pipelineableClass = props.requester.pipelinable === true ? 'mskcc-dark-green' : 'mskcc-dark-magenta';
+    const analysisRequestedClass = props.requester.analysisRequested === true ? 'mskcc-dark-green' : 'mskcc-dark-magenta';
+
     return <div className={"black-border"}>
         <div className={"info-block inline-block"}>
             <div className={"fill-width margin-hor-5per"}>
@@ -18,15 +22,21 @@ const Summary = (props) => {
                 </div>
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Pipelinable</p>
-                    <FontAwesomeIcon className="float-right em2 margin-10" icon={props.requester.pipelinable === true ? faCheckSquare : faSquare}/>
+                    <FontAwesomeIcon className={`float-right em2 margin-10 ${pipelineableClass}`}
+                                     icon={props.requester.pipelinable === true ? faCheck : faTimes }/>
                 </div>
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Analysis Requested</p>
-                    <FontAwesomeIcon className="float-right em2 margin-10" icon={props.requester.analysisRequested === true ? faCheckSquare : faSquare}/>
+                    <FontAwesomeIcon className={`float-right em2 margin-10 ${analysisRequestedClass}`}
+                                     icon={props.requester.analysisRequested === true ? faCheck : faTimes }/>
                 </div>
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Tumor Count</p>
                     <p className={"float-right"}>{props.requester.tumorCount}</p>
+                </div>
+                <div className={"fill-width float-left"}>
+                    <p className={"float-left"}>Normal Count</p>
+                    <p className={"float-right"}>{props.requester.normalCount}</p>
                 </div>
             </div>
         </div>
@@ -44,6 +54,10 @@ const Summary = (props) => {
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Recipe</p>
                     <p className={"float-right"}>{props.projectType.recipe}</p>
+                </div>
+                <div className={"fill-width float-left"}>
+                    <p className={"float-left"}>Bait Set</p>
+                    <p className={"float-right"}>{props.projectType.baitSet}</p>
                 </div>
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Run Type</p>
