@@ -3,13 +3,15 @@ init:
 	source venv/bin/activate && \
 	pip install -r requirements.txt
 
-run:
+run-prod:
+	python3 settings_writer.py prod && \
 	source venv/bin/activate && \
 	uwsgi new-igo-qc.ini;
 
-run-client:
+run-dev:
 	python3 settings_writer.py dev && \
-    cd ./static/seq-qc/ && npm run start
+    source venv/bin/activate && \
+    uwsgi new-igo-qc.ini;
 
 pkg:
 	python3 settings_writer.py prod && \
