@@ -246,6 +246,9 @@ h3 {
 .material-gray{
     color: #eceff1;
 }
+.material-gray-background {
+    background-color: #eceff1;
+}
 /* SPECIFIC STYLES */
 /* BUTTONS */
 button:hover{
@@ -330,7 +333,7 @@ button:hover{
     position: fixed;
     left: 50%;
     top: 10px;
-    z-index: 1;
+    z-index: 2;
     transform: translate(-50%,0%);
 }
 .modal {

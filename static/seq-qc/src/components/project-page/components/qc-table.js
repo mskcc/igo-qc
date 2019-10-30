@@ -5,8 +5,9 @@ import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {faTimes, faSearch, faArrowAltCircleRight, faAngleDown, faAngleRight} from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
+import MuiDownshift from 'mui-downshift'
 
 import { setRunStatus } from '../../../services/igo-qc-service';
 import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../constants";
@@ -17,12 +18,14 @@ class QcTable extends React.Component {
         this.state = {
             data: [],                       // true state of data. Contains all rows w/o filter
             displayedData: [],              // Data that has been filterd by user
+            removedHeaders: new Set([]),
             hotTableRef: React.createRef(),
             selected: [],
             statusChange: '',
             searchTerm: '',
-            rowHeight: 23                   // This shouldn't change. It is the height of each row in the HotTable
-        }
+            rowHeight: 23,                   // This shouldn't change. It is the height of each row in the HotTable
+            showRemoveColumn: false
+        };
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -32,12 +35,10 @@ class QcTable extends React.Component {
                 this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`, 2000);
             };
             // Enrich data, e.g. w/ checkmark field
-            const data = Object.assign([], this.props.data);
-            data.map((d) => {
-                d['check'] = false;
-                return d;
+            this.setState({
+                data: Object.assign([], this.props.data),
+                displayedData: Object.assign([], this.props.data)
             });
-            this.setState({data, displayedData: data});
         }
     }
     afterSelection = (r1, c1, r2, c2) => {
@@ -187,6 +188,28 @@ class QcTable extends React.Component {
         return `${neededHeight + headerSize}px`;
     };
 
+    getHeaders = () => {
+        const headers = [];
+        for(const header of this.props.headers){
+            if(!this.state.removedHeaders.has(header)) {
+                headers.push(header);
+            }
+        }
+        return headers;
+    };
+
+    getFilteredData = () => {
+        const filtered = [];
+        for(const row of this.state.displayedData) {
+            const copy = Object.assign({}, row);
+            for(const removed of this.state.removedHeaders){
+                delete copy[removed];
+            }
+            filtered.push(copy);
+        }
+        return filtered;
+    };
+
     render() {
         /*
             Return an empty div if there is no data to render. This is REQUIRED b/c rendering the HotTable before data
@@ -196,17 +219,61 @@ class QcTable extends React.Component {
         if(this.state.data.length === 0) return <div></div>;
 
         const style = { "height": `${this.calculateHeight()}`, "overflow-y": "scroll" };
+
+        const colHeaders = this.getHeaders();
+        const mandatoryColumns = new Set(['Sample', 'QC Record Id'])
+        const headersToRemove = [];
+        if(this.state.showRemoveColumn){
+            for(const header of this.props.headers){
+                if(!mandatoryColumns.has(header)){
+                    headersToRemove.push(header);
+                }
+            }
+        }
+
         return (<div>
                     {this.renderStatusModal()}
                     {
                         this.state.data.length > 0 ?
-                            <div className={"table-tools pos-rel"}>
-                                <div className={"center-v table-search-container"}>
-                                    <FontAwesomeIcon className={"em5"}
-                                                     icon={faSearch}/>
-                                    <input className={"inline vertical-align-top project-search margin-left-10"}
-                                           type="text"
-                                           value={this.state.searchTerm} onChange={this.runSearch} />
+                            <div className={"material-gray-background"}>
+                                <div className={"table-tools pos-rel"}>
+                                    <div className={"height-inherit"}>
+                                        <div className={"table-option"} onClick={() => {
+                                            this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
+                                            <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
+                                                <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
+                                                                 icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
+                                            </div>
+                                            <p className={"inline-block vertical-align-top"}>Customize View</p>
+                                        </div>
+                                    </div>
+                                    <div className={"center-v table-search-container"}>
+                                        <FontAwesomeIcon className={"em5"}
+                                                         icon={faSearch}/>
+                                        <input className={"inline vertical-align-top project-search margin-left-10"}
+                                               type="text"
+                                               value={this.state.searchTerm} onChange={this.runSearch} />
+                                    </div>
+                                </div>
+                                <div className={"header-removal-selector fill-width"}>
+                                    <div className={this.state.showRemoveColumn ? "inline-block fill-width" : "display-none fill-width"}>
+                                        <p>Columns in View</p>
+                                    </div>
+
+                                    {headersToRemove.map((header) => {
+                                        let classes = "inline-block header-selector";
+                                        if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
+                                        const toggle = () => {
+                                            // TODO - Add endpoint to igoLims to see what columns get removed
+                                            const removedHeaders = this.state.removedHeaders;
+                                            if(removedHeaders.has(header)) removedHeaders.delete(header);
+                                            else removedHeaders.add(header);
+                                            this.setState({removedHeaders});
+                                        };
+                                        return <div className={classes} onClick={toggle}>
+                                            <p className={"inline"}>{header}</p>
+                                        </div>
+                                    })}
                                 </div>
                             </div>
                         :
@@ -216,17 +283,15 @@ class QcTable extends React.Component {
                         ref={this.hotTableRef}
                         licenseKey="non-commercial-and-evaluation"
                         id="qc-grid"
-                        data={this.state.displayedData}
-                        colHeaders={this.props.headers}
+                        data={this.getFilteredData()}
+                        colHeaders={colHeaders}
+                        columns={colHeaders.map((data)=>{
+                            return { data }
+                        })}
                         rowHeaders={true}
                         filters="true"
-                        dropdownMenu={['filter_by_value', 'filter_action_bar']} // 'remove_col'
-                        // allowRemoveColumn={true}
+                        dropdownMenu={['filter_by_value', 'filter_action_bar']}
                         columnSorting={true}
-                        columns={this.props.headers.map((header)=>{
-                            const col = { 'data': header };
-                            return col;
-                        })}
                         fixedRowsTop={0}
                         fixedColumnsLeft={0}
                         preventOverflow="horizontal"
