@@ -32,11 +32,11 @@ const RunRouter = (props) => {
         const runElements = [];
         for( const run of props.projects ){
             const name = formatRunName(run.runName);
-            const element = <tr className="fill-width project-row" key={run.requestId}>
+            const element = <tr className="fill-width project-row" key={run.runName}>
                 <td className="project-field field-header text-align-center" key={`${name}-href`}>
                     <p>{ name }</p>
                 </td>
-                <td className="project-field field-header text-align-center" key={`${run.requestId}-date`}>
+                <td className="project-field field-header text-align-center" key={`${run.runName}-date`}>
                     <p>{run.date}</p>
                 </td>
                 <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
