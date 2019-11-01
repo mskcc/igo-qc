@@ -6,7 +6,7 @@ import QcTable from "../project-page/components/qc-table";
 import {MODAL_ERROR, MODAL_UPDATE} from "../../constants";
 
 const Feedback = (props) => {
-    const [feedbackType, setFeedbackType] = useState("bug");
+    const [feedbackType, setFeedbackType] = useState("featureRequest");
     const [feedbackBody, setFeedbackBody] = useState("");
     const [feedbackSubject, setFeedbackSubject] = useState("");
 
@@ -22,6 +22,14 @@ const Feedback = (props) => {
             })
     };
 
+    const getHelpText = () => {
+          if(feedbackType === "bug"){
+              return "What were you doing? What did you expect to happen? What actually happened? Please be specific"
+          } else {
+              return "What would you like added? Is this something that is necessary or helpful?"
+          }
+    };
+
     return <div className={"feedback-form padding-24"}>
             <p>What type of feedback?</p>
             <form className={"fill-width"}>
@@ -29,16 +37,18 @@ const Feedback = (props) => {
                     <label>
                         <input className={"inline-block"}
                                type="radio"
-                               value="bug"
-                               onChange={() => setFeedbackType("bug")}
-                               checked={feedbackType === "bug"} />Bug
+                               value="featureRequest"
+                               onChange={() => setFeedbackType("featureRequest")}
+                               checked={feedbackType === "featureRequest"} />
+                        <p className={"inline"}>Feature Request</p>
                     </label>
                     <label className={"margin-left-10"}>
                         <input className={"inline-block"}
                                type="radio"
-                               value="featureRequest"
-                               onChange={() => setFeedbackType("featureRequest")}
-                               checked={feedbackType === "featureRequest"} />Feature Request
+                               value="bug"
+                               onChange={() => setFeedbackType("bug")}
+                               checked={feedbackType === "bug"} />
+                        <p className={"inline"}>Bug</p>
                     </label>
                 </div>
                 <label className={"inline-block fill-width margin-top-15"}>
@@ -50,8 +60,11 @@ const Feedback = (props) => {
                                onChange={(evt) => setFeedbackSubject(evt.target.value)} />
                     </div>
                 </label>
+                <div>
+                    <p className={"margin-left-10 italics mskcc-dark-gray"}>{getHelpText()}</p>
+                </div>
                 <label className={"inline-block fill-width margin-top-15"}>
-            <textarea className={"feedback-text"}
+                <textarea className={"feedback-text"}
                       type="textarea"
                       value={feedbackBody}
                       onChange={(evt) => setFeedbackBody(evt.target.value)} />

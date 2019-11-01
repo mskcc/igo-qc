@@ -29,6 +29,9 @@ h3 {
 .font-bold {
     font-weight: bold;
 }
+.italics {
+    font-style: italic;
+}
 .project-row:hover {
     background-color: #d9d9d9;
 }
@@ -240,7 +243,7 @@ h3 {
 .mskcc-light-yellow{
     color: #ffe100;
 }
-.mskcc-dark-gray{
+.mskcc-dark-gray {
     color: #9e9e98;
 }
 .mskcc-light-gray{
