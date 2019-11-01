@@ -49,6 +49,12 @@ h3 {
 
 
 /* TODO: Consolidate index.css & app.css */
+.display-none {
+    display: none;
+}
+.block {
+    display: block;
+}
 .inline-block {
     display: inline-block;
 }
@@ -63,9 +69,6 @@ h3 {
 }
 .background-white {
     background-color: white;
-}
-.display-none {
-    display: none;
 }
 .table {
     display: table;
@@ -122,7 +125,7 @@ h3 {
 .margin-0 {
     margin: 0px;
 }
-.padding-hor-24 {
+.padding-24 {
     padding: 24px;
 }
 .padding-vert-15 {
@@ -358,4 +361,20 @@ button:hover{
 
 header {
     background-color: #319ae8;
+}
+
+.feedback-form {
+    position: absolute;
+    right: 0px;
+    width: 250px;
+    background-color: white;
+    border: 1px solid black;
+}
+.feedback-submit-btn {
+    width: 50%;
+    margin-left: 25% !important;
+}
+.feedback-text {
+    height: 150px;
+    width: 100%;
 }

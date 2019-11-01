@@ -10,6 +10,7 @@ import Modal from './components/common/modal';
 import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
+import Feedback from './components/common/feedback';
 
 function App() {
     /*
@@ -23,6 +24,7 @@ function App() {
 
     const [projectSearch, setProjectSearch] = useState('');
     const [modalUpdate, setModalUpdate] = useState({});
+    const [showFeedback, setShowFeedback] = useState(false);
 
     // TODO - Implement response caching
     const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
@@ -112,7 +114,7 @@ function App() {
             className={"project-search-submit vertical-align-top project-search margin-left-10"}
             disabled={false}
             size={"small"}>
-            <p className={"margin-0"}>Submit</p>
+            <p className={"margin-0"}>Search</p>
         </MuiButton>
     );
     const SearchButton = () => (
@@ -122,7 +124,7 @@ function App() {
     return <div>
             <Modal update={modalUpdate}/>
             <Router>
-                <header className={"padding-hor-24"}>
+                <header className={"padding-24"}>
                     <div className={"inline-block"}>
                         <Link to={config.SITE_HOME}>
                             <FontAwesomeIcon className={"white-color em5"} icon={faHome}/>
@@ -130,14 +132,24 @@ function App() {
                     </div>
                     <div className={"inline-block margin-left-10"}>
                         <label>
-                            <h6 className={"inline white-color"}>Project Search:</h6>
+                            <h6 className={"inline white-color"}>Project:</h6>
                         </label>
                         <input className={"inline vertical-align-top project-search margin-left-10"}
                                type="text"
                                value={projectSearch} onChange={handleProjectSearch} />
                     </div>
                     <SearchButton/>
+                    <MuiButton
+                        variant="contained"
+                        onClick={() => setShowFeedback(!showFeedback)}
+                        className={"project-search-submit hover inline-block float-right"}
+                        disabled={false}
+                        size={"small"}>
+                        <p className={"margin-0 inline black-color"}>Feedback</p>
+                    </MuiButton>
                 </header>
+                { showFeedback ? <Feedback addModalUpdate={addModalUpdate}
+                                            closeFeedback={() => setShowFeedback(false)}/> : <div></div> }
                 <div className={"margin-top-15 padding-hor-5per"}>
                     <Switch>
                         <Route exact path={config.SITE_HOME}>

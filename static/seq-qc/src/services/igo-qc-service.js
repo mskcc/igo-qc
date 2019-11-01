@@ -43,6 +43,12 @@ export const setRunStatus = (run, project, status, recipe) => {
         .then(getData)
         .catch(handleError)
 };
+export const submitFeedback = (body, subject, type) => {
+    const content = { body, subject, type };
+    return axios.post(`${config.IGO_QC}/submitFeedback`, content)
+        .then(getData)
+        .catch(handleError)
+};
 
 /**
  * Sends service call to retrieve chart data about most recent runs

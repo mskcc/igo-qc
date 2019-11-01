@@ -44,6 +44,34 @@ app = Flask(__name__)
 
 import Grid
 
+from flask_cors import CORS
+cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}})
+
+import smtplib
+from email.message import EmailMessage
+@app.route('/submitFeedback', methods=['POST'])
+def submit_feedback():
+    msg = EmailMessage()
+    app.logger.info(request)
+    msg.set_content(request.json['body'])
+
+    to = "streidd@mskcc.org"
+    frm = "streidd@mskcc.org"
+    msg['From'] = frm
+    msg['To'] = to
+
+    feedback_type = request.json['type']
+    app.logger.info("Sending %s feedback to %s" % (feedback_type, to))
+
+    subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
+    subject += request.json["subject"]
+    msg['Subject'] = subject
+
+    s = smtplib.SMTP('localhost')
+    s.send_message(msg)
+    s.quit()
+
+    return create_resp(True, 'success', {})
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 class MyAdapter(HTTPAdapter):
