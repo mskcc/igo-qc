@@ -1,0 +1,83 @@
+/* TODO: DELETE UNLESS CHECKBOX is being used */
+.handsontable td.unselected,
+.handsontable td.selected {
+    text-align: center
+}
+.handsontable td.unselected {
+    background: #f2f2f2
+}
+.handsontable td.selected {
+    background: #d9d9d9
+}
+.status-change {
+    position: absolute;
+    background-color: #eceff1;
+    z-index: 1;
+    top: -465px;
+    left: 10px;
+    height: 455px;
+    width: 500px;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+.status-change-displays {
+    height: 330px;
+}
+.status-change-close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.status-change-submit {
+    height: 50px;
+}
+.table-tools {
+    height: 50px;
+}
+.table-option{
+    z-index: 1;
+    position: relative;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    width: 220px;
+    height: 95%;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+.table-option-dropdown{
+    width: 55px;
+}
+.table-search-container{
+    max-width: 200px;
+    min-width: 100px;
+    width: 15%;
+    border-radius: 20px;
+    border: 1px solid black;
+    padding-left: 20px;
+    position: absolute;
+    right: 0px;
+    background-color: white;
+}
+.header-removal-selector {
+    margin-left: 5%;
+}
+.header-selector{
+    z-index: 1;
+    position: relative;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.header-selector:hover{
+    cursor: pointer;
+}
+.btn-selected {
+    background-color: #d9d9d9;
+}

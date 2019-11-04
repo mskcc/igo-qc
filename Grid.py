@@ -5,6 +5,18 @@ class Grid:
         self.grid = {}
         self.style = {}
 
+    def get_header(self):
+        return self.header
+
+    def get_val_types(self):
+        return self.val_types
+
+    def get_grid(self):
+        return self.grid
+
+    def get_style(self):
+        return self.style
+
     def set_header(self, header):
         self.header = header
         for col_name in header:
@@ -30,8 +42,8 @@ class Grid:
         return self.grid[index]
 
     def assign_value_types(self):
-	self.set_value_type("Run", "s")
-	self.set_value_type("Sample", "s")
+        self.set_value_type("Run", "s")
+        self.set_value_type("Sample", "s")
         self.set_value_type("IGO Id", "s")
         self.set_value_type("Genome", "s")
         self.set_value_type("Tumor or Normal", "s")    
@@ -45,11 +57,11 @@ class Grid:
 
     def __repr__(self):
         num_index = len(self.grid)
-	output_str = ""
-	for i in self.grid:
-		current_dict = self.grid[i]
-		temp_str = str(i)
-		for value in current_dict:
-			temp_str +=  "\t" + value + "\t" + str(current_dict[value]) 
-		output_str += temp_str.strip() + "\n"
+        output_str = ""
+        for i in self.grid:
+            current_dict = self.grid[i]
+            temp_str = str(i)
+            for value in current_dict:
+                temp_str +=  "\t" + value + "\t" + str(current_dict[value])
+            output_str += temp_str.strip() + "\n"
         return output_str

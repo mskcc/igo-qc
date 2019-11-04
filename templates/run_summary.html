@@ -46,23 +46,6 @@
         <!-- Main Container starts here -->
         <div class="container">
             <div class="row navbar-fixed-top" id="top-navigation">
-                <!-- Navigation header starts here -->
-                <header class=" col-sm-12 col-md-10">
-                    <div class="navbar navbar-default">
-                        <div class="navbar-header">
-                            <a class="navbar-brand" href="{{ url_for('index') }}">IGO QC</a>
-                        </div>
-
-                        <div class="navbar-collapse collapse">
-                            <form class="navbar-form navbar-center" role="search" action="{{ url_for('data_table', pId=project_id) }}" method="post">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Project ID" name="project_id">
-                                </div>
-                                <button type="submit" class="btn btn-default">Go!</button>
-                            </form>
-                        </div><!--/.nav-collapse -->
-                    </div>
-                </header>
                 <!-- Navigation header ends here -->
                 <div class="col-xs-12 col-sm-12 col-md-2 nav-user"></div>
             </div>
