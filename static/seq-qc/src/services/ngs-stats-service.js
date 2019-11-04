@@ -13,24 +13,24 @@ import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../con
  * return Object[]
  */
 export const getNgsStatsData = (recipe, projectId) => {
-    switch(recipe) {
-        case CELL_RANGER_APPLICATION_COUNT || CELL_RANGER_APPLICATION_VDJ:
-            return getCellRangerData(projectId, recipe);
-        /*
-        case [CASE]:
-            return PROCESSING_FUNCTION();
-        */
-        default:
-            break;
+    if(recipe.includes(CELL_RANGER_APPLICATION_COUNT)) {
+        // TODO - make "count" & "vdj" constants
+        return getCellRangerData(projectId, "count");       // "count" maps to an ngs-stats endpoint
+    } else if(recipe.includes(CELL_RANGER_APPLICATION_VDJ)) {
+        return getCellRangerData(projectId, "vdj");
     }
     return new Promise((resolve) => resolve([]));
 };
 
 /**
- * PROCESSING FUNCTION: All 'case' statements in 'getNgsStatsData' should have a corresponding function below
+ * PROCESSING FUNCTION: All cases in 'getNgsStatsData' should have a corresponding function below
+ *
+ * @param projectId
+ * @param type, String - Constant expected by ngs-stats endpoint
+ * @returns {Promise<AxiosResponse<T>>}
  */
 const getCellRangerData = (projectId, type) => {
-    return axios.get(`${config.NGS_STATS}/getCellRangerSample?project=${projectId}&type=${type}`)
+    return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerSample?project=${projectId}&type=${type}`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };

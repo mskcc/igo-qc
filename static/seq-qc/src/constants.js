@@ -1,4 +1,4 @@
-export const CELL_RANGER_APPLICATION_COUNT = '10XGenomics_GeneExpression';
+export const CELL_RANGER_APPLICATION_COUNT = '10X_Genomics_GeneExpression';
 export const CELL_RANGER_APPLICATION_VDJ =  ''; // TODO
 
 // MODAL STATUS MESSAGES
