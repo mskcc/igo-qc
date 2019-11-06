@@ -4,8 +4,7 @@ const path = require('path');
 const config = {
     entry: './src/index.js',
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, 'dist')
     },
     module: {
         rules: [
@@ -28,6 +27,11 @@ const config = {
             '.js',
             '.jsx'
         ]
+    },
+    optimization: {
+        splitChunks: {
+            chunks: "initial",
+        },
     },
     devServer: {
         contentBase: './dist'
