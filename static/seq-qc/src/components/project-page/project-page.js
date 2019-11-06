@@ -199,7 +199,8 @@ function ProjectPage(props){
                 <div className={'graph-container'}>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
                         {
-                            recipe === CELL_RANGER_APPLICATION_COUNT?
+                            // TODO - Put this into a util function since it is used in many places
+                            recipe.includes(CELL_RANGER_APPLICATION_COUNT)?
                                 <CellRangerCount title={title}
                                                  graphs={graphs}/>
                         :
