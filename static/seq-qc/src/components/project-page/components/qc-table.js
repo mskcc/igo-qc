@@ -40,8 +40,21 @@ class QcTable extends React.Component {
                 displayedData: Object.assign([], this.props.data)
             });
         }
+        if((this.props.headers.length > 0 && (prevProps.columnOrder.length !== this.props.columnOrder.length)) ||
+            this.props.columnOrder.length > 0 && (prevProps.headers.length !== this.props.headers.length)) {
+            const removedColumns = this.props.headers.filter((header) => {
+                return this.props.columnOrder.indexOf(header) < 0;
+            });
+            this.setState({removedHeaders: new Set(removedColumns)});
+        }
     }
     afterSelection = (r1, c1, r2, c2) => {
+        // Only one column allows user to set the status
+        const setStatusIdx = 0;
+        if(c1 !== setStatusIdx || c2 !== setStatusIdx) {
+            this.setState({selected: []});
+            return;
+        };
         this.props.onSelect(this.state.displayedData[r1]);
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
         const selected = this.state.displayedData.slice(min, max+1)
@@ -190,11 +203,13 @@ class QcTable extends React.Component {
 
     getHeaders = () => {
         const headers = [];
-        for(const header of this.props.headers){
+        for(const header of this.props.columnOrder){
             if(!this.state.removedHeaders.has(header)) {
                 headers.push(header);
             }
         }
+        let difference = this.props.headers.filter((header) => !this.props.columnOrder.includes(header));
+        headers.push.apply(headers, difference);
         return headers;
     };
 
@@ -221,7 +236,7 @@ class QcTable extends React.Component {
         const style = { "height": `${this.calculateHeight()}`, "overflow-y": "scroll" };
 
         const colHeaders = this.getHeaders();
-        const mandatoryColumns = new Set(['Sample', 'QC Record Id'])
+        const mandatoryColumns = new Set(['Sample', 'QC Record Id']);
         const headersToRemove = [];
         if(this.state.showRemoveColumn){
             for(const header of this.props.headers){
@@ -230,7 +245,6 @@ class QcTable extends React.Component {
                 }
             }
         }
-
         return (<div>
                     {this.renderStatusModal()}
                     {
@@ -270,7 +284,7 @@ class QcTable extends React.Component {
                                             else removedHeaders.add(header);
                                             this.setState({removedHeaders});
                                         };
-                                        return <div className={classes} onClick={toggle}>
+                                        return <div className={classes} onClick={toggle} key={`civ-${header}`}>
                                             <p className={"inline"}>{header}</p>
                                         </div>
                                     })}
@@ -286,12 +300,28 @@ class QcTable extends React.Component {
                         data={this.getFilteredData()}
                         colHeaders={colHeaders}
                         columns={colHeaders.map((data)=>{
-                            return { data }
+                            const col = {data};
+                            if(data === 'QC Status'){
+                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
+                                    td.innerHTML = `<div class="black-border curved-border text-align-center">${value}</div>`;
+                                    return td;
+
+                                }
+                            }
+                            else {
+                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
+                                    td.innerHTML = `<div class="text-align-center">${value}</div>`;
+                                    if(row % 2 === 0) td.style.backgroundColor = '#eceff1';
+                                    return td;
+                                }
+                            }
+                            return col;
                         })}
                         rowHeaders={true}
                         filters="true"
                         dropdownMenu={['filter_by_value', 'filter_action_bar']}
                         columnSorting={true}
+                        manualColumnMove={true}
                         fixedRowsTop={0}
                         fixedColumnsLeft={0}
                         preventOverflow="horizontal"
@@ -315,5 +345,6 @@ QcTable.propTypes = {
     project: PropTypes.string,
     recipe: PropTypes.string,
     addModalUpdate: PropTypes.func,
-    updateProjectInfo: PropTypes.func
+    updateProjectInfo: PropTypes.func,
+    columnOrder: PropTypes.array
 };

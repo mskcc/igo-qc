@@ -92,6 +92,10 @@ PASSW = config_options['password']
 PORT = config_options['port']
 LIMS_API_ROOT =config_options['lims_end_point']
 
+import sys
+sys.path.insert(0, os.path.abspath("config"))
+import headers
+
 # This decorator make a function able to read the project ID input of the user and then launch the
 # data gathering process.
 def navbarForm(func):
@@ -780,9 +784,17 @@ def project_info(pId):
         'grid': grid,
         'chartsLinks': charts_links,
         'projectType': project_type,
+        'columnOrder': getColumnOrder(project_type['table'])
     }
 
     return create_resp(True, 'success', data)
+
+def getColumnOrder(type):
+    if type in headers.order:
+        app.logger.info("Returning column order for %s" % type)
+        return headers.order[type]
+    app.logger.error("No column order set for %s. Returning empty list" % type)
+    return []
 
 def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]

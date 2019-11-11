@@ -75,10 +75,10 @@ function ProjectPage(props){
                 props.addModalUpdate(MODAL_ERROR, 'Failed to fetch NgsGraphs');
             });
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
+    /* Add all actions that should reset on new project id */
     useEffect(() => {
         updateProjectInfo(pId);
     }, [pId]);
-
     /**
      * Submits request to retrieve data for project from the projectId
      *
@@ -87,7 +87,7 @@ function ProjectPage(props){
     const updateProjectInfo = (pId) => {
         getProjectInfo(pId).then((data) => {
             setProjectInfo(data);
-            setGridInfo(data);
+            resetGridInfo(data);
         })
         .catch((err) => {
             addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
@@ -100,7 +100,7 @@ function ProjectPage(props){
      *
      * @param data
      */
-    const setGridInfo = (data) => {
+    const resetGridInfo = (data) => {
         setProjectInfoGridData(data);
         setProjectInfoHeaders(data);
     };
@@ -133,9 +133,9 @@ function ProjectPage(props){
     const setProjectInfoHeaders = (projectInfo) => {
         const grid = projectInfo.grid;
         if(grid){
-            const projectInfoHeaders = grid.header || [];
-            projectInfoHeaders.push.apply(projectInfoHeaders, headers);
-            setHeaders(projectInfoHeaders);
+            const gridHeaders = grid.header || [];
+            // projectInfoHeaders.push.apply(projectInfoHeaders, headers);
+            setHeaders(gridHeaders);
         }
     };
 
@@ -258,6 +258,7 @@ function ProjectPage(props){
             <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
+                         columnOrder={projectInfo.columnOrder || []}
                          qcStatuses={projectInfo.statuses || {}}
                          onSelect={onSelect}
                          project={pId}
@@ -267,7 +268,7 @@ function ProjectPage(props){
             </div>;
     };
 
-    return <div className={"margin-bottom-75"}>
+    return <div className={"margin-bottom-75"} key={pId}>
             {renderSummary(projectInfo)}
             {renderNgsGraphs(selectedSample)}
             {renderGrid(gridData,headers)}
