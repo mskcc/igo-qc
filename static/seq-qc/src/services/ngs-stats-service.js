@@ -5,6 +5,7 @@ import { preProcess } from '../utils/browser-utils';
 
 import config from '../config.js';
 import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../constants";
+import cellRangerResp from '../mocks/cell-ranger.js';
 
 /**
  * Queries ngs-stats for additional data based on the recipe
@@ -13,6 +14,11 @@ import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../con
  * return Object[]
  */
 export const getNgsStatsData = (recipe, projectId) => {
+    /* MOCK DATA - TODO: REMOVE */
+    return new Promise((resolve) => resolve(cellRangerResp))
+        .then(processCellRangerResponse)
+        .catch(handleError)
+
     if(recipe.includes(CELL_RANGER_APPLICATION_COUNT)) {
         // TODO - make "count" & "vdj" constants
         return getCellRangerData(projectId, "count");       // "count" maps to an ngs-stats endpoint
