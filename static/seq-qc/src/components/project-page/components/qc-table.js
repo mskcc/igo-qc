@@ -195,7 +195,7 @@ class QcTable extends React.Component {
         const neededHeight = this.state.displayedData.length * this.state.rowHeight;
 
         // If we are already exceeding the window height, just return the full viewport height
-        if(neededHeight > availableHeight) return '100vh';
+        if(neededHeight > availableHeight) return '80vh';
 
         const headerSize = 45;
         return `${neededHeight + headerSize}px`;
@@ -203,13 +203,22 @@ class QcTable extends React.Component {
 
     getHeaders = () => {
         const headers = [];
+
+        // Columns specified by columnOrder props should come first
         for(const header of this.props.columnOrder){
             if(!this.state.removedHeaders.has(header)) {
                 headers.push(header);
             }
         }
+
+        // Append differences between all headers & column order that have not been removed
         let difference = this.props.headers.filter((header) => !this.props.columnOrder.includes(header));
-        headers.push.apply(headers, difference);
+        for(const header of difference){
+            if(!this.state.removedHeaders.has(header)) {
+                headers.push(header);
+            }
+        }
+
         return headers;
     };
 
@@ -252,7 +261,7 @@ class QcTable extends React.Component {
                             <div className={"material-gray-background"}>
                                 <div className={"table-tools pos-rel"}>
                                     <div className={"height-inherit"}>
-                                        <div className={"table-option"} onClick={() => {
+                                        <div className={"table-option hover"} onClick={() => {
                                             this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
                                             <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
                                                 <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
@@ -270,24 +279,23 @@ class QcTable extends React.Component {
                                     </div>
                                 </div>
                                 <div className={"header-removal-selector fill-width"}>
-                                    <div className={this.state.showRemoveColumn ? "inline-block fill-width" : "display-none fill-width"}>
+                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 fill-width" : "display-none margin-bottom-15 fill-width"}>
                                         <p>Columns in View</p>
+                                        {headersToRemove.map((header) => {
+                                            let classes = "inline-block header-selector";
+                                            if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
+                                            const toggle = () => {
+                                                // TODO - Add endpoint to igoLims to see what columns get removed
+                                                const removedHeaders = this.state.removedHeaders;
+                                                if(removedHeaders.has(header)) removedHeaders.delete(header);
+                                                else removedHeaders.add(header);
+                                                this.setState({removedHeaders});
+                                            };
+                                            return <div className={classes} onClick={toggle} key={`civ-${header}`}>
+                                                <p className={"inline"}>{header}</p>
+                                            </div>
+                                        })}
                                     </div>
-
-                                    {headersToRemove.map((header) => {
-                                        let classes = "inline-block header-selector";
-                                        if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
-                                        const toggle = () => {
-                                            // TODO - Add endpoint to igoLims to see what columns get removed
-                                            const removedHeaders = this.state.removedHeaders;
-                                            if(removedHeaders.has(header)) removedHeaders.delete(header);
-                                            else removedHeaders.add(header);
-                                            this.setState({removedHeaders});
-                                        };
-                                        return <div className={classes} onClick={toggle} key={`civ-${header}`}>
-                                            <p className={"inline"}>{header}</p>
-                                        </div>
-                                    })}
                                 </div>
                             </div>
                         :
@@ -303,9 +311,8 @@ class QcTable extends React.Component {
                             const col = {data};
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="black-border curved-border text-align-center">${value}</div>`;
+                                    td.innerHTML = `<div class="black-border curved-border text-align-center hover">${value}</div>`;
                                     return td;
-
                                 }
                             }
                             else {
