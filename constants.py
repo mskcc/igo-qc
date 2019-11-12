@@ -9,5 +9,5 @@ API_RECIPE = "recipe"
 
 
 
-RECIPE_HEMEPACT = 'HemePACT_v4'
-RECIPE_IMPACT = 'IMPACT'
+RECIPE_HEMEPACT = 'hemepact'
+RECIPE_IMPACT = 'impact'
