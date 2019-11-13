@@ -19,7 +19,6 @@ const CellRangerCount = (props) => {
     };
 
     return <div>
-        <p className={"text-align-center font-bold em2"}>{props.title}</p>
         <div className={"table margin-auto"}>
             {otherGraphs.map((chart, idx) => {
                 return <div key={`${chart.name}-${idx}`}

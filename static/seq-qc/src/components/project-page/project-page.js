@@ -197,6 +197,9 @@ function ProjectPage(props){
             </div>
             <div className={`${showNgsGraphs ? "dropdown-open" : "dropdown-closed"}`}>
                 <div className={'graph-container'}>
+                    <div>
+                        <p className={"text-align-center font-bold em2"}>{title}</p>
+                    </div>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
                         {
                             // TODO - Put this into a util function since it is used in many places
