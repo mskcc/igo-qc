@@ -110,7 +110,7 @@ class QcTable extends React.Component {
                     this.props.addModalUpdate(MODAL_ERROR, `${status} ${failedRuns}`);
                 }
             })
-            .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Contact streidd@mskcc.org w/: ${err}`));
+            .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Please submit a bug report using the "Feedback" button in the top-right corner w/: ${err}`));
     };
 
     /**
