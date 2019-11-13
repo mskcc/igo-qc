@@ -97,6 +97,9 @@ h3 {
 .height-inherit {
     height: inherit;
 }
+.body-container {
+    min-height: 80vh
+}
 .margin-auto {
     margin: auto;
 }
@@ -317,7 +320,6 @@ button:hover{
 .ngs-stats-graphs-container {
     width: 100%;
     border-right: 1px solid black;
-    padding: 20px;
     overflow-x: scroll;
 }
 .charts-links-container{
@@ -367,6 +369,7 @@ button:hover{
 
 header {
     background-color: #319ae8;
+    border-bottom: 1px solid black;
 }
 
 .feedback-form {
@@ -386,3 +389,18 @@ header {
     width: 100%;
 }
 
+footer {
+    height: 100px;
+    background-color: #319ae8;
+    border-top: 1px solid black;
+}
+.logo {
+    border-radius: 10px;
+    top: 10px;
+    position: relative;
+    height: 80px;
+    width: 140px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}

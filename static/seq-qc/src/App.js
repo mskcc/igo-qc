@@ -10,6 +10,7 @@ import Modal from './components/common/modal';
 import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
+import Logo from './resources/igo-logo.jpeg';
 import Feedback from './components/common/feedback';
 
 function App() {
@@ -150,7 +151,7 @@ function App() {
                 </header>
                 { showFeedback ? <Feedback addModalUpdate={addModalUpdate}
                                             closeFeedback={() => setShowFeedback(false)}/> : <div></div> }
-                <div className={"margin-top-15 padding-hor-5per"}>
+                <div className={"body-container margin-top-15 padding-hor-5per"}>
                     <Switch>
                         <Route exact path={config.SITE_HOME}>
                             <Home recentDeliveries={recentDeliveries}
@@ -164,6 +165,10 @@ function App() {
                         />
                     </Switch>
                 </div>
+                <footer>
+                    <img className={"logo"}
+                         src={Logo}/>
+                </footer>
             </Router>
         </div>
 }
