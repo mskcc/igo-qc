@@ -12,7 +12,7 @@ const Graph = (props) => {
         setShowDescription(!showDescription);
     };
 
-    return <div>
+    return <div className={"margin-10"}>
         <p className="text-align-center">{props.chart.title}</p>
         <FontAwesomeIcon icon={faQuestionCircle} onClick={toggleDescription}/>
         <p className={showDescription ? 'display-inline' : 'display-none'}>{props.chart.description}</p>
