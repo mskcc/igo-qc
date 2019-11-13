@@ -49,13 +49,16 @@ class QcTable extends React.Component {
         }
     }
     afterSelection = (r1, c1, r2, c2) => {
+        // PARENT COMPONENT - propogate event up
+        this.props.onSelect(this.state.displayedData[r1]);
+
+        // CHILD COMPONENT - Determine if action should be taken on the table
         // Only one column allows user to set the status
         const setStatusIdx = 0;
         if(c1 !== setStatusIdx || c2 !== setStatusIdx) {
             this.setState({selected: []});
             return;
         };
-        this.props.onSelect(this.state.displayedData[r1]);
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
         const selected = this.state.displayedData.slice(min, max+1)
                                         .map((row) => {

@@ -181,7 +181,11 @@ function ProjectPage(props){
                    </div>;
         }
 
-        const sample = ngsStatsData[0];   // TODO - Undo once CellRanger data is available
+        const filtered = ngsStatsData.filter((entry) => entry.Name.includes(selectedSample));
+        let sample = {};
+        if(filtered.length > 0){
+            sample = filtered[0];
+        }
         const graphs = sample.graphs || [];
         const chartsLinks = projectInfo.chartsLinks || {};
         const chartNames = Object.keys(chartsLinks);
