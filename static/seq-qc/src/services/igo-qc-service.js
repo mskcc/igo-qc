@@ -2,8 +2,6 @@ import axios from "axios";
 
 import config from '../config.js';
 import { handleError } from "../utils/service-utils";
-import seqAnalysisProjects from '../mocks/getSeqAnalysisProjects.js';
-import projectInfo from '../mocks/projectInfo';
 
 const getData = (resp) => {
     const wrapper = resp.data || {};

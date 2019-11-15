@@ -5,7 +5,6 @@ import { preProcess } from '../utils/browser-utils';
 
 import config from '../config.js';
 import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../resources/constants";
-import cellRangerResp from '../mocks/cell-ranger.js';
 
 /**
  * Queries ngs-stats for additional data based on the recipe
