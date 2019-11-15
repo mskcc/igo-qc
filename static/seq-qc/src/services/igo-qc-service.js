@@ -20,9 +20,11 @@ const parseResp = (resp) => {
 */
 export function getSeqAnalysisProjects() {
     /* MOCK DATA - TODO: REMOVE */
+    /*
     return new Promise((resolve) => { resolve(seqAnalysisProjects) })
         .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Unable to fetch Seq Analysis Projects: ' + error) });
+     */
     return axios
         .get(config.IGO_QC + '/getSeqAnalysisProjects')
         .then(resp => {return parseResp(resp) })
@@ -39,9 +41,11 @@ export function getRequestProjects() {
 }
 export const getProjectInfo = (projectId) => {
     /* MOCK DATA - TODO: REMOVE */
+    /*
     return new Promise((resolve) => { resolve(projectInfo) })
         .then(getData)
         .catch(handleError);
+     */
     return axios.get(`${config.IGO_QC}/projectInfo/${projectId}`)
         .then(getData)
         .catch(handleError)

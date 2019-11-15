@@ -10,11 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
-import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR } from "../../constants";
+import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO } from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
-
-const NGS_STATS = 'ngs-stats';
-const PROJECT_INFO = 'project-info';
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -62,32 +59,52 @@ function ProjectPage(props){
     };
     fetchRecipe(pId);   // Conditionally fetches the recipe if unavailable
 
-    useEffect(() => {
-        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
 
-        getNgsStatsData(recipe, pId)
-            .then((data) => {
-                setNgsStatsGridData(data);
-                setNgsStatsData(data);
-            })
-            .catch((err) => {
-                addServiceError(NGS_STATS, serviceErrors,setServiceErrors);
-                props.addModalUpdate(MODAL_ERROR, 'Failed to fetch NgsGraphs');
-            });
-    }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
     /* Add all actions that should reset on new project id */
     useEffect(() => {
-        updateProjectInfo(pId);
+        queryProjectInfo(pId);
     }, [pId]);
+    useEffect(() => {
+        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
+        queryNgsStatsData(recipe, pId)
+    }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
+
+    /**
+     *  These are seperated from the service calls that set ngsStatsData & projectInfo because of issues accessing
+     *  the updated state within the effect function.
+     *      i.e. queryProjectInfo update to gridData would not be available to queryNgsStatsData update to gridData
+     */
+    useEffect(() => {
+        // Add any effects that should occur when ngsStatsData changes
+        updateNgsStatsData(ngsStatsData);
+    }, [ngsStatsData]);
+    useEffect(() => {
+        // Add any effects that should occur when projectInfo changes
+        updateProjectInfo(projectInfo);
+    }, [projectInfo]);
+
+    /**
+     * Submits a request to retrieve ngsStatsData
+     *
+     * Sets ngsStatsData in component
+     */
+    const queryNgsStatsData = (recipe, pId) => {
+        getNgsStatsData(recipe, pId).then((data) => {
+            setNgsStatsData(data);
+        })
+        .catch((err) => {
+            addServiceError(NGS_STATS, serviceErrors,setServiceErrors);
+            props.addModalUpdate(MODAL_ERROR, 'Ngs Stats Data' + err);
+        });
+    };
     /**
      * Submits request to retrieve data for project from the projectId
      *
      * @param pId, Project ID
      */
-    const updateProjectInfo = (pId) => {
+    const queryProjectInfo = (pId) => {
         getProjectInfo(pId).then((data) => {
             setProjectInfo(data);
-            resetGridInfo(data);
         })
         .catch((err) => {
             addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
@@ -100,16 +117,12 @@ function ProjectPage(props){
      *
      * @param data
      */
-    const resetGridInfo = (data) => {
+    // TODO - Make this generic for ngsStats and regular headers
+    const updateProjectInfo = (data) => {
+        if(Object.keys(data).length == 0) return;
         setProjectInfoGridData(data);
         setProjectInfoHeaders(data);
     };
-
-    /**
-     * OnClick event that should toggle flag to show/unshow Ngs Graphs
-     */
-    const toggleGraph = () => { setShowNgsGraphs(!showNgsGraphs); };
-
     /**
      * Adds the ProjectInfo rows to the rendered grid.
      *
@@ -120,11 +133,10 @@ function ProjectPage(props){
         if(gridObject){
             const grid = gridObject.grid || {};
             const rows = Object.values(grid);
-            setGridData(rows);
+            setNewGridData(rows);
             setSelectedSample(rows[0]['IGO Id']);
         }
     };
-
     /**
      * Adds ProjectInfoHeaders. These should be the first headers
      *
@@ -133,10 +145,67 @@ function ProjectPage(props){
     const setProjectInfoHeaders = (projectInfo) => {
         const grid = projectInfo.grid;
         if(grid){
-            const gridHeaders = grid.header || [];
-            // projectInfoHeaders.push.apply(projectInfoHeaders, headers);
-            setHeaders(gridHeaders);
+            setNewHeaders(grid.header);
         }
+    };
+
+    /**
+     * This should update the headers/gridData when there is a service call update to ngsStatsData.
+     *
+     * Affected State fields:
+     *      - headers
+     *      - gridData
+     *      - selectedSample
+     *
+     * @param ngsResp, Object[]
+     */
+    const updateNgsStatsData = (ngsResp) => {
+        if(!ngsResp) return;
+        if(ngsResp.length > 0){
+            const ngsHeaders = Object.keys(ngsResp[0]);
+            const filtered_headers = ngsHeaders.filter((header) => {
+                const include = !(NGS_HEADERS_TO_REMOVE.indexOf(header) >= 0);
+                return include;
+            });
+            setNewHeaders(filtered_headers);
+
+            const newGridData = [];
+            for (const entry of ngsResp){
+                const clone = {};
+                for (const header of filtered_headers){
+                    clone[header] = entry[header];
+                }
+                newGridData.push(clone);
+            }
+
+            const updated = setNewGridData(newGridData);
+            setSelectedSample(updated[0]['IGO Id']);
+        }
+    };
+
+    /**
+     * Safe way set headers. Considers if headers are populated from another source
+     */
+    const setNewHeaders = (newHeaders = []) => {
+        if(headers.length > 0){
+            newHeaders.push.apply(newHeaders, headers);
+        }
+        setHeaders(newHeaders);
+    };
+    /**
+     * Safe way to set new grid data if grid data has already been populated by another source.
+     */
+    const setNewGridData = (newData) => {
+        if(gridData.length > 0){
+            const newGridData = gridData.slice(0);
+            for(const newEntry of newData){
+                joinNewEntry(newEntry, gridData);
+            }
+            setGridData(newGridData);
+            return newGridData
+        }
+        setGridData(newData);
+        return newData;
     };
 
     /**
@@ -149,17 +218,39 @@ function ProjectPage(props){
         setSelectedSample(selectedIgoId);
     };
 
-    // TODO - Add ngsStats data to the grid
-    const setNgsStatsGridData = (ngsResp) => {
-        if(ngsResp.length > 0){
-            // Add Headers
-            const ngsStatsHeaders = Object.keys(ngsResp[0]);
-            // headers.push(...ngsStatsHeaders);
-            // setHeaders(headers);
+    /**
+     * OnClick event that should toggle flag to show/unshow Ngs Graphs
+     */
+    const toggleGraph = () => { setShowNgsGraphs(!showNgsGraphs); };
 
-            // Add Rows
-            // gridData.push(...ngsResp);
-            // setGridData(gridData);
+    /**
+     * Modifies the gridData object in line
+     *
+     * @param query
+     * @param currentGridData
+     */
+    const joinNewEntry = (query, currentGridData) => {
+        // entry should have
+        const ngsDataName = query['Name'];
+        const projectInfoId = query['IGO Id'];
+
+        let match = [];
+        if(ngsDataName){
+            // Find the current Grid Data entry that has that igo Id
+            match = currentGridData.filter((entry) => ngsDataName.includes(entry['IGO Id']));
+        } else if(projectInfoId){
+            match = currentGridData.filter((entry) => entry['name'].includes(projectInfoId));
+        } else {
+            throw new Error('No matching sample found for entry: ' + query.keys());
+        }
+        // Only one match should be found
+        if(match.length == 1){
+            let currentEntry = match[0];
+            for(const key of Object.keys(query)){
+                if(query[key]){
+                    currentEntry[key] = query[key];
+                }
+            }
         }
     };
 
@@ -252,6 +343,17 @@ function ProjectPage(props){
                  projectType={projectInfo.projectType || {}}/>
     };
 
+    const getColumnOrder = () => {
+        // If ngsStatsData is available, take from it
+        if(ngsStatsData && Object.keys(ngsStatsData).length > 0){
+            const ngsHeaders = Object.keys(ngsStatsData[0]);
+            const filtered = ngsHeaders.filter((header) => !NGS_HEADERS_TO_REMOVE.includes(header));
+            filtered.unshift('QC Status');
+            return filtered;
+        }
+        return projectInfo.columnOrder || [];
+    };
+
     const renderGrid = (gridData, headers) => {
         if(serviceErrors[PROJECT_INFO]){
             return <div>
@@ -261,17 +363,20 @@ function ProjectPage(props){
 
         const hideGrid = (gridData.length === 0 || headers.length === 0)
         const display = hideGrid ? 'block' : 'none';
+
+        const columnOrder = getColumnOrder();
+
         return <div className={"black-border"} style={{width:'inherit'}}>
             <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
-                         columnOrder={projectInfo.columnOrder || []}
+                         columnOrder={columnOrder || []}
                          qcStatuses={projectInfo.statuses || {}}
                          onSelect={onSelect}
                          project={pId}
                          recipe={recipe}
                          addModalUpdate={props.addModalUpdate}
-                         updateProjectInfo={updateProjectInfo}/>
+                         updateProjectInfo={queryProjectInfo}/>
             </div>;
     };
 

@@ -3,7 +3,7 @@ import MuiButton from "@material-ui/core/Button/Button";
 import { submitFeedback } from '../../services/igo-qc-service';
 import PropTypes from "prop-types";
 import QcTable from "../project-page/components/qc-table";
-import {MODAL_ERROR, MODAL_UPDATE} from "../../constants";
+import {MODAL_ERROR, MODAL_UPDATE} from "../../resources/constants";
 
 const Feedback = (props) => {
     const [feedbackType, setFeedbackType] = useState("featureRequest");

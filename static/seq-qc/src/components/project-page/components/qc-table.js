@@ -10,7 +10,7 @@ import MuiButton from '@material-ui/core/Button';
 import MuiDownshift from 'mui-downshift'
 
 import { setRunStatus } from '../../../services/igo-qc-service';
-import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../constants";
+import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../resources/constants";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -36,8 +36,8 @@ class QcTable extends React.Component {
             };
             // Enrich data, e.g. w/ checkmark field
             this.setState({
-                data: Object.assign([], this.props.data),
-                displayedData: Object.assign([], this.props.data)
+                data: JSON.parse(JSON.stringify(this.props.data)), // this.props.data.slice(0),
+                displayedData: JSON.parse(JSON.stringify(this.props.data))
             });
         }
         if((this.props.headers.length > 0 && (prevProps.columnOrder.length !== this.props.columnOrder.length)) ||

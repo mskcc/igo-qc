@@ -7,7 +7,7 @@ import CellRanger from './components/project-page/project-page.js';
 import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
-import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./constants";
+import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./resources/constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
 import Logo from './resources/igo-logo.jpeg';

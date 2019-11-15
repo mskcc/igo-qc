@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faAngleDown, faAngleRight, faTimes} from '@fortawesome/free-solid-svg-icons';
-import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../constants";
+import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../resources/constants";
 
 class Modal extends React.Component {
     constructor(props) {
