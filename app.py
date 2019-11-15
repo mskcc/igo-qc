@@ -1,22 +1,65 @@
 # Version 1.0
 
+import sys
+import uwsgi, pickle
 from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify
+from flask_login import login_user, login_required, LoginManager, UserMixin
+from flask_cors import CORS
 from functools import wraps
 from collections import defaultdict
 import requests
 import os, json, re, yaml
-from settings import APP_STATIC, FASTQ_PATH
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 import ssl
 import re
-import time,datetime, glob
-import uwsgi, pickle
+import time, datetime, glob
 from operator import itemgetter
-from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
-
+import ldap
+import smtplib
+from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
+
+sys.path.insert(0, os.path.abspath("config"))
+import headers
+from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
+from settings import APP_STATIC, FASTQ_PATH
+import Grid
+
+# Configurations
+config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
+config_options = yaml.load(open(config, "r"))
+
+# Configure app
+app = Flask(__name__)
+cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}})
+app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['SECRET_KEY'] = config_options['secret_key']
+
+# Configure modules
+class MyAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = PoolManager(num_pools=connections,
+                maxsize=maxsize,
+                block=block,
+                ssl_version=ssl.PROTOCOL_SSLv23)
+s = requests.Session()
+s.mount('https://', MyAdapter())
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+LDAP_URL = config_options['ldap_url']
+AUTHORIZED_GROUP = config_options['authorized_group']
+USER = config_options['username']
+PASSW = config_options['password']
+PORT = config_options['port']
+LIMS_API_ROOT =config_options['lims_end_point']
+CACHE_TIME_LONG = 21600     # 6 hours
+CACHE_TIME_SHORT = 300      # 5 minutes
+CACHE_NAME = "igoqc"        # Take from .ini file
+
 dictConfig({
     'version': 1,
     'formatters': {
@@ -35,66 +78,81 @@ dictConfig({
     'root': {'level': 'INFO', 'handlers': ['wsgi']},
 })
 
-CACHE_TIME_LONG = 21600     # 6 hours
-CACHE_TIME_SHORT = 300      # 5 minutes
-CACHE_NAME = "igoqc"        # Take from .ini file
+# LOGIN LOGIC
+class User(UserMixin):
+    def __init__(self, username):
+        self.username = username
+        self.id = id
 
+    @property
+    def is_authenticated(self):
+        return True
 
-app = Flask(__name__)
+    @property
+    def is_anonymous(self):
+        return False
 
-import Grid
+    @property
+    def is_active(self):
+        return True
+current_user = User("username")
+@login_manager.user_loader
+def load_user(user_id):
+    return current_user
 
-from flask_cors import CORS
-cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}})
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
-import smtplib
-from email.message import EmailMessage
-@app.route('/submitFeedback', methods=['POST'])
-def submit_feedback():
-    msg = EmailMessage()
-    app.logger.info(request)
-    msg.set_content(request.json['body'])
+@app.route('/authenticate', methods=['GET', 'POST'])
+def authenticate():
+    try:
+        username = request.form.get("username")
+        password = request.form.get("password")
+    except:
+        flash('Missing username or password. Please try again.')
+        return render_template('login.html')
+    try:
+        result = ldap_authenticate(username, password)
+    except ldap.INVALID_CREDENTIALS:
+        flash('Please check your login details and try again.')
+        return render_template('login.html')
+    if is_authorized(result):
+        app.logger.info('Authorizing %s' % username)
+        login_user(User(username))
+        current_user = User(username)
+        return redirect(url_for('index'))
+    else:
+        flash('You are not authorized to view this page')
+        return render_template('login.html')
 
-    to = "streidd@mskcc.org"
-    frm = "streidd@mskcc.org"
-    msg['From'] = frm
-    msg['To'] = to
+def get_ldap_connection():
+    conn = ldap.initialize(LDAP_URL)
+    conn.set_option(ldap.OPT_REFERRALS, 0)
+    return conn
 
-    feedback_type = request.json['type']
-    app.logger.info("Sending %s feedback to %s" % (feedback_type, to))
+def ldap_authenticate(username, password):
+    conn = get_ldap_connection()
 
-    subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
-    subject += request.json["subject"]
-    msg['Subject'] = subject
+    conn.simple_bind_s('%s@mskcc.org' % username, password)
+    attrs = ['sAMAccountName', 'displayName', 'memberOf', 'title']
+    result = conn.search_s(
+        'DC=MSKCC,DC=ROOT,DC=MSKCC,DC=ORG',
+        ldap.SCOPE_SUBTREE,
+        'sAMAccountName=' + username,
+        attrs,
+    )
+    conn.unbind_s()
+    return result
 
-    s = smtplib.SMTP('localhost')
-    s.send_message(msg)
-    s.quit()
+def is_authorized(result):
+    return AUTHORIZED_GROUP in format_result(result)
 
-    return create_resp(True, 'success', {})
+def format_result(result):
+    p = re.compile('CN=(.*?)\,')
+    groups = re.sub('CN=Users', '', str(result))
+    return p.findall(groups)
 
-app.config['PROPAGATE_EXCEPTIONS'] = True
-class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections,
-                maxsize=maxsize,
-                block=block,
-                ssl_version=ssl.PROTOCOL_SSLv23)
-                #ssl_version=ssl.PROTOCOL_SSLv3)
-
-s = requests.Session()
-s.mount('https://', MyAdapter())
-
-config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
-config_options = yaml.load(open(config, "r"))
-USER = config_options['username']
-PASSW = config_options['password']
-PORT = config_options['port']
-LIMS_API_ROOT =config_options['lims_end_point']
-
-import sys
-sys.path.insert(0, os.path.abspath("config"))
-import headers
 
 # This decorator make a function able to read the project ID input of the user and then launch the
 # data gathering process.
@@ -130,8 +188,8 @@ def is_project_id_valid(project_id):
     return True
 
 @app.route('/', methods=['GET', 'POST'])
-@app.route('/home', methods=['GET', 'POST'])
 @navbarForm
+@login_required
 def index():
     return render_template("index.html", **locals())
 
@@ -789,6 +847,30 @@ def project_info(pId):
     }
 
     return create_resp(True, 'success', data)
+
+@app.route('/submitFeedback', methods=['POST'])
+def submit_feedback():
+    msg = EmailMessage()
+    app.logger.info(request)
+    msg.set_content(request.json['body'])
+
+    to = "streidd@mskcc.org"
+    frm = "streidd@mskcc.org"
+    msg['From'] = frm
+    msg['To'] = to
+
+    feedback_type = request.json['type']
+    app.logger.info("Sending %s feedback to %s" % (feedback_type, to))
+
+    subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
+    subject += request.json["subject"]
+    msg['Subject'] = subject
+
+    s = smtplib.SMTP('localhost')
+    s.send_message(msg)
+    s.quit()
+
+    return create_resp(True, 'success', {})
 
 def getColumnOrder(type):
     if type in headers.order:
