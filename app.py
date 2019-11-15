@@ -795,7 +795,7 @@ def getColumnOrder(type):
         app.logger.info("Returning column order for %s" % type)
         return headers.order[type]
     app.logger.error("No column order set for %s. Returning empty list" % type)
-    return []
+    return headers.order['default']
 
 def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]
