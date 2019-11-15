@@ -23,7 +23,12 @@ const config = {
             {
                 test: /\.(gif|png|jpe?g|svg)$/i,
                 use: [
-                    'file-loader',
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            outputPath: 'static/seq-qc/dist'
+                        }
+                    },
                     {
                         loader: 'image-webpack-loader',
                         options: {

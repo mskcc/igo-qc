@@ -282,7 +282,7 @@ class QcTable extends React.Component {
                                     </div>
                                 </div>
                                 <div className={"header-removal-selector fill-width"}>
-                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 fill-width" : "display-none margin-bottom-15 fill-width"}>
+                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 fill-width" : "display-none margin-bottom-15 width-95"}>
                                         <p>Columns in View</p>
                                         {headersToRemove.map((header) => {
                                             let classes = "inline-block header-selector";
