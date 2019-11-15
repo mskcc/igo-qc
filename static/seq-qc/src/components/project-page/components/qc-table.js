@@ -5,9 +5,8 @@ import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faTimes, faSearch, faArrowAltCircleRight, faAngleDown, faAngleRight} from "@fortawesome/free-solid-svg-icons";
+import {faTimes, faSearch, faAngleDown, faAngleRight} from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
-import MuiDownshift from 'mui-downshift'
 
 import { setRunStatus } from '../../../services/igo-qc-service';
 import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../resources/constants";
@@ -282,7 +281,7 @@ class QcTable extends React.Component {
                                     </div>
                                 </div>
                                 <div className={"header-removal-selector fill-width"}>
-                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 fill-width" : "display-none margin-bottom-15 width-95"}>
+                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
                                         <p>Columns in View</p>
                                         {headersToRemove.map((header) => {
                                             let classes = "inline-block header-selector";
