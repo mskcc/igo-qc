@@ -24,7 +24,7 @@ from logging.config import dictConfig
 sys.path.insert(0, os.path.abspath("config"))
 import headers
 from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
-from settings import APP_STATIC, FASTQ_PATH
+from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 import Grid
 
 # Configurations
@@ -102,7 +102,7 @@ def load_user(user_id):
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    return render_template('login.html', URL_PREFIX=URL_PREFIX)
 
 @app.route('/authenticate', methods=['GET', 'POST'])
 def authenticate():
@@ -332,6 +332,7 @@ def build_grid_from_samples(samples, pType):
             grid.set_value("Pct. Intergenic", row, format_fp(qc['percentIntergenicBases'] * 100))
             grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
         if pType['table'] == 'wgs':
+            addSumMtc(grid, row, sample, qc)
             grid.set_value("MEAN_COVERAGE", row, format_int(qc["mean_COVERAGE"]))
             grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
             grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
@@ -343,15 +344,7 @@ def build_grid_from_samples(samples, pType):
             grid.set_value("PCT_80X", row, format_fp(qc['percentTarget80x'] * 100))
             grid.set_value("PCT_100X", row, format_fp(qc['percentTarget100x'] * 100))
         if pType['table'] == 'hs':
-            grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
-            if "sumMtc" in sample:
-               grid.set_value("Sum MTC", row, format_fp(sample['sumMtc']))
-               if 'requestedNumberOfReads' in sample:
-                   try:
-                       if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
-                           grid.set_style("Sum MTC", row, "highlight")
-                   except ValueError:
-                       grid.set_style("Sum MTC", row, None)
+            addSumMtc(grid, row, sample, qc)
             grid.set_value("Pct. Zero Cvg", row, format_fp(qc['zeroCoveragePercent'] * 100))
             grid.set_value("Pct. Off Bait", row, format_fp(qc['percentOffBait'] * 100))
             grid.set_value("Pct. 10x", row, format_fp(qc['percentTarget10x'] * 100))
@@ -359,6 +352,17 @@ def build_grid_from_samples(samples, pType):
             grid.set_value("Pct. 100x", row, format_fp(qc['percentTarget100x'] * 100))
         row += 1
     return grid
+
+def addSumMtc(grid, row, sample, qc):
+    grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
+    if "sumMtc" in sample:
+       grid.set_value("Sum MTC", row, format_fp(sample['sumMtc']))
+       if 'requestedNumberOfReads' in sample:
+           try:
+               if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
+                   grid.set_style("Sum MTC", row, "highlight")
+           except ValueError:
+               grid.set_style("Sum MTC", row, None)
 
 def format_fp(value):
     try:
@@ -988,7 +992,7 @@ def get_header(project_type):
                    "Unmapped", "Pct. Duplic.",
                    "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
     wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                  "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
+                  "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Initial Pool",
                   "QC Status", "MEAN_COVERAGE", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
