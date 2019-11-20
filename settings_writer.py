@@ -15,7 +15,7 @@ if __name__ == "__main__":
     else:
         print("Configuration: DEV")
         APP_ROOT = "os.path.dirname(os.path.abspath(__file__))"
-        URL_PREFIX = ''
+        URL_PREFIX = "'http://localhost:9009/'"
 
     settings = "import os\n"
     settings += "APP_ROOT=%s\n" % APP_ROOT
