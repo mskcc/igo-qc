@@ -193,166 +193,6 @@ def is_project_id_valid(project_id):
 def index():
     return render_template("index.html", **locals())
 
-def build_grid_from_samples(samples, pType):
-    header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                 "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
-                 "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
-                 "Unmapped", "Pct. Duplic."]
-    hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
-                 "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
-                 "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
-                 "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
-    rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                     "Concentr.  (nM)", "Final Library Yield (fmol)", "Requested Reads (Millions)", "Initial Pool",
-                     "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
-                     "Unmapped", "Pct. Duplic.",
-                     "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
-    wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
-                "QC Status", "MEAN_COVERAGE", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped", 
-                "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]    
-    #compute the sum of the 'readDuped' by 'sampleName'
-    sumReadDict = defaultdict(int)
-    l = {}
-    for sample in samples:
-        if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
-            if sample['qc']['readsExamined']>0:
-                sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
-            else:
-                sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
-
-    #compute the sum of the 'meanTargetCoverage' by 'sampleName'
-    l = {}
-    sumMtcDict = defaultdict(float)
-
-    for sample in samples:
-        if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
-            sumMtcDict[sample['cmoId']] += sample['qc']['meanTargetCoverage']
-    for sample in samples:
-        sample['sumMtc'] = sumMtcDict[sample['cmoId']]
-        sample['sumReads'] = sumReadDict[sample['cmoId']]
-        l[sample['qc']['sampleName']] = 1
-
-    #format of 'run'
-    for sample in samples:
-        if 'run' not in sample['qc'] or '_' not in sample['qc']['run']:
-            continue
-        l = sample['qc']['run'].split('_')
-        sample['qc']['run_toprint'] = l[0] + '_' + l[1]
-
-    #format of 'concentration'
-    for sample in samples:
-        l = sample['concentration'].split()
-        if l[1] == 'pM':
-            l[0] = float(l[0]) / 1000
-        sample['concentration'] = float(l[0])
-
-    for sample in samples:
-        if 'quantIt' in sample['qc']:
-            pType['quanted'] = True
-        else:
-            sample['qc']['quantIt'] = 0.0
-            sample['qc']['quantUnits'] = "NA"
-        if 'qcControl' in sample['qc']:
-            pType['qcControlled'] = True
-        else:
-            sample['qc']['qcControl'] = 0.0
-            sample['qc']['qcUnits'] = 0.0
-        if 'startingAmount' in sample['qc']:
-            pType['startable'] = True
-        else:
-            sample['qc']['startingAmount'] = 0.0
-
-    if pType['table'] == 'hs':
-        header = hs_header
-    elif pType['table'] == 'rna':
-        header = rna_header
-    elif pType['table'] == 'wgs':
-        header = wgs_header
-    genome_index = header.index("Genome")
-    if "startable" in pType:
-        if pType["startable"]:
-            header.insert(genome_index + 1, "Starting Amount")
-    if "qcControlled" in pType:
-        if pType["qcControlled"]:
-            header.insert(genome_index + 1, "Library Quality Control")
-    if "quanted" in pType:
-        if pType["quanted"]:
-            header.insert(genome_index + 1, "Quant-it")
-
-    grid = Grid.Grid()
-    grid.set_header(header)
-    grid.assign_value_types()
-    row = 0
-    for sample in samples:
-        qc = sample['qc']
-        grid.set_value("Run", row, qc['run'])
-        grid.set_value("QC Status", row, qc['qcStatus'])
-        grid.set_value("Sample", row, qc['sampleName'])
-        grid.set_value("QC Record Id", row, qc['recordId'])
-        grid.set_value("IGO Id", row, sample['baseId'])
-        if "species" in sample:
-            grid.set_value("Genome", row, sample['species'])
-        grid.set_value("Tumor or Normal", row, 'Normal')
-        grid.set_style("Tumor or Normal", row, "text-primary")
-        if sample['tumorOrNormal'] == 'Tumor':
-            grid.set_value("Tumor or Normal", row, 'Tumor')
-            grid.set_style("Tumor or Normal", row, "text-danger")
-        grid.set_value("Concentr.  (nM)", row, format_fp(sample['concentration']))
-        grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
-        cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget'] # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
-        grid.set_value("Coverage Target", row, format_int(cov_target))
-        grid.set_value("Requested Reads (Millions)", row, format_int(sample['requestedNumberOfReads']))
-        grid.set_value("Pct. Adapters", row, qc['percentAdapters'] * 100) #
-        grid.set_value("Reads Examined", row, format_int(qc['readsExamined']))
-        grid.set_value("Unpaired Reads", row, format_int(qc['unpairedReadsExamined']))
-        grid.set_value("Initial Pool", row, "")
-        if "initialPool" in sample:
-            grid.set_value("Initial Pool", row, sample["initialPool"])
-        grid.set_value("Unmapped", row, format_int(qc['unmapped']))
-        grid.set_value("Pct. Duplic.", row, format_fp(qc['percentDuplication'] * 100)) #
-        if pType["startable"]:
-            grid.set_value("Starting Amount", row, qc["startingAmount"])
-        if pType["qcControlled"]:
-            grid.set_value("Library Quality Control", row, "{:,.2f}".format(qc["qcControl"]) + " " +  str(qc["qcUnits"]))
-        if pType["quanted"]:
-            grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
-        grid.set_value("Sum Reads", row, format_int(sample["sumReads"]))
-        if pType['table'] != 'hs' and 'requestedNumberOfReads' in sample:
-            try:
-                if sample['sumReads'] <= float(sample['requestedNumberOfReads']):
-                    grid.set_style("Sum Reads", row, "highlight")
-            except ValueError:
-                grid.set_style("Sum Reads", row, None)
-        if pType['table'] == 'rna':
-            grid.set_value("Pct. Ribos.", row, format_fp(qc['percentRibosomalBases'] * 100))
-            grid.set_value("Pct. Coding", row, format_fp(qc['percentCodingBases'] * 100))
-            grid.set_value("Pct. Utr", row, format_fp(qc['percentUtrBases'] * 100))
-            grid.set_value("Pct. Intron.", row, format_fp(qc['percentIntronicBases'] * 100))
-            grid.set_value("Pct. Intergenic", row, format_fp(qc['percentIntergenicBases'] * 100))
-            grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
-        if pType['table'] == 'wgs':
-            addSumMtc(grid, row, sample, qc)
-            grid.set_value("MEAN_COVERAGE", row, format_int(qc["mean_COVERAGE"]))
-            grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
-            grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
-            grid.set_value("PCT_EXC_BASEQ", row, format_fp(qc['pct_EXC_BASEQ'] * 100))
-            grid.set_value("PCT_EXC_TOTAL", row, format_fp(qc['pct_EXC_TOTAL'] * 100))
-            grid.set_value("PCT_10X", row, format_fp(qc['percentTarget10x'] * 100))
-            grid.set_value("PCT_30X", row, format_fp(qc['percentTarget30x'] * 100))
-            grid.set_value("PCT_40X", row, format_fp(qc['percentTarget40x'] * 100))
-            grid.set_value("PCT_80X", row, format_fp(qc['percentTarget80x'] * 100))
-            grid.set_value("PCT_100X", row, format_fp(qc['percentTarget100x'] * 100))
-        if pType['table'] == 'hs':
-            addSumMtc(grid, row, sample, qc)
-            grid.set_value("Pct. Zero Cvg", row, format_fp(qc['zeroCoveragePercent'] * 100))
-            grid.set_value("Pct. Off Bait", row, format_fp(qc['percentOffBait'] * 100))
-            grid.set_value("Pct. 10x", row, format_fp(qc['percentTarget10x'] * 100))
-            grid.set_value("Pct. 30x", row, format_fp(qc['percentTarget30x'] * 100))
-            grid.set_value("Pct. 100x", row, format_fp(qc['percentTarget100x'] * 100))
-        row += 1
-    return grid
-
 def addSumMtc(grid, row, sample, qc):
     grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
     if "sumMtc" in sample:
@@ -1094,6 +934,7 @@ def get_grid(samples, project_type):
             grid.set_value("Pct. Intergenic", row, format_fp(qc['percentIntergenicBases'] * 100))
             grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
         if project_type['table'] == 'wgs':
+            addSumMtc(grid, row, sample, qc)
             grid.set_value("MEAN_COVERAGE", row, format_int(qc["mean_COVERAGE"]))
             grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
             grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
@@ -1106,14 +947,7 @@ def get_grid(samples, project_type):
             grid.set_value("PCT_100X", row, format_fp(qc['percentTarget100x'] * 100))
         if project_type['table'] == 'hs':
             grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
-            if "sumMtc" in sample:
-                grid.set_value("Sum MTC", row, format_fp(sample['sumMtc']))
-                if 'requestedNumberOfReads' in sample:
-                    try:
-                        if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
-                            grid.set_style("Sum MTC", row, "highlight")
-                    except ValueError:
-                        grid.set_style("Sum MTC", row, None)
+            addSumMtc(grid, row, sample, qc)
             grid.set_value("Pct. Zero Cvg", row, format_fp(qc['zeroCoveragePercent'] * 100))
             grid.set_value("Pct. Off Bait", row, format_fp(qc['percentOffBait'] * 100))
             grid.set_value("Pct. 10x", row, format_fp(qc['percentTarget10x'] * 100))
