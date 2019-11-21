@@ -833,7 +833,7 @@ def get_header(project_type):
                    "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
     wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
                   "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Initial Pool",
-                  "QC Status", "MEAN_COVERAGE", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
+                  "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
     if project_type['table'] == 'hs':
@@ -935,7 +935,7 @@ def get_grid(samples, project_type):
             grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
         if project_type['table'] == 'wgs':
             addSumMtc(grid, row, sample, qc)
-            grid.set_value("MEAN_COVERAGE", row, format_int(qc["mean_COVERAGE"]))
+            grid.set_value("Mean Tgt Cvg", row, format_int(qc["mean_COVERAGE"]))
             grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
             grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
             grid.set_value("PCT_EXC_BASEQ", row, format_fp(qc['pct_EXC_BASEQ'] * 100))
@@ -993,7 +993,10 @@ def enrich_samples(samples):
     sumMtcDict = defaultdict(float)
     for sample in samples:
         if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
-            sumMtcDict[sample['cmoId']] += sample['qc']['meanTargetCoverage']
+            col = 'meanTargetCoverage'
+            if 'HumanWholeGenome' in sample['recipe']:
+                col = 'mean_COVERAGE'
+            sumMtcDict[sample['cmoId']] += sample['qc'][col]
     for sample in samples:
         sample['sumMtc'] = sumMtcDict[sample['cmoId']]
         sample['sumReads'] = sumReadDict[sample['cmoId']]

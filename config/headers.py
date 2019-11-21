@@ -15,7 +15,7 @@ order = {
     ],
     'wgs':[
         "QC Status","Sample",
-        "MEAN_COVERAGE", "Coverage Target",
+        "Mean Tgt Cvg", "Sum MTC", "Coverage Target",
         "Concentr.  (nM)", "Final Library Yield (fmol)",
         "Requested Reads (Millions)","Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
         "Tumor or Normal",
