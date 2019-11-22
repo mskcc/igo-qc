@@ -194,15 +194,29 @@ def index():
     return render_template("index.html", **locals())
 
 def addSumMtc(grid, row, sample, qc):
-    grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
+    grid.set_value("Mean Tgt Cvg", row, qc['meanTargetCoverage'])
     if "sumMtc" in sample:
-       grid.set_value("Sum MTC", row, format_fp(sample['sumMtc']))
+       grid.set_value("Sum MTC", row, sample['sumMtc'])
        if 'requestedNumberOfReads' in sample:
            try:
                if sample['sumMtc'] <= float(sample['requestedNumberOfReads']):
                    grid.set_style("Sum MTC", row, "highlight")
            except ValueError:
                grid.set_style("Sum MTC", row, None)
+
+def to_fp(value):
+    try:
+        return float(value)
+    except ValueError:
+        app.logger.error('Could not parse %s to float' % str(value))
+        return value
+
+def to_int(value):
+    try:
+        return int(value)
+    except ValueError:
+        app.logger.error('Could not parse %s to float' % str(value))
+        return value
 
 def format_fp(value):
     try:
@@ -853,12 +867,10 @@ def get_header(project_type):
 
     return header
 
-def get_sample_value(sample, field, formatter):
+def get_sample_value(sample, field):
     val = "NOT AVAILABLE"
     if field in sample:
         val = sample[field]
-        if formatter:
-            val = formatter(val)
     return val
 
 def get_grid(samples, project_type):
@@ -894,65 +906,59 @@ def get_grid(samples, project_type):
         if sample['tumorOrNormal'] == 'Tumor':
             grid.set_value("Tumor or Normal", row, 'Tumor')
             grid.set_style("Tumor or Normal", row, "text-danger")
-        grid.set_value("Concentr.  (nM)", row, format_fp(sample['concentration']))
+        grid.set_value("Concentr.  (nM)", row, sample['concentration'])
         grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
         # TODO: coverageTarget seems dependent on pending data
         if "coverageTarget" in sample:
             cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget']  # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
-            grid.set_value("Coverage Target", row, format_int(cov_target))
+            grid.set_value("Coverage Target", row, cov_target)
         else:
             # TODO - provide an alert about fields
             grid.set_value("Coverage Target", row, "NOT AVAILABLE")
-        requestedNumReads = get_sample_value(sample, 'requestedNumberOfReads', format_int)
-        grid.set_value("Requested Reads (Millions)", row, requestedNumReads)
+        requestedNumReads = get_sample_value(sample, 'requestedNumberOfReads')
+        grid.set_value("Requested Reads (Millions)", row, to_int(requestedNumReads))
         grid.set_value("Pct. Adapters", row, qc['percentAdapters'] * 100) #
-        grid.set_value("Reads Examined", row, format_int(qc['readsExamined']))
-        grid.set_value("Unpaired Reads", row, format_int(qc['unpairedReadsExamined']))
+        grid.set_value("Reads Examined", row, qc['readsExamined'])
+        grid.set_value("Unpaired Reads", row, qc['unpairedReadsExamined'])
         grid.set_value("Initial Pool", row, "")
         if "initialPool" in sample:
             grid.set_value("Initial Pool", row, sample["initialPool"])
-        grid.set_value("Unmapped", row, format_int(qc['unmapped']))
-        grid.set_value("Pct. Duplic.", row, format_fp(qc['percentDuplication'] * 100)) #
+        grid.set_value("Unmapped", row, qc['unmapped'])
+        grid.set_value("Pct. Duplic.", row, qc['percentDuplication'] * 100) #
         if project_type["startable"]:
             grid.set_value("Starting Amount", row, qc["startingAmount"])
         if project_type["qcControlled"]:
             grid.set_value("Library Quality Control", row, "{:,.2f}".format(qc["qcControl"]) + " " +  str(qc["qcUnits"]))
         if project_type["quanted"]:
             grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
-        grid.set_value("Sum Reads", row, format_int(sample["sumReads"]))
-        if project_type['table'] != 'hs' and 'requestedNumberOfReads' in sample:
-            try:
-                if sample['sumReads'] <= float(sample['requestedNumberOfReads']):
-                    grid.set_style("Sum Reads", row, "highlight")
-            except ValueError:
-                grid.set_style("Sum Reads", row, None)
+        grid.set_value("Sum Reads", row, sample["sumReads"])
         if project_type['table'] == 'rna':
-            grid.set_value("Pct. Ribos.", row, format_fp(qc['percentRibosomalBases'] * 100))
-            grid.set_value("Pct. Coding", row, format_fp(qc['percentCodingBases'] * 100))
-            grid.set_value("Pct. Utr", row, format_fp(qc['percentUtrBases'] * 100))
-            grid.set_value("Pct. Intron.", row, format_fp(qc['percentIntronicBases'] * 100))
-            grid.set_value("Pct. Intergenic", row, format_fp(qc['percentIntergenicBases'] * 100))
-            grid.set_value("Pct. Mrna", row, format_fp(qc['percentMrnaBases'] * 100))
+            grid.set_value("Pct. Ribos.", row, qc['percentRibosomalBases'] * 100)
+            grid.set_value("Pct. Coding", row, qc['percentCodingBases'] * 100)
+            grid.set_value("Pct. Utr", row, qc['percentUtrBases'] * 100)
+            grid.set_value("Pct. Intron.", row, qc['percentIntronicBases'] * 100)
+            grid.set_value("Pct. Intergenic", row, qc['percentIntergenicBases'] * 100)
+            grid.set_value("Pct. Mrna", row, qc['percentMrnaBases'] * 100)
         if project_type['table'] == 'wgs':
             addSumMtc(grid, row, sample, qc)
-            grid.set_value("Mean Tgt Cvg", row, format_int(qc["mean_COVERAGE"]))
-            grid.set_value("PCT_EXC_MAPQ", row, format_fp(qc['pct_EXC_MAPQ'] * 100))
-            grid.set_value("PCT_EXC_DUPE", row, format_fp(qc['pct_EXC_DUPE'] * 100))
-            grid.set_value("PCT_EXC_BASEQ", row, format_fp(qc['pct_EXC_BASEQ'] * 100))
-            grid.set_value("PCT_EXC_TOTAL", row, format_fp(qc['pct_EXC_TOTAL'] * 100))
-            grid.set_value("PCT_10X", row, format_fp(qc['percentTarget10x'] * 100))
-            grid.set_value("PCT_30X", row, format_fp(qc['percentTarget30x'] * 100))
-            grid.set_value("PCT_40X", row, format_fp(qc['percentTarget40x'] * 100))
-            grid.set_value("PCT_80X", row, format_fp(qc['percentTarget80x'] * 100))
-            grid.set_value("PCT_100X", row, format_fp(qc['percentTarget100x'] * 100))
+            grid.set_value("Mean Tgt Cvg", row, qc["mean_COVERAGE"])
+            grid.set_value("PCT_EXC_MAPQ", row, qc['pct_EXC_MAPQ'] * 100)
+            grid.set_value("PCT_EXC_DUPE", row, qc['pct_EXC_DUPE'] * 100)
+            grid.set_value("PCT_EXC_BASEQ", row, qc['pct_EXC_BASEQ'] * 100)
+            grid.set_value("PCT_EXC_TOTAL", row, qc['pct_EXC_TOTAL'] * 100)
+            grid.set_value("PCT_10X", row, qc['percentTarget10x'] * 100)
+            grid.set_value("PCT_30X", row, qc['percentTarget30x'] * 100)
+            grid.set_value("PCT_40X", row, qc['percentTarget40x'] * 100)
+            grid.set_value("PCT_80X", row, qc['percentTarget80x'] * 100)
+            grid.set_value("PCT_100X", row, qc['percentTarget100x'] * 100)
         if project_type['table'] == 'hs':
-            grid.set_value("Mean Tgt Cvg", row, format_fp(qc['meanTargetCoverage']))
+            grid.set_value("Mean Tgt Cvg", row, qc['meanTargetCoverage'])
             addSumMtc(grid, row, sample, qc)
-            grid.set_value("Pct. Zero Cvg", row, format_fp(qc['zeroCoveragePercent'] * 100))
-            grid.set_value("Pct. Off Bait", row, format_fp(qc['percentOffBait'] * 100))
-            grid.set_value("Pct. 10x", row, format_fp(qc['percentTarget10x'] * 100))
-            grid.set_value("Pct. 30x", row, format_fp(qc['percentTarget30x'] * 100))
-            grid.set_value("Pct. 100x", row, format_fp(qc['percentTarget100x'] * 100))
+            grid.set_value("Pct. Zero Cvg", row, qc['zeroCoveragePercent'] * 100)
+            grid.set_value("Pct. Off Bait", row, qc['percentOffBait'] * 100)
+            grid.set_value("Pct. 10x", row, qc['percentTarget10x'] * 100)
+            grid.set_value("Pct. 30x", row, qc['percentTarget30x'] * 100)
+            grid.set_value("Pct. 100x", row, qc['percentTarget100x'] * 100)
         row += 1
 
     return {
