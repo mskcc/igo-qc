@@ -167,6 +167,12 @@ h3 {
 .font-bold {
     font-weight: bold;
 }
+.center-hv {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+}
 .center-v {
     top: 50%;
     transform: translate(0%, -50%);

@@ -5,8 +5,12 @@ import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faTimes, faSearch, faAngleDown, faAngleRight} from "@fortawesome/free-solid-svg-icons";
+import {faTimes, faSearch, faAngleDown, faAngleRight, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
+
+
+import FileSaver from "file-saver";
+import XLSX from 'xlsx';
 
 import { setRunStatus } from '../../../services/igo-qc-service';
 import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../resources/constants";
@@ -224,6 +228,21 @@ class QcTable extends React.Component {
         return headers;
     };
 
+    downloadExcel = () => {
+        const xlsxData = Object.assign([], this.props.data);
+        const fileName = this.props.project || 'Project';
+        const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+        const fileExtension = ".xlsx";
+        const ws = XLSX.utils.json_to_sheet(xlsxData);
+        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+        const excelBuffer = XLSX.write(wb, {
+            bookType: "xlsx",
+            type: "array"
+        });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    };
+
     getFilteredData = () => {
         const filtered = [];
         for(const row of this.state.displayedData) {
@@ -270,6 +289,11 @@ class QcTable extends React.Component {
                                                                  icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
                                             </div>
                                             <p className={"inline-block vertical-align-top"}>Customize View</p>
+                                        </div>
+                                        <div className={"xlsx-container"}>
+                                            <FontAwesomeIcon className={"font-size-24 hover center-hv"}
+                                                             icon={faFileExcel}
+                                                             onClick={this.downloadExcel}/>
                                         </div>
                                     </div>
                                     <div className={"center-v table-search-container"}>
