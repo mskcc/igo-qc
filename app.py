@@ -33,7 +33,7 @@ config_options = yaml.load(open(config, "r"))
 
 # Configure app
 app = Flask(__name__)
-cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
@@ -706,6 +706,29 @@ def project_info(pId):
 
     return create_resp(True, 'success', data)
 
+@app.route('/getFeedback', methods=['GET'])
+def get_feedback():
+    f=open("feedback.txt", "r")
+    contents = f.read()
+    lines = contents.split('\n')
+
+    feedback = { '1': [], '0': [] }
+    for l in lines:
+        vals = l.split(',')
+        if(len(vals)!=3):
+            continue
+        type = vals[0]
+        text = vals[1]
+        status = str(vals[2])
+
+        # TODO - improve status checking
+        if status not in feedback:
+            continue
+
+        feedback[status].append([type, text])
+
+    return create_resp(True, 'success', { 'feedback': feedback })
+
 @app.route('/submitFeedback', methods=['POST'])
 def submit_feedback():
     msg = EmailMessage()
@@ -723,6 +746,10 @@ def submit_feedback():
     subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
     subject += request.json["subject"]
     msg['Subject'] = subject
+
+    f = open("./feedback.txt", "a")
+    f.write("%s,%s,%d\n" % (feedback_type, request.json["subject"], 0))
+    f.close()
 
     s = smtplib.SMTP('localhost')
     s.send_message(msg)
@@ -970,7 +997,12 @@ def get_grid(samples, project_type):
 
 def get_charts_links(project_qc_info):
     charts_links = {}
-    project_indexes = os.listdir(APP_STATIC + "/html/PDF") #os.listdir ( os.path.join("", "html/PDF") )
+    chart_pdfs = APP_STATIC + "/html/PDF"
+    try:
+        project_indexes = os.listdir(chart_pdfs) #os.listdir ( os.path.join("", "html/PDF") )
+    except FileNotFoundError:
+        app.logger.error('Could not find path: %s' % chart_pdfs)
+        return charts_links
     for project_index in project_indexes:
         l = project_index.split('_')
         if re.match("^[A-Z]+$", l[-2]):

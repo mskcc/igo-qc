@@ -13,6 +13,13 @@ const parseResp = (resp) => {
     return payload.data
 };
 
+export function getFeedback() {
+    return axios
+        .get(config.IGO_QC + '/getFeedback')
+        .then(resp => {return parseResp(resp) })
+        .catch(error => {throw new Error('Unable to get Feedback: ' + error) });
+}
+
 /**
 * Sends service call to retrieve most recent deliveries
 */
