@@ -5,11 +5,8 @@ import PropTypes from "prop-types";
 import QcTable from "../project-page/components/qc-table";
 import {MODAL_ERROR, MODAL_UPDATE} from "../../resources/constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faArrowAltCircleRight, faTimes, faWindowClose} from "@fortawesome/free-solid-svg-icons";
+import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import { getFeedback } from '../../services/igo-qc-service';
-import {Link} from "react-router-dom";
-import config from "../../config";
-import {Container} from "@material-ui/core";
 
 const WORKING = '0';
 const DONE = '1';
@@ -77,7 +74,7 @@ const Feedback = (props) => {
             const type = entry[0] === "bug" ? "Bug" : "Feature";
             const txt = entry[1];
 
-            const rowColor = (status === DONE) ? 'material-gray-background' : 'mskcc-dark-gray-background';
+            const rowColor = (status === DONE) ? 'mskcc-dark-gray-background' : 'material-gray-background';
             const rowStyle = `black-border fill-width ${rowColor}`;
             const element = <tr className={rowStyle} key={`${status}-${type}-${i}`}>
                 <td className={"text-align-center black-border-right"}>
