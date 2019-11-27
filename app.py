@@ -733,8 +733,6 @@ def get_feedback():
 @app.route('/submitFeedback', methods=['POST'])
 def submit_feedback():
     msg = EmailMessage()
-    app.logger.info(request)
-    msg.set_content(request.json['body'])
 
     to = "streidd@mskcc.org"
     frm = "streidd@mskcc.org"
@@ -748,9 +746,18 @@ def submit_feedback():
     subject += request.json["subject"]
     msg['Subject'] = subject
 
+    # Write Feedback
     f = open("./feedback.txt", "a")
     f.write("%s,%s,%d\n" % (feedback_type, request.json["subject"], 0))
     f.close()
+
+    # Read Feedback
+    f = open("./feedback.txt", "a")
+    currentFeedback = f.read()
+    f.close()
+
+    content = "%s\nCURRENT FEEDBACK\n%s" % (request.json['body'], currentFeedback)
+    msg.set_content(content)
 
     s = smtplib.SMTP('localhost')
     s.send_message(msg)
