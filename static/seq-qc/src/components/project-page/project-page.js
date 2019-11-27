@@ -238,6 +238,14 @@ function ProjectPage(props){
         if(ngsDataName){
             // Find the current Grid Data entry that has that igo Id
             match = currentGridData.filter((entry) => ngsDataName.includes(entry['IGO Id']));
+
+            /* TODO - resolve case of >1 match. E.g.
+               ngsDataName = Sample_LN9_IGO_10243_B_10__count
+               entries: {
+                      e['IGO Id'] : IGO Id: "10243_B_10",
+                      e['IGO Id'] : IGO Id: "10243_B_1"
+               }
+             */
         } else if(projectInfoId){
             match = currentGridData.filter((entry) => entry['name'].includes(projectInfoId));
         } else {
