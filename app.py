@@ -746,7 +746,7 @@ def submit_feedback():
     f.close()
 
     # Read Feedback
-    f = open("./feedback.txt", "a")
+    f = open("./feedback.txt", "r")
     currentFeedback = f.read()
     f.close()
 
