@@ -393,7 +393,7 @@ def get_recent_runs():
     for eachfile in dir_data:
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
         last_modified = (datenow - mtime).days
-        app.logger.info("File: %s. Modified %s days ago" % (eachfile, str(last_modified)))
+        # app.logger.info("File: %s. Modified %s days ago" % (eachfile, str(last_modified)))
         if last_modified < latest_age:
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
