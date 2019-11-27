@@ -965,7 +965,7 @@ def get_grid(samples, project_type):
             grid.set_value("Pct. Ribos.", row, round_float(qc['percentRibosomalBases']) * 100)
             grid.set_value("Pct. Coding", row, round_float(qc['percentCodingBases']) * 100)
             grid.set_value("Pct. Utr", row, round_float(qc['percentUtrBases']) * 100)
-            grid.set_value("Pct. Intron.", round_float(row, qc['percentIntronicBases']) * 100)
+            grid.set_value("Pct. Intron.", row, round_float(qc['percentIntronicBases']) * 100)
             grid.set_value("Pct. Intergenic", row, round_float(qc['percentIntergenicBases']) * 100)
             grid.set_value("Pct. Mrna", row, round_float(qc['percentMrnaBases']) * 100)
         if project_type['table'] == 'wgs':
