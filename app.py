@@ -593,8 +593,9 @@ def change_run_status():
     return create_resp(success, status, data)
 
 def should_repool_sample(recipe, status):
+    # Any custom capture/pooled capture
     recipe_lc = recipe.lower()
-    return (RECIPE_HEMEPACT in recipe_lc or RECIPE_IMPACT in recipe_lc) and status == 'Repool-Sample'
+    return (RECIPE_HEMEPACT in recipe_lc or RECIPE_IMPACT in recipe_lc or RECIPE_MSK_ACCESS in recipe_lc) and status == 'Repool-Sample'
 
 def request_qc_status_change(id, qc_status, project, recipe):
     set_qc_payload = { 'record': id, 'status': qc_status, 'project': project, 'recipe': recipe }
