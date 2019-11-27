@@ -132,5 +132,5 @@ export default StatusSubmitter;
 
 StatusSubmitter.propTypes = {
     selectionSubject: PropTypes.object,     // Observable that propogates selection updates to component
-    statuses: PropTypes.array               // Available statuses for submission
+    statuses: PropTypes.object              // Available statuses for submission
 };

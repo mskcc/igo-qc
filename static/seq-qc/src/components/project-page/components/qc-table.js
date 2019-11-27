@@ -47,30 +47,34 @@ class QcTable extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(prevProps.data !== this.props.data){
+        // TODO - Neater, but slower
+        const dataUpdate = prevProps.data !== this.props.data;
+        const headersUpdate = (this.props.headers.length > 0 && (prevProps.columnOrder.length !== this.props.columnOrder.length));
+        const columnOrderUpdate = this.props.columnOrder.length > 0 && (prevProps.headers.length !== this.props.headers.length);
+
+        if(dataUpdate || headersUpdate || columnOrderUpdate) {
             if(this.state.data.length > 0){
                 // ONLY ADJUST MODAL - If state hasn't been set, this is the first update
                 this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`, 2000);
             };
+
+            const data = Object.assign([], this.props.data);
+            const headers = this.props.headers || [];
+            const removedHeaders = new Set(
+                headers.filter((header) => {
+                    return this.props.columnOrder.indexOf(header) < 0;
+                })
+            );
+            // Get latest filtered data depending on the removed headers
+            const filteredData = this.getFilteredData(data, removedHeaders);
+
             // Enrich data, e.g. w/ checkmark field
             this.setState({
-                data: JSON.parse(JSON.stringify(this.props.data)), // this.props.data.slice(0),
-                displayedData: JSON.parse(JSON.stringify(this.props.data)),
-                filteredData: this.getFilteredData(this.props.data, null)
+                filteredData,
+                removedHeaders,
+                data,
+                displayedData: data
             });
-        }
-        if((this.props.headers.length > 0 && (prevProps.columnOrder.length !== this.props.columnOrder.length)) ||
-            this.props.columnOrder.length > 0 && (prevProps.headers.length !== this.props.headers.length)) {
-            const removedColumns = this.props.headers.filter((header) => {
-                return this.props.columnOrder.indexOf(header) < 0;
-            });
-
-            const removedHeaders = new Set(removedColumns);
-
-            // Get latest filtered data depending on the removed headers
-            const filteredData = this.getFilteredData(null, removedHeaders);
-
-            this.setState({removedHeaders, filteredData});
         }
     }
 
