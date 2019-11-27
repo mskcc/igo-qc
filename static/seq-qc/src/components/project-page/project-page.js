@@ -384,7 +384,8 @@ function ProjectPage(props){
                          project={pId}
                          recipe={recipe}
                          addModalUpdate={props.addModalUpdate}
-                         updateProjectInfo={queryProjectInfo}/>
+                         updateProjectInfo={queryProjectInfo}
+                         selectedSample={selectedSample}/>
             </div>;
     };
 

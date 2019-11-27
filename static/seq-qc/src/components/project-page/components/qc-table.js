@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
-import 'handsontable/dist/handsontable.full.css'
-import './qc-table.css';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faTimes, faSearch, faAngleDown, faAngleRight, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import MuiButton from '@material-ui/core/Button';
-
-
+import { BehaviorSubject } from 'rxjs';
 import FileSaver from "file-saver";
 import XLSX from 'xlsx';
 
-import { setRunStatus } from '../../../services/igo-qc-service';
-import {MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE} from "../../../resources/constants";
+import 'handsontable/dist/handsontable.full.css'
+import './qc-table.css';
+
+import StatusSubmitter from './sample-status-modal';
+import {MODAL_UPDATE} from "../../../resources/constants";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -27,8 +27,23 @@ class QcTable extends React.Component {
             statusChange: '',
             searchTerm: '',
             rowHeight: 23,                   // This shouldn't change. It is the height of each row in the HotTable
-            showRemoveColumn: false
+            showRemoveColumn: false,
+            filteredData: [],                // This needs to be updated whenever displayedData/removedColumns changes
+            // For QC status change
+            selectionSubject: new BehaviorSubject([])      // Observable that can emit updates of user-selection
         };
+    }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        // Until this component depends on the selectedSample, don't update when changed. This will re-render and
+        // reset the grid of the table
+        if(nextProps.selectedSample !== this.props.selectedSample &&
+            // TODO
+            // Add all additional conditions to make sure that this will still render as component is loading
+            (nextProps.data === this.props.data && nextProps.headers === this.props.headers
+                && nextProps.columnOrder == this.props.columnOrder)
+        ) return false;
+        return true;
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -40,7 +55,8 @@ class QcTable extends React.Component {
             // Enrich data, e.g. w/ checkmark field
             this.setState({
                 data: JSON.parse(JSON.stringify(this.props.data)), // this.props.data.slice(0),
-                displayedData: JSON.parse(JSON.stringify(this.props.data))
+                displayedData: JSON.parse(JSON.stringify(this.props.data)),
+                filteredData: this.getFilteredData(this.props.data, null)
             });
         }
         if((this.props.headers.length > 0 && (prevProps.columnOrder.length !== this.props.columnOrder.length)) ||
@@ -48,9 +64,20 @@ class QcTable extends React.Component {
             const removedColumns = this.props.headers.filter((header) => {
                 return this.props.columnOrder.indexOf(header) < 0;
             });
-            this.setState({removedHeaders: new Set(removedColumns)});
+
+            const removedHeaders = new Set(removedColumns);
+
+            // Get latest filtered data depending on the removed headers
+            const filteredData = this.getFilteredData(null, removedHeaders);
+
+            this.setState({removedHeaders, filteredData});
         }
     }
+
+    /**
+     * WARNING - Do not propogate events to parent OR modify state. Updating the state will re-render the grid
+     * and lose any sorting that the user has done
+     */
     afterSelection = (r1, c1, r2, c2) => {
         // PARENT COMPONENT - propogate event up
         this.props.onSelect(this.state.displayedData[r1]);
@@ -59,7 +86,7 @@ class QcTable extends React.Component {
         // Only one column allows user to set the status
         const setStatusIdx = 0;
         if(c1 !== setStatusIdx || c2 !== setStatusIdx) {
-            this.setState({selected: []});
+            this.state.selectionSubject.next([]);
             return;
         };
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
@@ -72,7 +99,7 @@ class QcTable extends React.Component {
                                             }
                                         });
         const unique_selected = selected.filter((run, idx) => selected.indexOf(run) === idx);
-        this.setState({selected: unique_selected});
+        this.state.selectionSubject.next(unique_selected);
     };
 
     // REF - https://handsontable.com/blog/articles/2016/12/getting-started-with-cell-renderers
@@ -85,40 +112,6 @@ class QcTable extends React.Component {
         }
     }
 
-    setStatusChange = (evt, data) => {
-        const statusChange = evt.target.textContent || '';
-        this.setState({statusChange});
-    };
-    // Sends request to submit status change
-    submitStatusChange = () => {
-        const records = this.state.selected.map((record) => record['record']);
-        const samples = this.state.selected.map((record) => record['sample']).join(', ');
-        const selected = records.join(',');
-        const project = this.props.project;
-        const statusChange = this.state.statusChange;
-        const recipe = this.props.recipe;
-        const successMsg = `Set Samples [${samples}] to ${statusChange}`;
-
-        this.props.addModalUpdate(MODAL_UPDATE, `Submitting "${statusChange}" Status Change Request`, 2000);
-
-        // Reset: Close modal
-        this.setState({'selected': [], 'statusChange': ''});
-
-        setRunStatus(selected, project, statusChange, recipe)
-            .then((resp) => {
-                if(resp.success){
-                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
-                    // Parent component should make another call to obtain the updated projectInfo
-                    this.props.updateProjectInfo(this.props.project);
-                } else {
-                    const status = resp.status || 'ERROR';
-                    const failedRuns = resp.failedRequests || '';
-                    this.props.addModalUpdate(MODAL_ERROR, `${status} ${failedRuns}`);
-                }
-            })
-            .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Please submit a bug report using the "Feedback" button in the top-right corner w/: ${err}`));
-    };
-
     /**
      * Filters the state's data and assigns to displayedData
      * TODO - Test
@@ -126,14 +119,18 @@ class QcTable extends React.Component {
      */
     runSearch = (evt) => {
         const searchTerm = evt.target.value;
-        const filteredData = this.state.data.filter((row) => {
+        const returnedData = this.state.data.filter((row) => {
             const values = Object.values(row);
             for(const value of values){
                 if(value.toString().toLowerCase().includes(searchTerm.toLowerCase())) return true;
             }
             return false;
         });
-        this.setState({searchTerm, displayedData: filteredData});
+
+        // TODO - set filtered data
+        const filteredData = this.getFilteredData(returnedData, null);
+
+        this.setState({searchTerm, displayedData: returnedData, filteredData});
     };
 
     renderStatusModal() {
@@ -243,11 +240,25 @@ class QcTable extends React.Component {
         FileSaver.saveAs(data, fileName + fileExtension);
     };
 
-    getFilteredData = () => {
+    /**
+     * Returns filtered data based on latest state updates to,
+     *      displayedData
+     *      removedHeaders
+     *
+     *      * Only one should be non-null as this will return the latest filtered data where only one should change
+     * @returns {[]}
+     */
+    getFilteredData = (displayedData, removedHeaders) => {
+        if(displayedData === null) {
+            displayedData = this.state.displayedData;
+        }
+        if(removedHeaders === null){
+            removedHeaders = this.state.removedHeaders;
+        }
         const filtered = [];
-        for(const row of this.state.displayedData) {
+        for(const row of displayedData) {
             const copy = Object.assign({}, row);
-            for(const removed of this.state.removedHeaders){
+            for(const removed of removedHeaders){
                 delete copy[removed];
             }
             filtered.push(copy);
@@ -275,8 +286,10 @@ class QcTable extends React.Component {
                 }
             }
         }
+        
         return (<div>
-                    {this.renderStatusModal()}
+                    <StatusSubmitter selectionSubject={this.state.selectionSubject}
+                                     statuses={this.props.qcStatuses}/>
                     {
                         this.state.data.length > 0 ?
                             <div className={"material-gray-background"}>
@@ -331,7 +344,7 @@ class QcTable extends React.Component {
                         ref={this.hotTableRef}
                         licenseKey="non-commercial-and-evaluation"
                         id="qc-grid"
-                        data={this.getFilteredData()}
+                        data={this.state.filteredData}
                         colHeaders={colHeaders}
                         columns={colHeaders.map((data)=>{
                             const col = {data};
@@ -374,10 +387,11 @@ QcTable.propTypes = {
     data: PropTypes.array,
     headers: PropTypes.array,
     qcStatuses: PropTypes.object,
-    onSelect: PropTypes.func,
+    onSelect: PropTypes.func,               // Propogates selectedSample to parent
+    selectedSample: PropTypes.string,       // Only passed so that the component won't re-render when updated
     project: PropTypes.string,
     recipe: PropTypes.string,
     addModalUpdate: PropTypes.func,
     updateProjectInfo: PropTypes.func,
-    columnOrder: PropTypes.array
+    columnOrder: PropTypes.array,
 };
