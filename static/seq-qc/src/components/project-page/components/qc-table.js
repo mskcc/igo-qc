@@ -330,9 +330,16 @@ class QcTable extends React.Component {
                                             const toggle = () => {
                                                 // TODO - Add endpoint to igoLims to see what columns get removed
                                                 const removedHeaders = this.state.removedHeaders;
-                                                if(removedHeaders.has(header)) removedHeaders.delete(header);
-                                                else removedHeaders.add(header);
-                                                this.setState({removedHeaders});
+                                                if(removedHeaders.has(header)) {
+                                                    removedHeaders.delete(header);
+                                                }
+                                                else{
+                                                    removedHeaders.add(header);
+                                                }
+
+                                                // Update the filteredData w/ the new removedHeaders
+                                                const filteredData = this.getFilteredData(null, removedHeaders);
+                                                this.setState({removedHeaders, filteredData});
                                             };
                                             return <div className={classes} onClick={toggle} key={`civ-${header}`}>
                                                 <p className={"inline"}>{header}</p>
