@@ -238,8 +238,10 @@ function ProjectPage(props){
         if(ngsDataName){
             // Find the current Grid Data entry that has that igo Id
             const matches = currentGridData.filter((entry) => ngsDataName.includes(entry['IGO Id']));
-
-            if(matches.length > 1){
+            if(matches.length === 1){
+                match = matches;
+            }
+            else if(matches.length > 1){
                 /* Resolve case of >1 match. - Choose the longer match
                     E.g.
                        ngsDataName = Sample_LN9_IGO_10243_B_10__count
