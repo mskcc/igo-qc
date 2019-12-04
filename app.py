@@ -936,7 +936,7 @@ def get_grid(samples, project_type):
             grid.set_value("Tumor or Normal", row, 'Tumor')
             grid.set_style("Tumor or Normal", row, "text-danger")
         grid.set_value("Concentr.  (nM)", row, round_float(sample['concentration']))
-        grid.set_value("Final Library Yield (fmol)", row, sample['yield'])
+        grid.set_value("Final Library Yield (fmol)", row, round_float(sample['yield']))
         # TODO: coverageTarget seems dependent on pending data
         if "coverageTarget" in sample:
             cov_target = "" if sample['coverageTarget'] == 0 else sample['coverageTarget']  # hack; coverage target is set to 0 in LIMS by default at pull, will display as empty string on site
