@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.abspath("config"))
 from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
 from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
+import logger
 import project
 
 # Configurations
@@ -258,7 +259,7 @@ def getSeqAnalysisProjects():
     content = get_cached_data(cache_key)
     if not content:
         seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
-        app.logger.info("Sending request to %s" % seq_analysis_projects_url)
+        logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
         cache_data(cache_key, content, CACHE_TIME_SHORT)
@@ -266,7 +267,7 @@ def getSeqAnalysisProjects():
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     projectsToReview = []
     projectsToSequenceFurther = []
@@ -304,7 +305,7 @@ def getRequestProjects():
     content = get_cached_data(cache_key)
     if not content:
         req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
-        app.logger.info("Sending request to %s" % req_projects_url)
+        logger.info("Sending request to %s" % req_projects_url)
         resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
         cache_data(cache_key, content, CACHE_TIME_SHORT)
@@ -312,7 +313,7 @@ def getRequestProjects():
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     for project in projects:
         [ignore, recentDate] = getRecentDateAndRuns(project)
@@ -343,17 +344,17 @@ def get_recent_runs():
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
 
-    app.logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
+    logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
 
     # Add Recent Runs data for links to HTML files
     datenow = datetime.datetime.now()
     latest_age = 7
-    app.logger.info("Returning files last modified less than %d days ago" % latest_age)
+    logger.info("Returning files last modified less than %d days ago" % latest_age)
     run_data = []
     for eachfile in dir_data:
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
         last_modified = (datenow - mtime).days
-        # app.logger.info("File: %s. Modified %s days ago" % (eachfile, str(last_modified)))
+        # logger.info("File: %s. Modified %s days ago" % (eachfile, str(last_modified)))
         if last_modified < latest_age:
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
@@ -437,13 +438,13 @@ def request_qc_status_change(id, qc_status, project, recipe):
     return 'NewStatus' in resp.text and resp.status_code == 200
 
 def request_repool(id, recipe, qc_status):
-    app.logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
+    logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
 
     set_pooled_url = LIMS_API_ROOT  + "/LimsRest/setPooledSampleStatus"
     # Status should be that expected by LIMS for SAMPLES, not the QC site
     set_pooled_payload = {'record': id, 'status': "Ready for - Pooling of Sample Libraries for Sequencing"}
     set_pooled_resp = s.post(set_pooled_url, params=set_pooled_payload,  auth=(USER, PASSW), verify=False)
-    app.logger.info(set_pooled_resp.content)
+    logger.info(set_pooled_resp.content)
 
     return set_pooled_resp.status_code == 200
 
@@ -504,11 +505,11 @@ def project_info(pId):
 
     # TODO - This doesn't need to happen w/ every request...
     qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
-    app.logger.info('Submitting request to %s' % qc_status_label_url)
+    logger.info('Submitting request to %s' % qc_status_label_url)
     qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
 
     get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
-    app.logger.info('Submitting request to %s' % get_project_qc_url)
+    logger.info('Submitting request to %s' % get_project_qc_url)
     get_project_qc_resp = s.get(get_project_qc_url, auth=(USER, PASSW), verify=False)
 
     try:
@@ -518,6 +519,8 @@ def project_info(pId):
         return create_resp(False, 'Error requesting from LIMS', None)
     if len(get_project_qc) == 0:
         return create_resp(False, 'No project data', None)
+
+    logger.info(get_project_qc)
 
     data = project.get_project_info(pId, qc_status_label, get_project_qc)
 
@@ -556,7 +559,7 @@ def submit_feedback():
     msg['To'] = to
 
     feedback_type = request.json['type']
-    app.logger.info("Sending %s feedback to %s" % (feedback_type, to))
+    logger.info("Sending %s feedback to %s" % (feedback_type, to))
 
     subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
     subject += request.json["subject"]
@@ -664,7 +667,7 @@ def get_interops_data():
         return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
     interops_data_url = LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName
-    app.logger.info("Sending %s" % interops_data_url)
+    logger.info("Sending %s" % interops_data_url)
     r = s.get(interops_data_url, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
@@ -672,13 +675,13 @@ def get_interops_data():
 def get_cached_data(key):
     if uwsgi.cache_exists(key, CACHE_NAME):
         data = uwsgi.cache_get(key, CACHE_NAME)
-        app.logger.info("Using cached data for %s" % key)
+        logger.info("Using cached data for %s" % key)
         return data
-    app.logger.info("No data cached for %s" % key)
+    logger.info("No data cached for %s" % key)
     return None
 
 def cache_data(key, content, time):
-    app.logger.info("Caching %s for %d seconds" % (key, time))
+    logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_set(key, content, time, CACHE_NAME)
 
 if __name__ == '__main__':

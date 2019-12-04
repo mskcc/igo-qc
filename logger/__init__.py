@@ -13,4 +13,4 @@ def format(msg):
             2: Module - 2 is the index of the module that calls the logger module
                 3: Name of Function
     '''
-    return ("%s\t(Function: %s)\n" % (str(msg), inspect.stack()[2][3]))
+    return ("%s\t(Function: %s)" % (str(msg), inspect.stack()[2][3]))
