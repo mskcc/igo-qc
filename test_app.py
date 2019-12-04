@@ -1,29 +1,5 @@
 import unittest
-import sys
-import os
 
-sys.path.insert(0, os.path.abspath("tests/mock_modules"))
-import mock_logger
-sys.modules['logger'] = __import__('mock_logger')
+from tests import test_project
 
-sys.path.insert(0, os.path.abspath("config"))
-import project
-
-sys.path.insert(0, os.path.abspath("tests/mock_responses"))
-from get_project_info_resp import get_project_info_resp
-
-sys.path.insert(0, os.path.abspath("tests/mocks"))
-from get_project_qc import ped_peg
-from qc_status_label import qc_status_label
-
-class ProjectClass(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(TestingClass, self).__init__(*args, **kwargs)
-        self.gen_stubs()
-
-    data = project.get_project_info('', qc_status_label, ped_peg)
-
-    for key in get_project_info_resp.keys():
-        assert data[key] == get_project_info_resp[key]
-
-    assert data == get_project_info_resp
+assert test_project.test_get_project_info()
