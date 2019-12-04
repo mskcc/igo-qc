@@ -520,8 +520,6 @@ def project_info(pId):
     if len(get_project_qc) == 0:
         return create_resp(False, 'No project data', None)
 
-    logger.info(get_project_qc)
-
     data = project.get_project_info(pId, qc_status_label, get_project_qc)
 
     return create_resp(True, 'success', data)
