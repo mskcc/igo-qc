@@ -33,3 +33,5 @@ move:
 deploy:
 	make clean && make pkg && make move
 
+test:
+	python test_app.py
