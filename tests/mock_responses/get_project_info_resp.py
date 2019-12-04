@@ -8,14 +8,14 @@ get_project_info_resp = {
       'pipelinable':False,
       'analysisRequested':True,
       'requestedNumberOfReads':'N/A',
-      'tumorCount':2,
+      'tumorCount':1,
       'normalCount':1,
-      'numSamples':3
+      'numSamples':2
    },
    'statuses':{
       'Under-Review':0,
       'IGO-Complete':0,
-      'Passed':2,
+      'Passed':1,
       'Failed':0,
       'Resequence-Pool':0,
       'Repool-Sample':0,
@@ -25,8 +25,7 @@ get_project_info_resp = {
    },
    'recordIds':[
       6305783,
-      6306013,
-      6306019
+      6306013
    ],
    'grid':{
       'header':[
@@ -142,35 +141,6 @@ get_project_info_resp = {
             'Pct. Intron.':0.0,
             'Pct. Intergenic':0.0,
             'Pct. Mrna':0.0
-         },
-         2:{
-            'Run':'DIANA_0146_BHWG2YDSXX',
-            'QC Status':'Passed',
-            'Sample':'XPRO_0234_T_DNA',
-            'QC Record Id':6306019,
-            'IGO Id':'08822_FS_1',
-            'Genome':'Human',
-            'Tumor or Normal':'Tumor',
-            'Concentr.  (nM)':31.89,
-            'Final Library Yield (fmol)':0.0,
-            'Coverage Target':80,
-            'Requested Reads (Millions)':1100,
-            'Pct. Adapters':0.0,
-            'Reads Examined':1698024694,
-            'Unpaired Reads':3379743,
-            'Initial Pool':'Pool-08822_FP-08822_FQ-08822_FS-08822_FT-08822_FU-A1_1',
-            'Unmapped':4069071,
-            'Pct. Duplic.':19.83,
-            'Starting Amount':500.00000000000006,
-            'Library Quality Control':'0.00 0.0',
-            'Quant-it':'0.00 NA',
-            'Sum Reads':1698024694,
-            'Pct. Ribos.':0.0,
-            'Pct. Coding':0.0,
-            'Pct. Utr':0.0,
-            'Pct. Intron.':0.0,
-            'Pct. Intergenic':0.0,
-            'Pct. Mrna':0.0
          }
       },
       'style':{
@@ -231,41 +201,10 @@ get_project_info_resp = {
             'Pct. Intron.':None,
             'Pct. Intergenic':None,
             'Pct. Mrna':None
-         },
-         2:{
-            'Run':None,
-            'QC Status':None,
-            'Sample':None,
-            'QC Record Id':None,
-            'IGO Id':None,
-            'Genome':None,
-            'Tumor or Normal':'text-danger',
-            'Concentr.  (nM)':None,
-            'Final Library Yield (fmol)':None,
-            'Coverage Target':None,
-            'Requested Reads (Millions)':None,
-            'Pct. Adapters':None,
-            'Reads Examined':None,
-            'Unpaired Reads':None,
-            'Initial Pool':None,
-            'Unmapped':None,
-            'Pct. Duplic.':None,
-            'Starting Amount':None,
-            'Library Quality Control':None,
-            'Quant-it':None,
-            'Sum Reads':None,
-            'Pct. Ribos.':None,
-            'Pct. Coding':None,
-            'Pct. Utr':None,
-            'Pct. Intron.':None,
-            'Pct. Intergenic':None,
-            'Pct. Mrna':None
          }
       }
    },
-   'chartsLinks':{
-
-   },
+   'chartsLinks':{},
    'projectType':{
       'recipe':'RNASeq_RiboDeplete',
       'startable':True,
