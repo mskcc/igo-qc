@@ -946,14 +946,14 @@ def get_grid(samples, project_type):
             grid.set_value("Coverage Target", row, "NOT AVAILABLE")
         requestedNumReads = get_sample_value(sample, 'requestedNumberOfReads')
         grid.set_value("Requested Reads (Millions)", row, to_int(requestedNumReads))
-        grid.set_value("Pct. Adapters", row, round_float(qc['percentAdapters']) * 100)
+        grid.set_value("Pct. Adapters", row, round_float(qc['percentAdapters'] * 100, 6))
         grid.set_value("Reads Examined", row, qc['readsExamined'])
         grid.set_value("Unpaired Reads", row, qc['unpairedReadsExamined'])
         grid.set_value("Initial Pool", row, "")
         if "initialPool" in sample:
             grid.set_value("Initial Pool", row, sample["initialPool"])
         grid.set_value("Unmapped", row, qc['unmapped'])
-        grid.set_value("Pct. Duplic.", row, round_float(qc['percentDuplication']) * 100)
+        grid.set_value("Pct. Duplic.", row, round_float(qc['percentDuplication']* 100))
         if project_type["startable"]:
             grid.set_value("Starting Amount", row, qc["startingAmount"])
         if project_type["qcControlled"]:
@@ -962,24 +962,24 @@ def get_grid(samples, project_type):
             grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
         grid.set_value("Sum Reads", row, sample["sumReads"])
         if project_type['table'] == 'rna':
-            grid.set_value("Pct. Ribos.", row, round_float(qc['percentRibosomalBases']) * 100)
-            grid.set_value("Pct. Coding", row, round_float(qc['percentCodingBases']) * 100)
-            grid.set_value("Pct. Utr", row, round_float(qc['percentUtrBases']) * 100)
-            grid.set_value("Pct. Intron.", row, round_float(qc['percentIntronicBases']) * 100)
-            grid.set_value("Pct. Intergenic", row, round_float(qc['percentIntergenicBases']) * 100)
-            grid.set_value("Pct. Mrna", row, round_float(qc['percentMrnaBases']) * 100)
+            grid.set_value("Pct. Ribos.", row, round_float(qc['percentRibosomalBases'] * 100))
+            grid.set_value("Pct. Coding", row, round_float(qc['percentCodingBases'] * 100))
+            grid.set_value("Pct. Utr", row, round_float(qc['percentUtrBases'] * 100))
+            grid.set_value("Pct. Intron.", row, round_float(qc['percentIntronicBases'] * 100))
+            grid.set_value("Pct. Intergenic", row, round_float(qc['percentIntergenicBases']* 100) )
+            grid.set_value("Pct. Mrna", row, round_float(qc['percentMrnaBases']* 100) )
         if project_type['table'] == 'wgs':
             add_sum_mtc(grid, row, sample, qc)
             grid.set_value("Mean Tgt Cvg", row, round_float(qc["mean_COVERAGE"]))
-            grid.set_value("PCT_EXC_MAPQ", row, round_float(qc['pct_EXC_MAPQ']) * 100)
-            grid.set_value("PCT_EXC_DUPE", row, round_float(qc['pct_EXC_DUPE']) * 100)
-            grid.set_value("PCT_EXC_BASEQ", row, round_float(qc['pct_EXC_BASEQ']) * 100)
-            grid.set_value("PCT_EXC_TOTAL", row, round_float(qc['pct_EXC_TOTAL']) * 100)
-            grid.set_value("PCT_10X", row, round_float(qc['percentTarget10x']) * 100)
-            grid.set_value("PCT_30X", row, round_float(qc['percentTarget30x']) * 100)
-            grid.set_value("PCT_40X", row, round_float(qc['percentTarget40x']) * 100)
-            grid.set_value("PCT_80X", row, round_float(qc['percentTarget80x']) * 100)
-            grid.set_value("PCT_100X", row, round_float(qc['percentTarget100x']) * 100)
+            grid.set_value("PCT_EXC_MAPQ", row, round_float(qc['pct_EXC_MAPQ']* 100) )
+            grid.set_value("PCT_EXC_DUPE", row, round_float(qc['pct_EXC_DUPE']* 100) )
+            grid.set_value("PCT_EXC_BASEQ", row, round_float(qc['pct_EXC_BASEQ']* 100) )
+            grid.set_value("PCT_EXC_TOTAL", row, round_float(qc['pct_EXC_TOTAL']* 100) )
+            grid.set_value("PCT_10X", row, round_float(qc['percentTarget10x']* 100) )
+            grid.set_value("PCT_30X", row, round_float(qc['percentTarget30x']* 100) )
+            grid.set_value("PCT_40X", row, round_float(qc['percentTarget40x']* 100) )
+            grid.set_value("PCT_80X", row, round_float(qc['percentTarget80x']* 100) )
+            grid.set_value("PCT_100X", row, round_float(qc['percentTarget100x']* 100) )
         if project_type['table'] == 'hs':
             grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
             add_sum_mtc(grid, row, sample, qc)
@@ -1000,8 +1000,7 @@ def get_grid(samples, project_type):
 '''
 Rounds floats to two decimal points
 '''
-def round_float(num):
-    decimal_places = 2
+def round_float(num, decimal_places = 2):
     try:
         return round(num,decimal_places)
     except TypeError:
