@@ -267,17 +267,6 @@ def get_grid(samples, project_type):
         'style': grid.get_style()
     }
 
-'''
-Rounds floats to two decimal points
-'''
-def round_float(num, decimal_places = 2):
-    try:
-        return round(num,decimal_places)
-    except TypeError:
-        logger.error('Could not round %s as float to %d decimal places' % (str(num), decimal_places))
-        return num
-
-
 def get_charts_links(project_qc_info):
     charts_links = {}
     chart_pdfs = APP_STATIC + "/html/PDF"
@@ -348,12 +337,13 @@ def enrich_samples(samples):
 
     return samples
 
+
+# TODO - Util methods
 def get_sample_value(sample, field):
     val = "NOT AVAILABLE"
     if field in sample:
         val = sample[field]
     return val
-
 
 def add_sum_mtc(grid, row, sample, qc):
     grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
@@ -366,3 +356,13 @@ def to_int(value):
     except ValueError:
         logger.error('Could not parse %s to float' % str(value))
         return value
+
+'''
+Rounds floats to two decimal points
+'''
+def round_float(num, decimal_places = 2):
+    try:
+        return round(num,decimal_places)
+    except TypeError:
+        logger.error('Could not round %s as float to %d decimal places' % (str(num), decimal_places))
+        return num
