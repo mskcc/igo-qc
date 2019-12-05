@@ -25,7 +25,7 @@ function ProjectPage(props){
     // TODO - pass props of ngsStatsData/projectInfo in for caching
     const [recipe, setRecipe] = useState(null);
     const [ngsStatsData, setNgsStatsData] = useState(null);
-    const [projectInfo, setProjectInfo] = useState({});
+    const [projectInfo, setProjectInfo] = useState(null);           // This should initially be null - indicates loading
     const [gridData, setGridData] = useState([]);
     const [headers, setHeaders] = useState([]);
     const [selectedSample, setSelectedSample] = useState('mocks'); // TODO - change this once real data available
@@ -46,7 +46,7 @@ function ProjectPage(props){
      * @param pId
      */
     const fetchRecipe = (pId) => {
-        if(!recipe && (props.projectMap[pId] || Object.keys(projectInfo).length > 0)){
+        if(!recipe && (props.projectMap[pId] || (projectInfo && Object.keys(projectInfo).length > 0))){
             if(props.projectMap[pId]){
                 setRecipe(props.projectMap[pId]['recipe']);
             }
@@ -107,6 +107,7 @@ function ProjectPage(props){
             setProjectInfo(data);
         })
         .catch((err) => {
+            debugger;
             addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
             props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err);
         })
@@ -119,7 +120,7 @@ function ProjectPage(props){
      */
     // TODO - Make this generic for ngsStats and regular headers
     const updateProjectInfo = (data) => {
-        if(Object.keys(data).length == 0) return;
+        if(!data || Object.keys(data).length == 0) return;
         setProjectInfoGridData(data);
         setProjectInfoHeaders(data);
     };
@@ -280,7 +281,7 @@ function ProjectPage(props){
                 <p className={'text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
             </div>
         }
-        if(ngsStatsData === null){
+        if(ngsStatsData === null || projectInfo === null){
             return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
             </div>
@@ -352,12 +353,11 @@ function ProjectPage(props){
                 <p className={'text-align-center'}>Error loading Project Info stats - Please submit a bug report using the "Feedback" button in the top-right corner</p>
             </div>
         }
-
-        if(Object.keys(projectInfo).length === 0){
+        if(!projectInfo){
             return <div className={"black-border"}>
                 <div className="loader margin-auto"></div>
             </div>
-        };
+        }
         return <Summary requester={projectInfo.requester || {}}
                  statuses={projectInfo.statuses || {}}
                  projectType={projectInfo.projectType || {}}/>
@@ -371,6 +371,8 @@ function ProjectPage(props){
             filtered.unshift('QC Status');
             return filtered;
         }
+
+        if(!projectInfo) return [];
         return projectInfo.columnOrder || [];
     };
 
@@ -386,12 +388,14 @@ function ProjectPage(props){
 
         const columnOrder = getColumnOrder();
 
+        const qcStatuses = projectInfo ? projectInfo.statuses || {} : {};
+
         return <div className={"black-border"} style={{width:'inherit'}}>
             <div style={{ display, margin: 'auto' }} className="loader"></div>
                 <QcTable data={gridData}
                          headers={headers}
                          columnOrder={columnOrder || []}
-                         qcStatuses={projectInfo.statuses || {}}
+                         qcStatuses={qcStatuses}
                          onSelect={onSelect}
                          project={pId}
                          recipe={recipe}
@@ -401,6 +405,12 @@ function ProjectPage(props){
             </div>;
     };
 
+    // Return a message to indicate no data - projectInfo is required to load the page & ngsStats information
+    if(projectInfo && Object.keys(projectInfo).length === 0){
+        return <div className={"black-border"}>
+            <p className={'text-align-center'}>No data is available - Piccard stats need to be run</p>
+        </div>
+    };
     return <div className={"margin-bottom-75"} key={pId}>
             {renderSummary(projectInfo)}
             {renderNgsGraphs(selectedSample)}
