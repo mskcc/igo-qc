@@ -1,4 +1,4 @@
-qc_status_label = [
+lims_qc_status_label = [
           'Under-Review',
           'IGO-Complete',
           'Passed',

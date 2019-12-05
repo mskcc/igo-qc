@@ -1,4 +1,4 @@
-ped_peg = [
+lims_ped_peg = [
    {
       "samples":[
          {
