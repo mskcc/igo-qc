@@ -11,9 +11,6 @@ def get_project_info(pId, qc_status_label, get_project_qc):
     project_qc_info = get_project_qc[0]
     samples = project_qc_info['samples']
 
-    if project_qc_info['samples'] == [] or project_qc_info['requestId'] == "ERROR":
-        return create_resp(False, 'No project data', None)
-
     requester = get_requester_info(project_qc_info, samples)
     statuses = get_statuses(qc_status_label, samples)
     record_ids = get_record_ids(samples)
