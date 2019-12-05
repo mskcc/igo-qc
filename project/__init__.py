@@ -175,13 +175,16 @@ def get_header(project_type):
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
-    header = []
+    all_headers = []
     if 'hs' in project_type['table']:
-        header += hs_header
+        all_headers += hs_header
     if 'rna' in project_type['table']:
-        header += rna_header
+        all_headers += rna_header
     if 'wgs' in project_type['table']:
-        header += wgs_header
+        all_headers += wgs_header
+
+    header = []
+    [header.append(h) for h in all_headers if h not in header]
 
     genome_index = header.index("Genome")
     if "startable" in project_type and project_type["startable"]:
