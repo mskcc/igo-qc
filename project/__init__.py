@@ -27,7 +27,7 @@ def get_project_info(pId, qc_status_label, get_project_qc):
         'grid': grid,
         'chartsLinks': charts_links,
         'projectType': project_type,
-        'columnOrder': getColumnOrder(project_type['table'])
+        'columnOrder': get_column_order(project_type['table'])
     }
 
     return data
@@ -100,16 +100,36 @@ def get_record_ids(samples):
         record_ids.append(sample['qc']['recordId'])
     return record_ids
 
-def getColumnOrder(type):
-    if type in headers.order:
-        logger.info("Returning column order for %s" % type)
-        return headers.order[type]
-    logger.error("No column order set for %s. Returning empty list" % type)
-    return headers.order['default']
+def get_column_order(project_types):
+    """
+    Returns list of headers to include in grid
+
+    @param type: string[]   project recipes to include
+    :return: string[]       headers
+    """
+    all_headers = []
+    for type in project_types:
+        if type in headers.order:
+            all_headers += headers.order[type]
+
+    if len(all_headers) == 0:
+        logger.error("No column order set for type(s): %s. Returning default headers" % str(type))
+        return headers.order['default']
+
+    column_order = []
+    [column_order.append(header) for header in all_headers if header not in column_order]
+
+    return column_order
 
 def get_project_type(samples):
     common_sample = samples[0]  # First sample of the project should contain common fields
-    project_recipe = common_sample['recipe']
+
+    # Concatenate all recipes - Projects may contain multiple recipes
+    all_recipes = list(map(lambda s : s['recipe'],samples))
+    project_recipes = []
+    [project_recipes.append(recipe) for recipe in all_recipes if recipe not in project_recipes]
+    project_recipe = ','.join(project_recipes)
+
     project_qc = common_sample['qc']
     project_type = {
         'recipe': project_recipe,
@@ -119,17 +139,20 @@ def get_project_type(samples):
     }
     if 'runType' in common_sample:
         project_type['runType'] = common_sample['runType']
+
+    project_type['table'] = []
+
     if 'RNA' in project_recipe or \
             'SMARTerAmpSeq' in project_recipe or \
             '96Well_SmartSeq2' in project_recipe:
-        project_type['table'] = 'rna'
-    elif 'baitSet' in project_qc:
-        project_type['table'] = 'hs'
+        project_type['table'].append('rna')
+    if 'baitSet' in project_qc:
+        project_type['table'].append('hs')
         project_type['baitSet'] = project_qc['baitSet']
-    elif 'HumanWholeGenome' in project_recipe:
-        project_type['table'] = 'wgs'
-    else:
-        project_type['table'] = 'md'
+    if 'HumanWholeGenome' in project_recipe:
+        project_type['table'].append('wgs')
+    if len(project_type['table']) == 0:
+        project_type['table'].append('md')
 
     return project_type
 
@@ -152,12 +175,13 @@ def get_header(project_type):
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
-    if project_type['table'] == 'hs':
-        header = hs_header
-    elif project_type['table'] == 'rna':
-        header = rna_header
-    elif project_type['table'] == 'wgs':
-        header = wgs_header
+    header = []
+    if 'hs' in project_type['table']:
+        header += hs_header
+    if 'rna' in project_type['table']:
+        header += rna_header
+    if 'wgs' in project_type['table']:
+        header += wgs_header
 
     genome_index = header.index("Genome")
     if "startable" in project_type and project_type["startable"]:
@@ -228,14 +252,14 @@ def get_grid(samples, project_type):
         if project_type["quanted"]:
             grid.set_value("Quant-it", row, "{:,.2f}".format(qc["quantIt"]) + " " +  qc["quantUnits"])
         grid.set_value("Sum Reads", row, sample["sumReads"])
-        if project_type['table'] == 'rna':
+        if 'rna' in project_type['table']:
             grid.set_value("Pct. Ribos.", row, round_float(qc['percentRibosomalBases'] * 100))
             grid.set_value("Pct. Coding", row, round_float(qc['percentCodingBases'] * 100))
             grid.set_value("Pct. Utr", row, round_float(qc['percentUtrBases'] * 100))
             grid.set_value("Pct. Intron.", row, round_float(qc['percentIntronicBases'] * 100))
             grid.set_value("Pct. Intergenic", row, round_float(qc['percentIntergenicBases']* 100) )
             grid.set_value("Pct. Mrna", row, round_float(qc['percentMrnaBases']* 100) )
-        if project_type['table'] == 'wgs':
+        if 'wgs' in project_type['table']:
             add_sum_mtc(grid, row, sample, qc)
             grid.set_value("Mean Tgt Cvg", row, round_float(qc["mean_COVERAGE"]))
             grid.set_value("PCT_EXC_MAPQ", row, round_float(qc['pct_EXC_MAPQ']* 100) )
@@ -247,11 +271,12 @@ def get_grid(samples, project_type):
             grid.set_value("PCT_40X", row, round_float(qc['percentTarget40x']* 100) )
             grid.set_value("PCT_80X", row, round_float(qc['percentTarget80x']* 100) )
             grid.set_value("PCT_100X", row, round_float(qc['percentTarget100x']* 100) )
-        if project_type['table'] == 'hs':
+        if 'hs' in project_type['table']:
             grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
             add_sum_mtc(grid, row, sample, qc)
             grid.set_value("Pct. Zero Cvg", row, round_float(qc['zeroCoveragePercent'] * 100))
             grid.set_value("Pct. Off Bait", row, round_float(qc['percentOffBait'] * 100))
+            # TODO - these are redundant w/ 'wgs'
             grid.set_value("Pct. 10x", row, round_float(qc['percentTarget10x'] * 100))
             grid.set_value("Pct. 30x", row, round_float(qc['percentTarget30x'] * 100))
             grid.set_value("Pct. 100x", row, round_float(qc['percentTarget100x'] * 100))

@@ -17,11 +17,12 @@ from qc_status_label import qc_status_label
 
 
 def test_get_project_info():
-    data = project.get_project_info('', qc_status_label, ped_peg)
-
-    for key in get_project_info_resp.keys():
-        assert data[key] == get_project_info_resp[key]
-
-    assert data == get_project_info_resp
-
+    test_get_project_info_multiple_recipes()
     return True
+
+def test_get_project_info_multiple_recipes():
+    # Use ped_peg, which should have both an rna & wgs recipe
+    data = project.get_project_info('', qc_status_label, ped_peg)
+    for key in get_project_info_resp.keys():
+        assert (data[key] == get_project_info_resp[key])
+    assert data == get_project_info_resp

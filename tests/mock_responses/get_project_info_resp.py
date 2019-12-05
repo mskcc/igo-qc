@@ -1,4 +1,4 @@
-get_project_info_resp = {
+get_project_info_resp ={
    'requester':{
       'requestId':'08822_FS',
       'investigator':'Emily Stockfisch',
@@ -53,7 +53,35 @@ get_project_info_resp = {
          'Pct. Utr',
          'Pct. Intron.',
          'Pct. Intergenic',
-         'Pct. Mrna'
+         'Pct. Mrna',
+         'Run',
+         'Sample',
+         'IGO Id',
+         'Genome',
+         'Tumor or Normal',
+         'Concentr.  (nM)',
+         'Final Library Yield (fmol)',
+         'Coverage Target',
+         'Requested Reads (Millions)',
+         'Sum MTC',
+         'Initial Pool',
+         'QC Status',
+         'Mean Tgt Cvg',
+         'Pct. Duplic.',
+         'Pct. Adapters',
+         'Reads Examined',
+         'Unpaired Reads',
+         'Sum Reads',
+         'Unmapped',
+         'PCT_EXC_MAPQ',
+         'PCT_EXC_DUPE',
+         'PCT_EXC_BASEQ',
+         'PCT_EXC_TOTAL',
+         'PCT_10X',
+         'PCT_30X',
+         'PCT_40X',
+         'PCT_80X',
+         'PCT_100X'
       ],
       'val_types':{
          'Run':'s',
@@ -81,7 +109,18 @@ get_project_info_resp = {
          'Pct. Intron.':'.2f',
          'Pct. Intergenic':'.2f',
          'Pct. Mrna':'.2f',
-         'Coverage Target':'d'
+         'Coverage Target':'d',
+         'Sum MTC':'.2f',
+         'Mean Tgt Cvg':'.2f',
+         'PCT_EXC_MAPQ':'.2f',
+         'PCT_EXC_DUPE':'.2f',
+         'PCT_EXC_BASEQ':'.2f',
+         'PCT_EXC_TOTAL':'.2f',
+         'PCT_10X':'.2f',
+         'PCT_30X':'.2f',
+         'PCT_40X':'.2f',
+         'PCT_80X':'.2f',
+         'PCT_100X':'.2f'
       },
       'grid':{
          0:{
@@ -111,7 +150,18 @@ get_project_info_resp = {
             'Pct. Utr':9.95,
             'Pct. Intron.':27.34,
             'Pct. Intergenic':49.2,
-            'Pct. Mrna':21.0
+            'Pct. Mrna':21.0,
+            'Mean Tgt Cvg':0.0,
+            'Sum MTC':0.0,
+            'PCT_EXC_MAPQ':0.0,
+            'PCT_EXC_DUPE':0.0,
+            'PCT_EXC_BASEQ':0.0,
+            'PCT_EXC_TOTAL':0.0,
+            'PCT_10X':0.0,
+            'PCT_30X':0.0,
+            'PCT_40X':0.0,
+            'PCT_80X':0.0,
+            'PCT_100X':0.0
          },
          1:{
             'Run':'DIANA_0146_BHWG2YDSXX',
@@ -140,7 +190,18 @@ get_project_info_resp = {
             'Pct. Utr':0.0,
             'Pct. Intron.':0.0,
             'Pct. Intergenic':0.0,
-            'Pct. Mrna':0.0
+            'Pct. Mrna':0.0,
+            'Mean Tgt Cvg':30.44,
+            'Sum MTC':30.44,
+            'PCT_EXC_MAPQ':5.14,
+            'PCT_EXC_DUPE':16.85,
+            'PCT_EXC_BASEQ':1.95,
+            'PCT_EXC_TOTAL':26.72,
+            'PCT_10X':97.52,
+            'PCT_30X':58.4,
+            'PCT_40X':10.19,
+            'PCT_80X':0.24,
+            'PCT_100X':0.15
          }
       },
       'style':{
@@ -171,7 +232,18 @@ get_project_info_resp = {
             'Pct. Utr':None,
             'Pct. Intron.':None,
             'Pct. Intergenic':None,
-            'Pct. Mrna':None
+            'Pct. Mrna':None,
+            'Mean Tgt Cvg':None,
+            'Sum MTC':None,
+            'PCT_EXC_MAPQ':None,
+            'PCT_EXC_DUPE':None,
+            'PCT_EXC_BASEQ':None,
+            'PCT_EXC_TOTAL':None,
+            'PCT_10X':None,
+            'PCT_30X':None,
+            'PCT_40X':None,
+            'PCT_80X':None,
+            'PCT_100X':None
          },
          1:{
             'Run':None,
@@ -200,17 +272,33 @@ get_project_info_resp = {
             'Pct. Utr':None,
             'Pct. Intron.':None,
             'Pct. Intergenic':None,
-            'Pct. Mrna':None
+            'Pct. Mrna':None,
+            'Mean Tgt Cvg':None,
+            'Sum MTC':None,
+            'PCT_EXC_MAPQ':None,
+            'PCT_EXC_DUPE':None,
+            'PCT_EXC_BASEQ':None,
+            'PCT_EXC_TOTAL':None,
+            'PCT_10X':None,
+            'PCT_30X':None,
+            'PCT_40X':None,
+            'PCT_80X':None,
+            'PCT_100X':None
          }
       }
    },
-   'chartsLinks':{},
+   'chartsLinks':{
+
+   },
    'projectType':{
-      'recipe':'RNASeq_RiboDeplete',
+      'recipe':'RNASeq_RiboDeplete,HumanWholeGenome',
       'startable':True,
       'quanted':True,
       'qcControlled':True,
-      'table':'rna'
+      'table':[
+         'rna',
+         'wgs'
+      ]
    },
    'columnOrder':[
       'QC Status',
@@ -230,6 +318,18 @@ get_project_info_resp = {
       'Pct. Utr',
       'Pct. Intron.',
       'Pct. Intergenic',
-      'Pct. Mrna'
+      'Pct. Mrna',
+      'Mean Tgt Cvg',
+      'Sum MTC',
+      'Coverage Target',
+      'PCT_EXC_MAPQ',
+      'PCT_EXC_DUPE',
+      'PCT_EXC_BASEQ',
+      'PCT_EXC_TOTAL',
+      'PCT_10X',
+      'PCT_30X',
+      'PCT_40X',
+      'PCT_80X',
+      'PCT_100X'
    ]
 }
