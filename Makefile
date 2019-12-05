@@ -31,8 +31,14 @@ clean:
 move:
 	scp -r dist igo:deployments/new-igo-qc
 
+move-dev:
+	scp -r dist dlviigoweb1:deployments/new-igo-qc
+
 deploy:
 	make clean && make pkg && make move
+
+deploy-dev:
+	make clean && make pkg && make move-dev
 
 test:
 	python3 test_app.py
