@@ -175,7 +175,7 @@ def get_header(project_type):
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
-    all_headers = []
+    all_headers = header
     if 'hs' in project_type['table']:
         all_headers += hs_header
     if 'rna' in project_type['table']:
@@ -183,18 +183,18 @@ def get_header(project_type):
     if 'wgs' in project_type['table']:
         all_headers += wgs_header
 
-    header = []
-    [header.append(h) for h in all_headers if h not in header]
+    project_headers = []
+    [project_headers.append(h) for h in all_headers if h not in project_headers]
 
-    genome_index = header.index("Genome")
+    genome_index = project_headers.index("Genome")
     if "startable" in project_type and project_type["startable"]:
-        header.insert(genome_index + 1, "Starting Amount")
+        project_headers.insert(genome_index + 1, "Starting Amount")
     if "qcControlled" in project_type and project_type["qcControlled"]:
-        header.insert(genome_index + 1, "Library Quality Control")
+        project_headers.insert(genome_index + 1, "Library Quality Control")
     if "quanted" in project_type and project_type["quanted"]:
-        header.insert(genome_index + 1, "Quant-it")
+        project_headers.insert(genome_index + 1, "Quant-it")
 
-    return header
+    return project_headers
 
 def get_grid(samples, project_type):
     header = get_header(project_type)
