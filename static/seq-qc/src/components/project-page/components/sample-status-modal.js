@@ -40,32 +40,30 @@ const StatusSubmitter = (props) => {
      * Sends request to submit status change
      */
     const submitStatusChange = () => {
-        const records = this.state.selected.map((record) => record['record']);
-        const samples = this.state.selected.map((record) => record['sample']).join(', ');
-        const selected = records.join(',');
-        const project = this.props.project;
-        const statusChange = this.state.statusChange;
-        const recipe = this.props.recipe;
+        const records = selected.map((record) => record['record']);
+        const samples = selected.map((record) => record['sample']).join(', ');
+        const selectedString = records.join(',');
+        const project = props.project;
+        const recipe = props.recipe;
         const successMsg = `Set Samples [${samples}] to ${statusChange}`;
 
-        this.props.addModalUpdate(MODAL_UPDATE, `Submitting "${statusChange}" Status Change Request`, 2000);
+        props.addModalUpdate(MODAL_UPDATE, `Submitting "${statusChange}" Status Change Request`, 2000);
 
-        // Reset: Close modal
-        this.setState({'selected': [], 'statusChange': ''});
-
-        setRunStatus(selected, project, statusChange, recipe)
+        setStatusChange('');
+        setSelected([]);
+        setRunStatus(selectedString, project, statusChange, recipe)
             .then((resp) => {
                 if(resp.success){
-                    this.props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
+                    props.addModalUpdate(MODAL_SUCCESS, `${successMsg}`);
                     // Parent component should make another call to obtain the updated projectInfo
-                    this.props.updateProjectInfo(this.props.project);
+                    props.updateProjectInfo(props.project);
                 } else {
                     const status = resp.status || 'ERROR';
                     const failedRuns = resp.failedRequests || '';
-                    this.props.addModalUpdate(MODAL_ERROR, `${status} ${failedRuns}`);
+                    props.addModalUpdate(MODAL_ERROR, `${status} ${failedRuns}`);
                 }
             })
-            .catch((err) => this.props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Please submit a bug report using the "Feedback" button in the top-right corner w/: ${err}`));
+            .catch((err) => props.addModalUpdate(MODAL_ERROR, `Failed to set Request. Please submit a bug report using the "Feedback" button in the top-right corner w/: ${err}`));
     };
 
     /**

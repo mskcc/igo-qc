@@ -137,56 +137,6 @@ class QcTable extends React.Component {
         this.setState({searchTerm, displayedData: returnedData, filteredData});
     };
 
-    renderStatusModal() {
-        if(!this.props.qcStatuses || this.state.selected.length === 0) return <div></div>
-        return <div className={'pos-rel'}>
-            <div className={'status-change'}>
-                <FontAwesomeIcon className={"status-change-close hover"}
-                                 icon={faTimes}
-                                 onClick={() => this.setState({'statusChange': '', 'selected': []})}/>
-                <div className={'half-width inline-block status-change-displays vertical-align-top'}>
-                    <p className={'font-bold text-align-center'}>Selected Samples</p>
-                    <div className={'black-border overflow-y-scroll height-inherit margin-10'}>
-                        {
-                            this.state.selected.map((id) => {
-                                return <div className={"background-white text-align-center black-border-bottom"} key={`${id['sample']}-sample`}>
-                                    <p className={"padding-for-margin"}>{id['sample']}</p>
-                                </div>
-                            })
-                        }
-                    </div>
-                </div>
-                <div className={'half-width inline-block vertical-align-top'}>
-                    <p className={'font-bold text-align-center'}>New Status</p>
-                    <div className={'status-change-displays margin-10'}>
-                        {
-                            Object.keys(this.props.qcStatuses).map((status) => {
-                                const commonClasses = 'black-border curved-border text-align-center hover';
-                                const statusClass = (status === this.state.statusChange) ? 'selected-color' : 'background-white';
-                                return <div key={`${status}`}
-                                            className={`${commonClasses} ${statusClass}`}
-                                            onClick={this.setStatusChange}>
-                                    <p className={"padding-for-margin"}>{status}</p>
-                                </div>
-                            })
-                        }
-                    </div>
-                </div>
-                <div className={'margin-auto half-width'}>
-                    <MuiButton
-                        variant="contained"
-                        type="submit"
-                        onClick={this.submitStatusChange}
-                        className={"action-button margin-10 fill-width"}
-                        disabled={this.state.statusChange === ''}
-                        size={"small"}>
-                        <p>Submit</p>
-                    </MuiButton>
-                </div>
-            </div>
-        </div>
-    }
-
     /**
      * We calculate the height because implementing HotTable w/ overflow can create excess height when there are many
      * rows (REF: https://github.com/handsontable/handsontable/issues/4141#issuecomment-360429985)
@@ -293,7 +243,11 @@ class QcTable extends React.Component {
         
         return (<div>
                     <StatusSubmitter selectionSubject={this.state.selectionSubject}
-                                     statuses={this.props.qcStatuses}/>
+                                     statuses={this.props.qcStatuses}
+                                     addModalUpdate={this.props.addModalUpdate}
+                                     project={this.props.project}
+                                     recipe={this.props.recipe}
+                                     updateProjectInfo={this.props.updateProjectInfo}/>
                     {
                         this.state.data.length > 0 ?
                             <div className={"material-gray-background"}>

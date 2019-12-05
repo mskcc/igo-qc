@@ -107,7 +107,6 @@ function ProjectPage(props){
             setProjectInfo(data);
         })
         .catch((err) => {
-            debugger;
             addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
             props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err);
         })
@@ -197,7 +196,7 @@ function ProjectPage(props){
      * Safe way to set new grid data if grid data has already been populated by another source.
      */
     const setNewGridData = (newData) => {
-        if(gridData.length > 0){
+        if(shouldJoinNewData(newData)){
             const newGridData = gridData.slice(0);
             for(const newEntry of newData){
                 joinNewEntry(newEntry, gridData);
@@ -207,6 +206,23 @@ function ProjectPage(props){
         }
         setGridData(newData);
         return newData;
+    };
+
+    const shouldJoinNewData = (newData) => {
+        // No existing data to join
+        if(gridData.length === 0 || newData.length === 0) return false;
+
+        // Check for update, i.e. newData & gridData all contain the same fields
+        const currentFields = Object.keys(gridData[0]);
+        const newFields = Object.keys(newData[0]);
+        for(const f of currentFields){
+            if(!newFields.includes(f)) return true;
+        }
+        for(const f of newFields){
+            if(!currentFields.includes(f)) return true;
+        }
+
+        return false;
     };
 
     /**
@@ -237,6 +253,7 @@ function ProjectPage(props){
 
         let match = [];
         if(ngsDataName){
+            /* New Data comes from NGS STATS */
             // Find the current Grid Data entry that has that igo Id
             const matches = currentGridData.filter((entry) => ngsDataName.includes(entry['IGO Id']));
             if(matches.length === 1){
@@ -260,12 +277,14 @@ function ProjectPage(props){
                 match = [matches.reduce(reducer, {})];
             }
         } else if(projectInfoId){
+            /* New Data comes from IGO LIMS */
             match = currentGridData.filter((entry) => entry['name'].includes(projectInfoId));
         } else {
             throw new Error('No matching sample found for entry: ' + query.keys());
         }
         // Only one match should be found
         if(match.length == 1){
+            // Update the value of the current entry in the grid data - this should later be set by the state
             let currentEntry = match[0];
             for(const key of Object.keys(query)){
                 if(query[key]){

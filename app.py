@@ -22,7 +22,7 @@ import logging
 from logging.config import dictConfig
 
 sys.path.insert(0, os.path.abspath("config"))
-from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT
+from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS
 from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 import logger
