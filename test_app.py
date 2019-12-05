@@ -1,5 +1,7 @@
 import unittest
+import sys
+import os
 
-from tests import test_project
+import tests
 
-assert test_project.test_get_project_info()
+assert tests.test_get_project_info()

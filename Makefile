@@ -16,6 +16,7 @@ run-dev:
     uwsgi new-igo-qc.ini;
 
 pkg:
+	make test && \
 	python3 settings_writer.py prod && \
 	cp ./lims_user_config_prod ./lims_user_config && \
 	mkdir -p dist && \
@@ -34,4 +35,5 @@ deploy:
 	make clean && make pkg && make move
 
 test:
-	python test_app.py
+	python3 test_app.py
+
