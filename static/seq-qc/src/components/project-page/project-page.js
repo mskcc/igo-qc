@@ -59,14 +59,20 @@ function ProjectPage(props){
     };
     fetchRecipe(pId);   // Conditionally fetches the recipe if unavailable
 
-
     /* Add all actions that should reset on new project id */
     useEffect(() => {
+        let isSubscribed = true;
+
+        // TODO - Unsubscribe from all service calls in useEffecs
         queryProjectInfo(pId);
+
+        // isSubscribed
+        return () => { isSubscribed = false; };
     }, [pId]);
     useEffect(() => {
-        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
+        if(!recipe) return () => {};     // Recipe needs to be available, see "fetchRecipe" recipe
         queryNgsStatsData(recipe, pId)
+        return () => {};
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
 
     /**
