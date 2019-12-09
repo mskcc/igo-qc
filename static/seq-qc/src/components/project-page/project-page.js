@@ -188,7 +188,13 @@ function ProjectPage(props){
      */
     const setNewHeaders = (newHeaders = []) => {
         if(headers.length > 0){
-            newHeaders.push.apply(newHeaders, headers);
+            // Add any new headers that may come from another source
+            for(const toAdd of headers){
+                // On update, update contains redundant columns already in headers. These shouldn't be added.
+                if(!newHeaders.includes(toAdd)){
+                    newHeaders.push(toAdd);
+                }
+            }
         }
         setHeaders(newHeaders);
     };
