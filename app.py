@@ -394,14 +394,6 @@ def change_run_status():
         id_status_fail = []
         id_status_success = []
 
-        # Repool requests must also modify the samples table
-        if(should_repool_sample(recipe, qc_status)):
-            repool_success = request_repool(id, recipe, qc_status)
-            if repool_success:
-                id_status_success.append(LIMS_TASK_REPOOL)
-            else:
-                id_status_fail.append(LIMS_TASK_REPOOL)
-
         qc_status_change_success = request_qc_status_change(id, qc_status, project, recipe)
         if qc_status_change_success:
             id_status_success.append(LIMS_TASK_SET_QC_STATUS)
