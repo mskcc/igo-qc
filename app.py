@@ -2,7 +2,8 @@
 
 import sys
 import uwsgi, pickle
-from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify
+from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash
+from flask_jwt_extended import get_jwt_identity
 from flask_login import login_user, login_required, LoginManager, UserMixin
 from flask_cors import CORS
 from functools import wraps
@@ -112,12 +113,12 @@ def authenticate():
         password = request.form.get("password")
     except:
         flash('Missing username or password. Please try again.')
-        return render_template('login.html')
+        return render_template('login.html', URL_PREFIX=URL_PREFIX)
     try:
         result = ldap_authenticate(username, password)
     except ldap.INVALID_CREDENTIALS:
         flash('Please check your login details and try again.')
-        return render_template('login.html')
+        return render_template('login.html', URL_PREFIX=URL_PREFIX)
     if is_authorized(result):
         app.logger.info('Authorizing %s' % username)
         login_user(User(username))
@@ -125,7 +126,7 @@ def authenticate():
         return redirect(url_for('index'))
     else:
         flash('You are not authorized to view this page')
-        return render_template('login.html')
+        return render_template('login.html', URL_PREFIX=URL_PREFIX)
 
 def get_ldap_connection():
     conn = ldap.initialize(LDAP_URL)
