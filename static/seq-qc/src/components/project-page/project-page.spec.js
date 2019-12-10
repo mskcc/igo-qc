@@ -31,8 +31,10 @@ describe('ProjectPage', () => {
         });
     });
     it("Project Page passes down props on initialization", () => {
-        const qcTableProps = component.find(QcTable).props();
-        expect(qcTableProps.project).toBe(pid);
+        const qcTable = component.find(QcTable);
+        const props = qcTable.props();
+        expect(props.project).toBe(pid);
     });
+
 });
 
