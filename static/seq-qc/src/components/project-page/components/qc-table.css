@@ -88,3 +88,13 @@
     vertical-align: top;
     width: 50px;
 }
+.handsontable th {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.handsontable td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.handsontable tr:nth-child(even) > td {background: #eceff1}
+.handsontable tr:nth-child(odd) > td {background: #FFF}

@@ -312,17 +312,10 @@ class QcTable extends React.Component {
                         data={this.state.filteredData}
                         colHeaders={colHeaders}
                         columns={colHeaders.map((data)=>{
-                            const col = {data};
+                            const col = {data, type: 'numeric', numericFormat: {pattern: '0,0'}};
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="black-border curved-border text-align-center hover">${value}</div>`;
-                                    return td;
-                                }
-                            }
-                            else {
-                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="text-align-center">${value}</div>`;
-                                    if(row % 2 === 0) td.style.backgroundColor = '#eceff1';
+                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover">${value}</div>`;
                                     return td;
                                 }
                             }
