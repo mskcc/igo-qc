@@ -1,5 +1,5 @@
-from app import app
 import inspect
+from app import app
 
 def info(msg):
     app.logger.info(format(msg))

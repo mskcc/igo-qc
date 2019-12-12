@@ -1,11 +1,12 @@
-import os
+import os, sys
 import re
 from collections import defaultdict
+from flask_jwt_extended import get_jwt_identity
 
-import Grid
-import headers
 import logger
 from settings import APP_STATIC
+from config import headers
+import Grid
 
 def get_project_info(pId, qc_status_label, get_project_qc):
     project_qc_info = get_project_qc[0]
@@ -108,9 +109,16 @@ def get_column_order(project_types):
     :return: string[]       headers
     """
     all_headers = []
+
+    user = '' # get_jwt_identity()
+
     for type in project_types:
         if type in headers.order:
-            all_headers += headers.order[type]
+            user_headers = get_user_config(user, type)
+            if user_headers:
+                all_headers += user_headers
+            else:
+                all_headers += headers.order[type]
 
     if len(all_headers) == 0:
         logger.error("No column order set for type(s): %s. Returning default headers" % str(type))
@@ -120,6 +128,10 @@ def get_column_order(project_types):
     [column_order.append(header) for header in all_headers if header not in column_order]
 
     return column_order
+
+# TODO - Implement Database
+def get_user_config(user, type):
+    return None
 
 def get_project_type(samples):
     common_sample = samples[0]  # First sample of the project should contain common fields

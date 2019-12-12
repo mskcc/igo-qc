@@ -3,7 +3,7 @@
 import sys
 import uwsgi, pickle
 from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required
 from flask_login import login_user, login_required, LoginManager, UserMixin
 from flask_cors import CORS
 from functools import wraps
@@ -21,23 +21,27 @@ import smtplib
 from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
-
-sys.path.insert(0, os.path.abspath("config"))
-from constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS
-from settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
-
-import logger
-import project
+from flask_pymongo import PyMongo
 
 # Configurations
+sys.path.insert(0, os.path.abspath("config"))
 config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
 config_options = yaml.load(open(config, "r"))
 
+# Constants
+from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS
+from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
+
 # Configure app
 app = Flask(__name__)
-cors = CORS(app, resources={r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
+cors = CORS(app, resources={r"/refresh": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
+jwt = JWTManager(app)
+
+# Modules
+sys.path.insert(0, os.path.abspath("app"))
+import project
 
 # Configure modules
 class MyAdapter(HTTPAdapter):
@@ -106,27 +110,45 @@ def load_user(user_id):
 def login():
     return render_template('login.html', URL_PREFIX=URL_PREFIX)
 
-@app.route('/authenticate', methods=['GET', 'POST'])
+@app.route('/authenticate', methods=['POST'])
 def authenticate():
+    username = ''
     try:
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.json['username']
+        password = request.json['password']
+        if username == None or password == None:
+            return create_resp(False, 'Missing username or password. Please try again.', {})
     except:
-        flash('Missing username or password. Please try again.')
-        return render_template('login.html', URL_PREFIX=URL_PREFIX)
+        return create_resp(False, 'Missing username or password. Please try again.', {})
+    '''
     try:
         result = ldap_authenticate(username, password)
     except ldap.INVALID_CREDENTIALS:
-        flash('Please check your login details and try again.')
-        return render_template('login.html', URL_PREFIX=URL_PREFIX)
+        return create_resp(False, 'Please check your login details and try again.', {})
     if is_authorized(result):
-        app.logger.info('Authorizing %s' % username)
+    '''
+    if True:
+        app.logger.info('Successful Authentication: %s' % username)
         login_user(User(username))
         current_user = User(username)
-        return redirect(url_for('index'))
+
+        expires = datetime.timedelta(hours=12)
+        access_token = create_access_token(identity=username, expires_delta=expires)
+        refresh_token = create_refresh_token(identity=username, expires_delta=expires)
+
+        data = { 'access_token': access_token, 'refresh_token': refresh_token }
+        return create_resp(True, 'Authorized %s' % username, data)
     else:
-        flash('You are not authorized to view this page')
-        return render_template('login.html', URL_PREFIX=URL_PREFIX)
+        return create_resp(False, 'You are not authorized to view this page', None)
+
+@app.route('/refresh', methods=['GET'])
+@jwt_refresh_token_required
+def refresh():
+    app.logger.info('Refreshing Token')
+    current_jwt_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_jwt_user)
+    data = {'access_token': access_token, 'username': current_jwt_user}
+    return create_resp(True, 'refreshed', data)
 
 def get_ldap_connection():
     conn = ldap.initialize(LDAP_URL)
@@ -260,7 +282,7 @@ def getSeqAnalysisProjects():
     content = get_cached_data(cache_key)
     if not content:
         seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
-        logger.info("Sending request to %s" % seq_analysis_projects_url)
+        app.logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
         cache_data(cache_key, content, CACHE_TIME_SHORT)
@@ -268,7 +290,7 @@ def getSeqAnalysisProjects():
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     projectsToReview = []
     projectsToSequenceFurther = []
@@ -306,7 +328,7 @@ def getRequestProjects():
     content = get_cached_data(cache_key)
     if not content:
         req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
-        logger.info("Sending request to %s" % req_projects_url)
+        app.logger.info("Sending request to %s" % req_projects_url)
         resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
         cache_data(cache_key, content, CACHE_TIME_SHORT)
@@ -314,7 +336,7 @@ def getRequestProjects():
 
     # Logging
     request_names = map(lambda p: p['requestId'], projects)
-    logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
 
     for project in projects:
         [ignore, recentDate] = getRecentDateAndRuns(project)
@@ -340,17 +362,20 @@ def projects_tmp(pId):
 
 @app.route('/getRecentRuns', methods=['GET', 'POST'])
 @navbarForm
+@jwt_required
 def get_recent_runs():
+    user = get_jwt_identity()
+
     dir_path = FASTQ_PATH
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
 
-    logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
+    app.logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
 
     # Add Recent Runs data for links to HTML files
     datenow = datetime.datetime.now()
     latest_age = 7
-    logger.info("Returning files last modified less than %d days ago" % latest_age)
+    app.logger.info("Returning files last modified less than %d days ago" % latest_age)
     run_data = []
     for eachfile in dir_data:
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))
@@ -431,13 +456,13 @@ def request_qc_status_change(id, qc_status, project, recipe):
     return 'NewStatus' in resp.text and resp.status_code == 200
 
 def request_repool(id, recipe, qc_status):
-    logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
+    app.logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
 
     set_pooled_url = LIMS_API_ROOT  + "/LimsRest/setPooledSampleStatus"
     # Status should be that expected by LIMS for SAMPLES, not the QC site
     set_pooled_payload = {'record': id, 'status': "Ready for - Pooling of Sample Libraries for Sequencing"}
     set_pooled_resp = s.post(set_pooled_url, params=set_pooled_payload,  auth=(USER, PASSW), verify=False)
-    logger.info(set_pooled_resp.content)
+    app.logger.info(set_pooled_resp.content)
 
     return set_pooled_resp.status_code == 200
 
@@ -483,6 +508,7 @@ def project_qc(pId):
     return create_resp(True, 'success', project_qc_info)
 
 @app.route('/projectInfo/<pId>', methods=['GET'])
+@jwt_required
 def project_info(pId):
     if not is_project_id_valid(pId):
         return create_resp(False, 'Invalid pId', {})
@@ -498,11 +524,11 @@ def project_info(pId):
 
     # TODO - This doesn't need to happen w/ every request...
     qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
-    logger.info('Submitting request to %s' % qc_status_label_url)
+    app.logger.info('Submitting request to %s' % qc_status_label_url)
     qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
 
     get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
-    logger.info('Submitting request to %s' % get_project_qc_url)
+    app.logger.info('Submitting request to %s' % get_project_qc_url)
     get_project_qc_resp = s.get(get_project_qc_url, auth=(USER, PASSW), verify=False)
 
     try:
@@ -553,7 +579,7 @@ def submit_feedback():
     msg['To'] = to
 
     feedback_type = request.json['type']
-    logger.info("Sending %s feedback to %s" % (feedback_type, to))
+    app.logger.info("Sending %s feedback to %s" % (feedback_type, to))
 
     subject = "[RUN-QC:BUG] " if feedback_type == 'bug' else "[RUN-QC:FEATURE REQUEST] "
     subject += request.json["subject"]
@@ -661,7 +687,7 @@ def get_interops_data():
         return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
     interops_data_url = LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName
-    logger.info("Sending %s" % interops_data_url)
+    app.logger.info("Sending %s" % interops_data_url)
     r = s.get(interops_data_url, auth=(USER, PASSW), verify=False)
     run_summary = r.content
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
@@ -669,13 +695,13 @@ def get_interops_data():
 def get_cached_data(key):
     if uwsgi.cache_exists(key, CACHE_NAME):
         data = uwsgi.cache_get(key, CACHE_NAME)
-        logger.info("Using cached data for %s" % key)
+        app.logger.info("Using cached data for %s" % key)
         return data
-    logger.info("No data cached for %s" % key)
+    app.logger.info("No data cached for %s" % key)
     return None
 
 def cache_data(key, content, time):
-    logger.info("Caching %s for %d seconds" % (key, time))
+    app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_set(key, content, time, CACHE_NAME)
 
 if __name__ == '__main__':

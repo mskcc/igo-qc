@@ -5,8 +5,8 @@ sys.path.insert(0, os.path.abspath("tests/mock_modules"))
 import mock_logger
 sys.modules['logger'] = __import__('mock_logger')
 
-sys.path.insert(0, os.path.abspath("config"))
-import project
+sys.path.insert(0, os.path.abspath("app"))
+from .context import project
 
 sys.path.insert(0, os.path.abspath("tests/mock_responses"))
 from get_project_info_resp import get_project_info_resp

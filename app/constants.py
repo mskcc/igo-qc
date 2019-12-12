@@ -7,8 +7,6 @@ API_PROJECT = "project"
 API_QC_STATUS = "status"
 API_RECIPE = "recipe"
 
-
-
 RECIPE_HEMEPACT = 'hemepact'
 RECIPE_IMPACT = 'impact'
 RECIPE_MSK_ACCESS = 'msk-access'

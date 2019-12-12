@@ -46,7 +46,7 @@ class Grid:
         self.set_value_type("Sample", "s")
         self.set_value_type("IGO Id", "s")
         self.set_value_type("Genome", "s")
-        self.set_value_type("Tumor or Normal", "s")    
+        self.set_value_type("Tumor or Normal", "s")
         self.set_value_type("Coverage Target", "d")
         self.set_value_type("Pct. Adapters", "4f")
         self.set_value_type("Reads Examined", "d")
