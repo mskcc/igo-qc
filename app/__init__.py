@@ -120,14 +120,11 @@ def authenticate():
             return create_resp(False, 'Missing username or password. Please try again.', {})
     except:
         return create_resp(False, 'Missing username or password. Please try again.', {})
-    '''
     try:
         result = ldap_authenticate(username, password)
     except ldap.INVALID_CREDENTIALS:
         return create_resp(False, 'Please check your login details and try again.', {})
     if is_authorized(result):
-    '''
-    if True:
         app.logger.info('Successful Authentication: %s' % username)
         login_user(User(username))
         current_user = User(username)
