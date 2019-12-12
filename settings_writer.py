@@ -25,7 +25,7 @@ if __name__ == "__main__":
     settings += "URL_PREFIX=%s\n" % URL_PREFIX
 
     # Write file
-    f = open("./app/settings.py", "r+")
+    f = open("./app/settings.py", "w+")
     f.truncate(0)           # Delete file contents
     f.write(settings)
     f.close
