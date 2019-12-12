@@ -2,6 +2,7 @@ import axios from "axios";
 
 import config from '../config.js';
 import { handleError } from "../utils/service-utils";
+import { QC_AXIOS, axiosInstance } from "./axios-util";
 
 const getData = (resp) => {
     const wrapper = resp.data || {};
@@ -75,4 +76,23 @@ export function getRecentRuns() {
         .get(config.IGO_QC + '/getRecentRuns')
         .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Unable to fetch Recent Runs: ' + error) });
+}
+export function refresh() {
+    const instance = axiosInstance(config.IGO_QC, 'refresh');
+    return instance.get(`/refresh`)
+        .then(getData)
+        .catch((err) => {
+            const resp = err.response || {};
+            const status = resp.status || null;
+            // Unauthorized token - return empty to allow for refreshtoken
+            if(status === 401){
+                return {}
+            }
+            handleError(err);
+        })
+}
+export function authenticate(username,password) {
+    return axios.post(config.IGO_QC + '/authenticate', { username, password })
+        .then(resp => {return parseResp(resp) })
+        .catch(error => {throw new Error('Failed to log in: ' + error) });
 }
