@@ -110,8 +110,7 @@ def get_column_order(project_types):
     @param type: string[]   project recipes to include
     :return: string[]       headers
     """
-    all_headers = []
-
+    all_headers = headers.order['MANDATORY']
     user = get_jwt_identity()
     for type in project_types:
         if type in headers.order:
@@ -127,6 +126,7 @@ def get_column_order(project_types):
         logger.error("No column order set for type(s): %s. Returning default headers" % str(type))
         return headers.order['default']
 
+    # Remove duplicates
     column_order = []
     [column_order.append(header) for header in all_headers if header not in column_order]
 
