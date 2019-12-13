@@ -5,7 +5,9 @@ from flask_jwt_extended import get_jwt_identity
 
 import logger
 from settings import APP_STATIC
-from config import headers
+from config_manager import get_user_configuration_object
+# from config import headers
+import headers
 import Grid
 
 def get_project_info(pId, qc_status_label, get_project_qc):
@@ -110,12 +112,13 @@ def get_column_order(project_types):
     """
     all_headers = []
 
-    user = '' # get_jwt_identity()
-
+    user = get_jwt_identity()
     for type in project_types:
         if type in headers.order:
-            user_headers = get_user_config(user, type)
+            current_jwt_user = get_jwt_identity()
+            user_headers = get_user_headers(current_jwt_user, type)
             if user_headers:
+                logger.info("Returning order saved for user, %s: %s" % (user, str(user_headers)))
                 all_headers += user_headers
             else:
                 all_headers += headers.order[type]
@@ -130,7 +133,12 @@ def get_column_order(project_types):
     return column_order
 
 # TODO - Implement Database
-def get_user_config(user, type):
+def get_user_headers(user, type):
+    user_configuration = get_user_configuration_object(user)
+    if user_configuration:
+        config = user_configuration.get_config()
+        if type in config:
+            return config[type]
     return None
 
 def get_project_type(samples):

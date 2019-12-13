@@ -52,7 +52,7 @@ export const getProjectInfo = (projectId) => {
         .then(getData)
         .catch(handleError);
      */
-    return axios.get(`${config.IGO_QC}/projectInfo/${projectId}`)
+    return axiosInstance(config.IGO_QC).get(`/projectInfo/${projectId}`)
         .then(getData)
         .catch(handleError)
 };
@@ -94,5 +94,11 @@ export function refresh() {
 export function authenticate(username,password) {
     return axios.post(config.IGO_QC + '/authenticate', { username, password })
         .then(resp => {return parseResp(resp) })
+        .catch(error => {throw new Error('Failed to log in: ' + error) });
+}
+export function saveConfig(type, value){
+    const instance = axiosInstance(config.IGO_QC);
+    return instance.post('saveConfig', { type, value })
+        .then(resp => {debugger; return parseResp(resp) })
         .catch(error => {throw new Error('Failed to log in: ' + error) });
 }

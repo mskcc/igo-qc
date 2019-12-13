@@ -34,14 +34,21 @@ from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 # Configure app
 app = Flask(__name__)
-cors = CORS(app, resources={r"/refresh": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
+
+# Wrappers
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/refresh": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 jwt = JWTManager(app)
 
+# Models
+from mongoengine import connect
+connect('run_qc')
 # Modules
 sys.path.insert(0, os.path.abspath("app"))
 import project
+import config_manager
+from utils import create_resp
 
 # Configure modules
 class MyAdapter(HTTPAdapter):
@@ -600,14 +607,6 @@ def submit_feedback():
     s.quit()
 
     return create_resp(True, 'success', {})
-
-def create_resp(success, status, data):
-    resp = { 'success': success }
-    if status:
-        resp['status'] = status
-    if data:
-        resp['data'] = data
-    return jsonify(resp)
 
 # We raise an error and display it. This render '404.html' template
 @app.route('/page_not_found_<pId>_<int:code_error>')

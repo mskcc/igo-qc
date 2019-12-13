@@ -17,8 +17,10 @@ from lims_get_project_qc_pedPeg import lims_ped_peg
 from lims_get_project_qc_chipSeq import lims_chip_seq
 from lims_qc_status_label import lims_qc_status_label
 
-
-def test_get_project_info():
+from unittest.mock import patch
+@patch('project.get_jwt_identity')
+def test_get_project_info(get_jwt_identity):
+    get_jwt_identity.return_value = 'user1'
     print("***************************\n****** Project Test *******\n***************************")
     print("Success" if test_get_project_info_multiple_recipes() else "Failure")
     print("Success" if test_get_project_info_single_recipe() else "Failure")

@@ -52,7 +52,7 @@ function ProjectPage(props){
             }
             else if(Object.keys(projectInfo).length > 0){
                 const projectType = projectInfo['projectType'];
-                const recipe = projectType['recipe'];
+                const recipe = projectType['recipe'] || '';
                 setRecipe(recipe);
             }
         }
@@ -416,10 +416,9 @@ function ProjectPage(props){
 
         const hideGrid = (gridData.length === 0 || headers.length === 0)
         const display = hideGrid ? 'block' : 'none';
-
         const columnOrder = getColumnOrder();
-
         const qcStatuses = projectInfo ? projectInfo.statuses || {} : {};
+        const  projectType = (projectInfo && projectInfo.projectType) ? projectInfo.projectType : {};
 
         return <div className={"black-border"} style={{width:'inherit'}}>
             <div style={{ display, margin: 'auto' }} className="loader"></div>
@@ -432,7 +431,8 @@ function ProjectPage(props){
                          recipe={recipe}
                          addModalUpdate={props.addModalUpdate}
                          updateProjectInfo={queryProjectInfo}
-                         selectedSample={selectedSample}/>
+                         selectedSample={selectedSample}
+                         projectType={projectType}/>
             </div>;
     };
 

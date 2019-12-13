@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faTimes, faSearch, faAngleDown, faAngleRight, faFileExcel } from "@fortawesome/free-solid-svg-icons";
-import MuiButton from '@material-ui/core/Button';
+import {faSave, faSearch, faAngleDown, faAngleRight, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { BehaviorSubject } from 'rxjs';
 import FileSaver from "file-saver";
 import XLSX from 'xlsx';
@@ -12,8 +11,9 @@ import XLSX from 'xlsx';
 import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
 
+import {saveConfig} from "../../../services/igo-qc-service";
 import StatusSubmitter from './sample-status-modal';
-import {MODAL_UPDATE} from "../../../resources/constants";
+import {MODAL_ERROR, MODAL_UPDATE} from "../../../resources/constants";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -220,6 +220,32 @@ class QcTable extends React.Component {
         return filtered;
     };
 
+    /**
+     * This saves user configurations for columnOrder
+     */
+    saveColumnOrder = () => {
+        const newColumnOrder = [];
+        for(const column of this.props.columnOrder){
+            if(!this.state.removedHeaders.has(column)){
+                newColumnOrder.push(column);
+            }
+        }
+        // Check for equality - Do nothing if no changes to column order
+        if(newColumnOrder.length === this.props.columnOrder){
+            const diff = newColumnOrder.filter((col) => {return !this.props.columnOrder.includes(col)});
+            if(diff.length === 0) return;
+        }
+        const tableTypes = this.props.projectType.table || [];
+        if(tableTypes.length === 1){
+            // TODO - Handle case of multiple table types/recipes
+            saveConfig(tableTypes[0], newColumnOrder).then((resp) => {
+                this.props.addModalUpdate(MODAL_UPDATE, resp, 2000);
+            })
+        } else {
+            this.props.addModalUpdate(MODAL_ERROR, `Not saving configuration for project w/ ${tableTypes.length} recipes`);
+        }
+    };
+
     render() {
         /*
             Return an empty div if there is no data to render. This is REQUIRED b/c rendering the HotTable before data
@@ -253,8 +279,7 @@ class QcTable extends React.Component {
                             <div className={"material-gray-background"}>
                                 <div className={"table-tools pos-rel"}>
                                     <div className={"height-inherit"}>
-                                        <div className={"table-option hover"} onClick={() => {
-                                            this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
+                                        <div className={"table-option hover"} onClick={() => {this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
                                             <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
                                                 <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                                                                  icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
@@ -277,28 +302,35 @@ class QcTable extends React.Component {
                                 </div>
                                 <div className={"header-removal-selector fill-width"}>
                                     <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
-                                        <p>Columns in View</p>
-                                        {headersToRemove.map((header) => {
-                                            let classes = "inline-block header-selector";
-                                            if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
-                                            const toggle = () => {
-                                                // TODO - Add endpoint to igoLims to see what columns get removed
-                                                const removedHeaders = this.state.removedHeaders;
-                                                if(removedHeaders.has(header)) {
-                                                    removedHeaders.delete(header);
-                                                }
-                                                else{
-                                                    removedHeaders.add(header);
-                                                }
-
-                                                // Update the filteredData w/ the new removedHeaders
-                                                const filteredData = this.getFilteredData(null, removedHeaders);
-                                                this.setState({removedHeaders, filteredData});
-                                            };
-                                            return <div className={classes} onClick={toggle} key={`civ-${header}`}>
-                                                <p className={"inline"}>{header}</p>
+                                        <div>
+                                            <div className={"margin-bottom-15"}>
+                                                <p className={"inline-block"}>Columns in View</p>
+                                                <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
+                                                                 icon={faSave}
+                                                                 onClick={this.saveColumnOrder}/>
                                             </div>
-                                        })}
+                                            {headersToRemove.map((header) => {
+                                                let classes = "inline-block header-selector";
+                                                if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
+                                                const toggle = () => {
+                                                    // TODO - Add endpoint to igoLims to see what columns get removed
+                                                    const removedHeaders = this.state.removedHeaders;
+                                                    if(removedHeaders.has(header)) {
+                                                        removedHeaders.delete(header);
+                                                    }
+                                                    else{
+                                                        removedHeaders.add(header);
+                                                    }
+
+                                                    // Update the filteredData w/ the new removedHeaders
+                                                    const filteredData = this.getFilteredData(null, removedHeaders);
+                                                    this.setState({removedHeaders, filteredData});
+                                                };
+                                                return <div className={classes} onClick={toggle} key={`civ-${header}`}>
+                                                    <p className={"inline"}>{header}</p>
+                                                </div>
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -352,4 +384,5 @@ QcTable.propTypes = {
     addModalUpdate: PropTypes.func,
     updateProjectInfo: PropTypes.func,
     columnOrder: PropTypes.array,
+    projectType: PropTypes.object
 };
