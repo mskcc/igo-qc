@@ -225,7 +225,7 @@ class QcTable extends React.Component {
      */
     saveColumnOrder = () => {
         const newColumnOrder = [];
-        for(const column of this.props.columnOrder){
+        for(const column of this.props.headers){
             if(!this.state.removedHeaders.has(column)){
                 newColumnOrder.push(column);
             }

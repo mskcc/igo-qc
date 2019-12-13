@@ -21,6 +21,14 @@ order = {
         "Tumor or Normal",
         "Pct. Duplic.", "Pct. Adapters", "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"
     ],
+    'md': [
+        "QC Status", "Sample",
+        "Coverage Target",
+        "Concentr.  (nM)", "Final Library Yield (fmol)",
+        "Requested Reads (Millions)", "Reads Examined", "Unpaired Reads", "Sum Reads", "Unmapped",
+        "Tumor or Normal",
+        "Pct. Adapters", "Pct. Duplic."
+    ],
     'default': [
         "QC Status", "Sample",
         "Coverage Target",

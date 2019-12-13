@@ -99,6 +99,6 @@ export function authenticate(username,password) {
 export function saveConfig(type, value){
     const instance = axiosInstance(config.IGO_QC);
     return instance.post('saveConfig', { type, value })
-        .then(resp => {debugger; return parseResp(resp) })
+        .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Failed to log in: ' + error) });
 }
