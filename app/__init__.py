@@ -33,7 +33,8 @@ from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID,
 from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 # Configure app
-app = Flask(__name__)
+template_dir = os.path.abspath('../templates')
+app = Flask(__name__, template_folder=template_dir)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
@@ -44,6 +45,7 @@ jwt = JWTManager(app)
 # Models
 from mongoengine import connect
 connect('run_qc')
+
 # Modules
 sys.path.insert(0, os.path.abspath("app"))
 import project
@@ -59,8 +61,8 @@ class MyAdapter(HTTPAdapter):
                 ssl_version=ssl.PROTOCOL_SSLv23)
 s = requests.Session()
 s.mount('https://', MyAdapter())
+
 login_manager = LoginManager()
-login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 LDAP_URL = config_options['ldap_url']
@@ -112,10 +114,6 @@ current_user = User("username")
 @login_manager.user_loader
 def load_user(user_id):
     return current_user
-
-@app.route('/login')
-def login():
-    return render_template('login.html', URL_PREFIX=URL_PREFIX)
 
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
@@ -208,7 +206,6 @@ def navbarForm(func):
 
 @app.route('/', methods=['GET', 'POST'])
 @navbarForm
-@login_required
 def index():
     return render_template("index.html", **locals())
 
@@ -366,7 +363,6 @@ def projects_tmp(pId):
 
 @app.route('/getRecentRuns', methods=['GET', 'POST'])
 @navbarForm
-@jwt_required
 def get_recent_runs():
     user = get_jwt_identity()
 
