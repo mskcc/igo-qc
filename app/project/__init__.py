@@ -6,7 +6,6 @@ from flask_jwt_extended import get_jwt_identity
 import logger
 from settings import APP_STATIC
 from config_manager import get_user_configuration_object
-# from config import headers
 import headers
 import Grid
 
@@ -110,7 +109,8 @@ def get_column_order(project_types):
     @param type: string[]   project recipes to include
     :return: string[]       headers
     """
-    all_headers = headers.order['MANDATORY']
+    all_headers = []
+    all_headers += headers.order['MANDATORY']
     user = get_jwt_identity()
     for type in project_types:
         if type in headers.order:
