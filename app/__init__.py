@@ -33,8 +33,7 @@ from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID,
 from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 # Configure app
-template_dir = os.path.abspath('../templates')
-app = Flask(__name__, template_folder=template_dir)
+app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
@@ -44,7 +43,7 @@ jwt = JWTManager(app)
 
 # Models
 from mongoengine import connect
-connect('run_qc')
+connect('run_qc', connect=False) # Defers background connections until 1st db operation is attempted, Avoids pymongo.errors.ServerSelectionTimeoutError
 
 # Modules
 sys.path.insert(0, os.path.abspath("app"))
