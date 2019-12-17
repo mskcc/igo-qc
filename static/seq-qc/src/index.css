@@ -107,6 +107,9 @@ h3 {
 .height-inherit {
     height: inherit;
 }
+.height-25 {
+    height: 25px;
+}
 .body-container {
     min-height: 80vh
 }

@@ -26,7 +26,7 @@ class QcTable extends React.Component {
             selected: [],
             statusChange: '',
             searchTerm: '',
-            rowHeight: 23,                   // This shouldn't change. It is the height of each row in the HotTable
+            rowHeight: 25,                   // If this is changed, modify the renderer to reflect the new height (default: 23px)
             showRemoveColumn: false,
             filteredData: [],                // This needs to be updated whenever displayedData/removedColumns changes
             // For QC status change
@@ -112,7 +112,6 @@ class QcTable extends React.Component {
             return;
         };
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
-        
         const selected = [];
         for(let i = min; i<=max; i++){
             const entry = {
@@ -374,7 +373,12 @@ class QcTable extends React.Component {
                             }
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
+                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center height-25 hover"><p class="margin-1">${value}</p></div>`;
+                                    return td;
+                                }
+                            } else {
+                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
+                                    td.innerHTML = `<div class="height-25 text-align-center"><p class="margin-1">${value}</p></div>`;
                                     return td;
                                 }
                             }
