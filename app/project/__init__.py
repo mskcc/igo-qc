@@ -1,10 +1,11 @@
 import os, sys
 import re
 from collections import defaultdict
-from flask_jwt_extended import get_jwt_identity
+from flask import session
 
 import logger
 from settings import APP_STATIC
+from constants import USER_ID
 from config_manager import get_user_configuration_object
 import headers
 import Grid
@@ -111,11 +112,10 @@ def get_column_order(project_types):
     """
     all_headers = []
     all_headers += headers.order['MANDATORY']
-    user = get_jwt_identity()
+    user = '' if USER_ID not in session else session[USER_ID]
     for type in project_types:
         if type in headers.order:
-            current_jwt_user = get_jwt_identity()
-            user_headers = get_user_headers(current_jwt_user, type)
+            user_headers = get_user_headers(user, type)
             if user_headers:
                 logger.info("Returning order saved for user, %s: %s" % (user, str(user_headers)))
                 all_headers += user_headers

@@ -2,8 +2,7 @@
 
 import sys
 import uwsgi, pickle
-from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash
-from flask_jwt_extended import JWTManager, get_jwt_identity, create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required
+from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash, session
 from flask_login import login_user, login_required, LoginManager, UserMixin
 from flask_cors import CORS
 from functools import wraps
@@ -29,7 +28,7 @@ config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_co
 config_options = yaml.load(open(config, "r"))
 
 # Constants
-from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS
+from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID
 from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 # Configure app
@@ -38,8 +37,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/refresh": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
-jwt = JWTManager(app)
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 
 # Models
 from mongoengine import connect
@@ -62,6 +60,7 @@ s = requests.Session()
 s.mount('https://', MyAdapter())
 
 login_manager = LoginManager()
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 LDAP_URL = config_options['ldap_url']
@@ -110,20 +109,28 @@ class User(UserMixin):
     def is_active(self):
         return True
 current_user = User("username")
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = datetime.timedelta(minutes=1)
 @login_manager.user_loader
 def load_user(user_id):
     return current_user
-
+@app.route('/login')
+def login():
+    return render_template('login.html', URL_PREFIX=URL_PREFIX)
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
     username = ''
     try:
-        username = request.json['username']
-        password = request.json['password']
+        username = request.form.get("username")
+        password = request.form.get("password")
         if username == None or password == None:
-            return create_resp(False, 'Missing username or password. Please try again.', {})
+            flash('Missing username or password. Please try again.')
+            return render_template('login.html', URL_PREFIX=URL_PREFIX)
     except:
-        return create_resp(False, 'Missing username or password. Please try again.', {})
+        flash('Missing username or password. Please try again.')
+        return render_template('login.html', URL_PREFIX=URL_PREFIX)
     try:
         result = ldap_authenticate(username, password)
     except ldap.INVALID_CREDENTIALS:
@@ -132,24 +139,11 @@ def authenticate():
         app.logger.info('Successful Authentication: %s' % username)
         login_user(User(username))
         current_user = User(username)
-
-        expires = datetime.timedelta(hours=12)
-        access_token = create_access_token(identity=username, expires_delta=expires)
-        refresh_token = create_refresh_token(identity=username, expires_delta=expires)
-
-        data = { 'access_token': access_token, 'refresh_token': refresh_token }
-        return create_resp(True, 'Authorized %s' % username, data)
+        session[USER_ID] = username     # Place user_id in the session so we can extract it later
+        return redirect(url_for('index'))
     else:
-        return create_resp(False, 'You are not authorized to view this page', None)
-
-@app.route('/refresh', methods=['GET'])
-@jwt_refresh_token_required
-def refresh():
-    app.logger.info('Refreshing Token')
-    current_jwt_user = get_jwt_identity()
-    access_token = create_access_token(identity=current_jwt_user)
-    data = {'access_token': access_token, 'username': current_jwt_user}
-    return create_resp(True, 'refreshed', data)
+        flash('Missing username or password. Please try again.')
+        return redirect(url_for('login.html', URL_PREFIX=URL_PREFIX))
 
 def get_ldap_connection():
     conn = ldap.initialize(LDAP_URL)
@@ -205,6 +199,7 @@ def navbarForm(func):
 
 @app.route('/', methods=['GET', 'POST'])
 @navbarForm
+@login_required
 def index():
     return render_template("index.html", **locals())
 
@@ -363,8 +358,6 @@ def projects_tmp(pId):
 @app.route('/getRecentRuns', methods=['GET', 'POST'])
 @navbarForm
 def get_recent_runs():
-    user = get_jwt_identity()
-
     dir_path = FASTQ_PATH
     dir_data = glob.glob(dir_path + "*.html")
     dir_data.sort(key=os.path.getmtime, reverse=True)
@@ -507,7 +500,6 @@ def project_qc(pId):
     return create_resp(True, 'success', project_qc_info)
 
 @app.route('/projectInfo/<pId>', methods=['GET'])
-@jwt_required
 def project_info(pId):
     if not is_project_id_valid(pId):
         return create_resp(False, 'Invalid pId', {})

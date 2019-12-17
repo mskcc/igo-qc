@@ -10,3 +10,6 @@ API_RECIPE = "recipe"
 RECIPE_HEMEPACT = 'hemepact'
 RECIPE_IMPACT = 'impact'
 RECIPE_MSK_ACCESS = 'msk-access'
+
+# Flask Constants
+USER_ID = "user_id"
