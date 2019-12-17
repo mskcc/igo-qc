@@ -464,7 +464,7 @@ footer {
 .tooltip .tooltiptext {
     transition: 0s visibility;
     visibility: hidden;
-    width: 120px;
+    width: 100px;
     background-color: #d9d9d9;
     color: black;
     text-align: center;

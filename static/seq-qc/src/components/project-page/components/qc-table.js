@@ -328,7 +328,7 @@ class QcTable extends React.Component {
                                                     <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
                                                                      icon={faSave}
                                                                      onClick={this.saveColumnOrder}/>
-                                                    <span className={"tooltiptext"}>Save Columns</span>
+                                                    <span className={"tooltiptext"}>Save View</span>
                                                 </div>
                                             </div>
                                             {headersToRemove.map((header) => {
