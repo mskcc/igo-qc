@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
-import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO } from "../../resources/constants";
+import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO, CELL_RANGER_SAMPLE_NAME } from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
 
 /**
@@ -260,7 +260,7 @@ function ProjectPage(props){
      */
     const joinNewEntry = (query, currentGridData) => {
         // entry should have
-        const ngsDataName = query['Name'];
+        const ngsDataName = query[CELL_RANGER_SAMPLE_NAME];
         const projectInfoId = query['IGO Id'];
 
         let match = [];
@@ -290,7 +290,7 @@ function ProjectPage(props){
             }
         } else if(projectInfoId){
             /* New Data comes from IGO LIMS */
-            match = currentGridData.filter((entry) => entry['name'].includes(projectInfoId));
+            match = currentGridData.filter((entry) => entry[CELL_RANGER_SAMPLE_NAME].includes(projectInfoId));
         } else {
             throw new Error('No matching sample found for entry: ' + query.keys());
         }
