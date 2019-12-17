@@ -30,7 +30,8 @@ class QcTable extends React.Component {
             showRemoveColumn: false,
             filteredData: [],                // This needs to be updated whenever displayedData/removedColumns changes
             // For QC status change
-            selectionSubject: new BehaviorSubject([])      // Observable that can emit updates of user-selection
+            selectionSubject: new BehaviorSubject([]),       // Observable that can emit updates of user-selection
+            numericColumns: new Set([])                             // Tracks numeric columns to receive special formatting
         };
     }
 
@@ -60,6 +61,7 @@ class QcTable extends React.Component {
 
             const data = Object.assign([], this.props.data);
             const headers = this.props.headers || [];
+            const numericColumns = this.getNumericColumns(data, headers);
             const removedHeaders = new Set(
                 headers.filter((header) => {
                     return this.props.columnOrder.indexOf(header) < 0;
@@ -72,11 +74,27 @@ class QcTable extends React.Component {
             this.setState({
                 filteredData,
                 removedHeaders,
+                numericColumns,
                 data,
                 displayedData: data
             });
         }
     }
+
+    getNumericColumns = (data, columns) => {
+        if(!data || data.length === 0) return new Set([]);
+
+        const numericColumns = new Set([]);
+        const entry = data[0];  // Use the first as a representative for the data
+        for(const col of columns){
+            const val = entry[col];
+            if(!isNaN(val)){
+                numericColumns.add(col);
+            }
+        }
+
+        return numericColumns;
+    };
 
     /**
      * WARNING - Do not propogate events to parent OR modify state. Updating the state will re-render the grid
@@ -348,7 +366,12 @@ class QcTable extends React.Component {
                         data={this.state.filteredData}
                         colHeaders={colHeaders}
                         columns={colHeaders.map((data)=>{
-                            const col = {data, type: 'numeric', numericFormat: {pattern: '0,0'}};
+                            const col = { data };
+                            if(this.state.numericColumns.has(data)){
+                                // Numeric Formatting: 31415 -> 31,415
+                                col.type = 'numeric';
+                                col.numericFormat = {pattern: '0,0'};
+                            }
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
                                     td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
