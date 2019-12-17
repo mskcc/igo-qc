@@ -348,7 +348,7 @@ class QcTable extends React.Component {
                             const col = {data, type: 'numeric', numericFormat: {pattern: '0,0'}};
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover">${value}</div>`;
+                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
                                     return td;
                                 }
                             }
