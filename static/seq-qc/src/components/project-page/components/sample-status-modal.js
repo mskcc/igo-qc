@@ -21,7 +21,7 @@ const StatusSubmitter = (props) => {
     // Subscribe to parent's updater for when user selects a sample. Should only happen once
     useEffect(() => {
         props.selectionSubject.subscribe((update) => {
-            if(update.length !== selected.length) {
+            if(update.length !== selected.length || update.length === 0) {
                 setSelected(update);
             }
         })
