@@ -306,9 +306,12 @@ class QcTable extends React.Component {
                                         <div>
                                             <div className={"margin-bottom-15"}>
                                                 <p className={"inline-block"}>Columns in View</p>
-                                                <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
-                                                                 icon={faSave}
-                                                                 onClick={this.saveColumnOrder}/>
+                                                <div className={"tooltip"}>
+                                                    <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
+                                                                     icon={faSave}
+                                                                     onClick={this.saveColumnOrder}/>
+                                                    <span className={"tooltiptext"}>Save Columns</span>
+                                                </div>
                                             </div>
                                             {headersToRemove.map((header) => {
                                                 let classes = "inline-block header-selector";
