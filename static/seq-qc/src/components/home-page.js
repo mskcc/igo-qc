@@ -151,7 +151,7 @@ function HomePage() {
                 </header>
                 { showFeedback ? <Feedback addModalUpdate={addModalUpdate}
                                             closeFeedback={() => setShowFeedback(false)}/> : <div></div> }
-                <div className={"body-container margin-top-15 padding-hor-5per"}>
+                <div className={"body-container margin-top-15 margin-bottom-15 padding-hor-5per"}>
                     <Switch>
                         <Route exact path={config.SITE_HOME}>
                             <Home recentDeliveries={recentDeliveries}

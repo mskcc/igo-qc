@@ -442,7 +442,7 @@ function ProjectPage(props){
             <p className={'text-align-center'}>No data is available - Piccard stats need to be run</p>
         </div>
     };
-    return <div className={"margin-bottom-75"} key={pId}>
+    return <div key={pId}>
             {renderSummary(projectInfo)}
             {renderNgsGraphs(selectedSample)}
             {renderGrid(gridData,headers)}
