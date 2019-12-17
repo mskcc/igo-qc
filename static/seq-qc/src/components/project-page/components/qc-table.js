@@ -94,14 +94,15 @@ class QcTable extends React.Component {
             return;
         };
         const [min, max] = r1 < r2 ? [r1,r2] : [r2, r1];
-        const selected = this.state.displayedData.slice(min, max+1)
-                                        .map((row) => {
-                                            // TODO - constant
-                                            return {
-                                                'record': row['QC Record Id'],
-                                                'sample': row['Sample']
-                                            }
-                                        });
+        
+        const selected = [];
+        for(let i = min; i<=max; i++){
+            const entry = {
+                'record': this.state.hotTableRef.current.hotInstance.getDataAtRowProp(i, 'QC Record Id'),
+                'sample': this.state.hotTableRef.current.hotInstance.getDataAtRowProp(i, "Sample")
+            };
+            selected.push(entry);
+        }
         const unique_selected = selected.filter((run, idx) => selected.indexOf(run) === idx);
         this.state.selectionSubject.next(unique_selected);
     };
@@ -338,7 +339,7 @@ class QcTable extends React.Component {
                             <div></div>
                     }
                     <HotTable
-                        ref={this.hotTableRef}
+                        ref={this.state.hotTableRef}
                         licenseKey="non-commercial-and-evaluation"
                         id="qc-grid"
                         data={this.state.filteredData}
