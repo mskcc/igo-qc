@@ -438,7 +438,6 @@ footer {
     margin-right: auto;
     display: block;
 }
-
 .box {
     width: 400px;
     background-color: #fff;
@@ -484,4 +483,19 @@ footer {
 .tooltip:hover .tooltiptext {
     visibility: visible;
     transition-delay: 0.3s;
+}
+
+
+/*     IDs     */
+.coverage-chart-container {
+    position: relative;
+    display: inline-block;
+    height: 300px;
+    width: 500px;
+}
+#coverage-chart {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
 }

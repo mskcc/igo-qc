@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
+import CoverageChart from './graph-types/coverage-chart';
 import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO, CELL_RANGER_SAMPLE_NAME } from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
 
@@ -303,23 +304,8 @@ function ProjectPage(props){
         }
     };
 
-    const renderNgsGraphs = (sampleId) => {
-        if(serviceErrors[NGS_STATS]){
-            return <div className={"black-border"}>
-                <p className={'text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
-            </div>
-        }
-        if(ngsStatsData === null || projectInfo === null){
-            return <div className={"black-border"}>
-                <div className="loader margin-auto"></div>
-            </div>
-        };
-        if( ngsStatsData.length === 0 &&
-            Object.keys(projectInfo.chartsLinks || []).length === 0) {
-            return <div className={"black-border"}>
-                        <p className={'text-align-center'}>No Graph data is available for this project</p>
-                   </div>;
-        }
+    const renderNgsGraphs = (title) => {
+        if(!ngsStatsData || ngsStatsData.length === 0) return <div></div>
 
         const filtered = ngsStatsData.filter((entry) => entry.Name.includes(selectedSample));
         let sample = {};
@@ -327,9 +313,34 @@ function ProjectPage(props){
             sample = filtered[0];
         }
         const graphs = sample.graphs || [];
+
+        if(recipe.includes(CELL_RANGER_APPLICATION_COUNT)){
+            return <CellRangerCount title={title}
+                                    graphs={graphs}/>
+        } else {
+            return <CellRangerVdj title={title}
+                                  graphs={graphs}/>
+        }
+    };
+
+    const renderGraphContainer = (sampleId) => {
+        if(serviceErrors[NGS_STATS]){
+            return <div className={"black-border"}>
+                <p className={'text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
+            </div>
+        }
+
+        if(ngsStatsData === null || projectInfo === null){
+            return <div className={"black-border"}>
+                <div className="loader margin-auto"></div>
+            </div>
+        };
+
         const chartsLinks = projectInfo.chartsLinks || {};
         const chartNames = Object.keys(chartsLinks);
-        const title = `Sample ${selectedSample} Graphs`;
+
+        // TODO - Make this more modular w/ NGSStatsData
+        const title = (ngsStatsData && ngsStatsData.length > 0) ? `Sample ${selectedSample} Graphs` : 'Coverage Graph';
 
         return <div>
             <div className={"pos-rel nav-container"} onClick={toggleGraph}>
@@ -346,13 +357,8 @@ function ProjectPage(props){
                     </div>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
                         {
-                            // TODO - Put this into a util function since it is used in many places
-                            recipe.includes(CELL_RANGER_APPLICATION_COUNT)?
-                                <CellRangerCount title={title}
-                                                 graphs={graphs}/>
-                        :
-                                <CellRangerVdj title={title}
-                                               graphs={graphs}/>
+                            (ngsStatsData && ngsStatsData.length > 0)?
+                                renderNgsGraphs(title) : <CoverageChart data={gridData}/>
                         }
                     </div>
                     { chartNames.length > 0 ?
@@ -415,7 +421,7 @@ function ProjectPage(props){
             </div>
         }
 
-        const hideGrid = (gridData.length === 0 || headers.length === 0)
+        const hideGrid = (gridData.length === 0 || headers.length === 0);
         const display = hideGrid ? 'block' : 'none';
         const columnOrder = getColumnOrder();
         const qcStatuses = projectInfo ? projectInfo.statuses || {} : {};
@@ -445,7 +451,7 @@ function ProjectPage(props){
     };
     return <div key={pId}>
             {renderSummary(projectInfo)}
-            {renderNgsGraphs(selectedSample)}
+            {renderGraphContainer(selectedSample)}
             {renderGrid(gridData,headers)}
         </div>;
 }
