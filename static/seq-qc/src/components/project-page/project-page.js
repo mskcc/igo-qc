@@ -396,7 +396,11 @@ function ProjectPage(props){
         if(ngsStatsData && Object.keys(ngsStatsData).length > 0){
             const ngsHeaders = Object.keys(ngsStatsData[0]);
             const filtered = ngsHeaders.filter((header) => !NGS_HEADERS_TO_REMOVE.includes(header));
+
+            // TODO - Better way to do this. These are mandatory columns
+            filtered.unshift('Sample');
             filtered.unshift('QC Status');
+            
             return filtered;
         }
 

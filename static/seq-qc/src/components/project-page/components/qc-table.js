@@ -62,6 +62,8 @@ class QcTable extends React.Component {
             const data = Object.assign([], this.props.data);
             const headers = this.props.headers || [];
             const numericColumns = this.getNumericColumns(data, headers);
+
+            // Removed headers are any headers not passed in as a columnOrder property
             const removedHeaders = new Set(
                 headers.filter((header) => {
                     return this.props.columnOrder.indexOf(header) < 0;
