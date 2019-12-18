@@ -105,7 +105,8 @@ function HomePage() {
     };
 
     const handleProjectSearch = (evt) => {
-        setProjectSearch(evt.target.value);
+        const query = evt.target.value || '';
+        setProjectSearch(query.toUpperCase());
     };
     const ButtonToNavigate = ({ history }) => (
         <MuiButton
