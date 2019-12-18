@@ -20,7 +20,6 @@ import smtplib
 from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
-from flask_pymongo import PyMongo
 
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))

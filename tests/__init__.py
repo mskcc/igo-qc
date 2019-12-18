@@ -5,6 +5,8 @@ sys.path.insert(0, os.path.abspath("tests/mock_modules"))
 import mock_logger
 sys.modules['logger'] = __import__('mock_logger')
 
+sys.modules['uwsgi'] = {}
+
 sys.path.insert(0, os.path.abspath("app"))
 from .context import project
 
@@ -18,9 +20,8 @@ from lims_get_project_qc_chipSeq import lims_chip_seq
 from lims_qc_status_label import lims_qc_status_label
 
 from unittest.mock import patch
-@patch('project.get_jwt_identity')
-def test_get_project_info(get_jwt_identity):
-    get_jwt_identity.return_value = 'user1'
+@patch('project.session')
+def test_get_project_info(session):
     print("***************************\n****** Project Test *******\n***************************")
     print("Success" if test_get_project_info_multiple_recipes() else "Failure")
     print("Success" if test_get_project_info_single_recipe() else "Failure")
