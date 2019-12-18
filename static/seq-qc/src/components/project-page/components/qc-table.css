@@ -1,4 +1,7 @@
 /* TODO: DELETE UNLESS CHECKBOX is being used */
+.handsontable td {
+    height: 25px;
+}
 .handsontable td.unselected,
 .handsontable td.selected {
     text-align: center

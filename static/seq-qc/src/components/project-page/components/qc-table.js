@@ -375,12 +375,7 @@ class QcTable extends React.Component {
                             }
                             if(data === 'QC Status'){
                                 col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center height-25 hover"><p class="margin-1">${value}</p></div>`;
-                                    return td;
-                                }
-                            } else {
-                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="height-25 text-align-center"><p class="margin-1">${value}</p></div>`;
+                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
                                     return td;
                                 }
                             }
