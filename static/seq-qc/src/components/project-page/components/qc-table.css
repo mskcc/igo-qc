@@ -2,6 +2,9 @@
 .handsontable td {
     height: 25px;
 }
+.handsontable th {
+    height: 25px !important;
+}
 .handsontable td.unselected,
 .handsontable td.selected {
     text-align: center

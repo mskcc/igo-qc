@@ -26,7 +26,7 @@ class QcTable extends React.Component {
             selected: [],
             statusChange: '',
             searchTerm: '',
-            rowHeight: 25,                   // If this is changed, modify the renderer to reflect the new height (default: 23px)
+            rowHeight: 25,                   // Reflects handsontable classes, ".handsontable td/th" (Default: 23px)
             showRemoveColumn: false,
             filteredData: [],                // This needs to be updated whenever displayedData/removedColumns changes
             // For QC status change
