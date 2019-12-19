@@ -27,7 +27,7 @@ pkg:
 
 pkg-dev:
 	make test && \
-	python3 settings_writer.py dev && \
+	python3 settings_writer.py prod && \
 	cp ./lims_user_config_dev ./app/lims_user_config && \
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
