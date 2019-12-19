@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faFile } from '@fortawesome/free-solid-svg-icons'
 import { getRecentRuns } from "../../services/igo-qc-service";
 import config from '../../config.js';
+import {MODAL_SUCCESS, MODAL_UPDATE} from "../../resources/constants";
 
 /**
  * Router for Recent Runs
@@ -25,8 +26,11 @@ const RunRouter = (props) => {
     const updateRecentRuns = (range = numDays) => {
         getRecentRuns(range)
             .then((resp) => {
-                const recentRuns = resp.recentRuns || [];
-                setRecentRuns(recentRuns);
+                if(recentRuns){
+                    // Non-null "recentRuns" indicates page is being updated by user action, not initialized
+                    props.addModalUpdate(MODAL_SUCCESS, 'Updated Recent Runs');
+                }
+                setRecentRuns(resp.recentRuns || []);
             })
             .catch(error => {
                 setRecentRuns([]);
@@ -127,6 +131,7 @@ const RunRouter = (props) => {
                     isValidRange(tempNumDays) && (numDays !== tempNumDays) ?
                         <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
                              onClick={() => {
+                                 props.addModalUpdate(MODAL_UPDATE, `Querying Recent Runs from past ${tempNumDays} days`);
                                  setNumDays(tempNumDays);
                                  updateRecentRuns(tempNumDays);
                              }}>
@@ -144,5 +149,5 @@ const RunRouter = (props) => {
 export default RunRouter;
 
 RunRouter.propTypes = {
-    projects: PropTypes.array
+    addModalUpdate: PropTypes.func
 };

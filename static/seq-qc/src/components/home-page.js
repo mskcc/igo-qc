@@ -145,7 +145,8 @@ function HomePage() {
                         <Route exact path={config.SITE_HOME}>
                             <Home recentDeliveries={recentDeliveries}
                                   projectsToReview={projectsToReview}
-                                  projectsToSequenceFurther={projectsToSequenceFurther}/>
+                                  projectsToSequenceFurther={projectsToSequenceFurther}
+                                  addModalUpdate={addModalUpdate}/>
                         </Route>
                         <Route
                             path={`${config.SITE_HOME}projects/:pid`}

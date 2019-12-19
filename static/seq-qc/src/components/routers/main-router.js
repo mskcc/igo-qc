@@ -24,7 +24,7 @@ const App = (props) => {
                         </div>
                         <h3 className={"margin-0"}>Recent Runs</h3>
                         <div className="padding-vert-15 project-router-container">
-                            <RunRouter/>
+                            <RunRouter addModalUpdate={props.addModalUpdate}/>
                         </div>
                     </div>
                 </div>
@@ -38,4 +38,5 @@ ProjectRouter.propTypes = {
     projectsToReview: PropTypes.array,              // NULL ALLOWED
     projectsToSequenceFurther: PropTypes.array,     // NULL ALLOWED
     recentDeliveries: PropTypes.array,              // NULL ALLOWED
+    addModalUpdate: PropTypes.func
 };
