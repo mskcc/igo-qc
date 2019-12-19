@@ -42,7 +42,6 @@ function HomePage() {
 
     // NOTE - Ordering matters. RecentRuns request doesn't query the LIMS so this will return faster
     useEffect(() => {
-        addModalUpdate(MODAL_UPDATE, 'We have removed project 10071 from the page. Please refer to the "Data QC 12/16" email for its data', 10000);
         getRecentRuns()
             .then((resp) => {
                 const recentRuns = resp.recentRuns || [];
@@ -57,11 +56,8 @@ function HomePage() {
         // TODO - modal to display error
         getSeqAnalysisProjects()
             .then((resp) => {
-                let projectsToReview = resp.projectsToReview || [];
-                let projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
-
-                projectsToReview = projectsToReview.filter((prj) => {return prj.requestId !== '10071'});
-                // projectsToSequenceFurther = projectsToSequenceFurther.map((prj) => {return prj.requestId !== '10071'});
+                const projectsToReview = resp.projectsToReview || [];
+                const projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
 
                 setProjectsToReview(projectsToReview);
                 setProjectsToSequenceFurther(projectsToSequenceFurther);
