@@ -1,24 +1,36 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faFile } from '@fortawesome/free-solid-svg-icons'
-
+import { getRecentRuns } from "../../services/igo-qc-service";
 import config from '../../config.js';
 
 /**
  * Router for Recent Runs
  */
 const RunRouter = (props) => {
-    const renderHeaders = () => {
-        const headers = ["Lane Name", "Date", "Lane Summary", "Run Stats"];
+    const [numDays, setNumDays] = useState(7);
+    const [tempNumDays, setTempNumDays] = useState(numDays);
+    const [recentRuns, setRecentRuns] = useState(null);
 
-        return <thead><tr className="fill-width">
-            { headers.map( (field) =>
-                <th className="project-field" key={field}>
-                    <p className="font-size-16 font-bold">{field}</p>
-                </th>)
-            }
-        </tr></thead>;
+    useEffect(() => {
+        updateRecentRuns();
+    }, []);
+
+    /**
+     * Submits request to obtain recent run information.
+     *
+     * @param range - Number of days from today to query for recent runs
+     */
+    const updateRecentRuns = (range = numDays) => {
+        getRecentRuns(range)
+            .then((resp) => {
+                const recentRuns = resp.recentRuns || [];
+                setRecentRuns(recentRuns);
+            })
+            .catch(error => {
+                setRecentRuns([]);
+            });
     };
 
     const formatRunName = (htmlName) =>{
@@ -28,40 +40,9 @@ const RunRouter = (props) => {
         return name;
     };
 
-    const renderRuns = () => {
-        const runElements = [];
-        for( const run of props.projects ){
-            const name = formatRunName(run.runName);
-            const element = <tr className="fill-width project-row" key={run.runName}>
-                <td className="project-field field-header text-align-center" key={`${name}-href`}>
-                    <p>{ name }</p>
-                </td>
-                <td className="project-field field-header text-align-center" key={`${run.runName}-date`}>
-                    <p>{run.date}</p>
-                </td>
-                <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
-                    <button className="btn btn-primary run-info-button">
-                        <a href={`/seq-qc/${run.path}`} target="_blank">
-                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
-                        </a>
-                    </button>
-                </td>
-                <td className={"text-align-center"}>
-                    <button className="btn btn-primary run-info-button">
-                        <a href={`${config.SITE_HOME}${run.runStats}`} target="_blank">
-                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
-                        </a>
-                    </button>
-                </td>
-            </tr>;
-            runElements.push(element);
-        }
-        return <tbody>{runElements}</tbody>;
-    };
-
-    const hasData = () => {return props.projects && props.projects.length > 0};
-    const noData = () => {return props.projects && props.projects.length === 0};
-    const loadingData = () => {return props.projects === null;};
+    const hasData = () => {return recentRuns && recentRuns.length > 0};
+    const noData = () => {return recentRuns && recentRuns.length === 0};
+    const loadingData = () => {return recentRuns === null;};
     const renderTable = () => {
         // Visualize projects if present and state has been populated w/ fields to visualize
         if(hasData()){
@@ -79,8 +60,82 @@ const RunRouter = (props) => {
         }
     };
 
+    const isValidRange = (n) => {
+        const num = parseInt(n);
+        if(!Number.isInteger(num)) return false;
+        if(num < 1) return false;
+        return true;
+    };
+
+    const renderHeaders = () => {
+        const headers = ["Lane Name", "Date", "Lane Summary", "Run Stats"];
+
+        return <thead><tr className="fill-width">
+            { headers.map( (field) =>
+                <th className="project-field" key={field}>
+                    <p className="font-size-16 font-bold">{field}</p>
+                </th>)
+            }
+        </tr></thead>;
+    };
+
+    const renderRuns = () => {
+        const runElements = [];
+        for( const run of recentRuns ){
+            const name = formatRunName(run.runName);
+            const element = <tr className="fill-width project-row" key={run['runName']}>
+                <td className="project-field field-header text-align-center" key={`${name}-href`}>
+                    <p>{ name }</p>
+                </td>
+                <td className="project-field field-header text-align-center" key={`${run['runName']}-date`}>
+                    <p>{run.date}</p>
+                </td>
+                <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
+                    <button className="btn btn-primary run-info-button">
+                        <a href={`/seq-qc/${run.path}`} target="_blank">
+                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
+                        </a>
+                    </button>
+                </td>
+                <td className={"text-align-center"}>
+                    <button className="btn btn-primary run-info-button">
+                        <a href={`${config.SITE_HOME}${run['runStats']}`} target="_blank">
+                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
+                        </a>
+                    </button>
+                </td>
+            </tr>;
+            runElements.push(element);
+        }
+        return <tbody>{runElements}</tbody>;
+    };
+
     return (
         <div>
+            <div className={"box height-50px inline-block"}>
+                <div className={"width-300px pos-rel inline-block text-align-center"}>
+                    <label className={"inline-block"}>
+                        <p className={"inline-block"}>Query from past</p>
+                        <input className={"width-50px inline-block margin-left-10"}
+                               type="text"
+                               value={tempNumDays}
+                               onChange={(evt) => setTempNumDays(evt.target.value)}/>
+                        <p className={"inline-block margin-left-10"}>Days</p>
+                    </label>
+                </div>
+                {
+                    isValidRange(tempNumDays) && (numDays !== tempNumDays) ?
+                        <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
+                             onClick={() => {
+                                 setNumDays(tempNumDays);
+                                 updateRecentRuns(tempNumDays);
+                             }}>
+                            <p>Update</p>
+                        </div>
+                    :
+                        <div></div>
+                }
+            </div>
             {renderTable()}
         </div>
     );

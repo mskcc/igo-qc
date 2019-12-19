@@ -363,10 +363,16 @@ def get_recent_runs():
 
     app.logger.info("Found %d runs at %s" % (len(dir_data), dir_path))
 
+    days = request.args.get('days')
+    try:
+        latest_age = 7 if (days == None) else int(days)
+    except ValueError:
+        app.logger.error('Could not parse date range from value: ' +  days)
+        latest_age = 7
+    app.logger.info("Returning files last modified less than %d days ago" % latest_age)
+
     # Add Recent Runs data for links to HTML files
     datenow = datetime.datetime.now()
-    latest_age = 7
-    app.logger.info("Returning files last modified less than %d days ago" % latest_age)
     run_data = []
     for eachfile in dir_data:
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(eachfile))

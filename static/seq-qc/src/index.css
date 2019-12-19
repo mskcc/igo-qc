@@ -38,6 +38,15 @@ h3 {
 .width-85 {
     width: 85%;
 }
+.width-50px {
+    width: 30px;
+}
+.width-80px {
+    width: 65px;
+}
+.width-300px {
+    width: 300px
+}
 .font-bold {
     font-weight: bold;
 }
@@ -109,6 +118,9 @@ h3 {
 }
 .height-25 {
     height: 25px;
+}
+.height-50px {
+    height: 50px;
 }
 .body-container {
     min-height: 80vh
@@ -439,23 +451,14 @@ footer {
     display: block;
 }
 .box {
-    width: 400px;
     background-color: #fff;
     border-radius: 6px;
     box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
     color: #4a4a4a;
-    display: block;
-    padding: 1.25rem;
-}
-.input {
-    padding: 8px;
 }
 .btn-info {
     background-color: #209cee;
-    border-color: transparent;
     color: #fff;
-    padding: 10px;
-    border-radius: 5px;
 }
 .tooltip {
     position: relative;

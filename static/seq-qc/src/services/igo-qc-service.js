@@ -68,9 +68,9 @@ export const submitFeedback = (body, subject, type) => {
 /**
  * Sends service call to retrieve chart data about most recent runs
  */
-export function getRecentRuns() {
+export function getRecentRuns(numDays) {
     return axios
-        .get(config.IGO_QC + '/getRecentRuns')
+        .get( `${config.IGO_QC}/getRecentRuns?days=${numDays}`)
         .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Unable to fetch Recent Runs: ' + error) });
 }

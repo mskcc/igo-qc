@@ -4,7 +4,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 import Home from './routers/main-router.js';
 import CellRanger from './project-page/project-page.js';
-import { getRequestProjects, getSeqAnalysisProjects, getRecentRuns } from "../services/igo-qc-service";
+import { getRequestProjects, getSeqAnalysisProjects } from "../services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './common/modal';
 import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "../resources/constants";
@@ -16,12 +16,11 @@ import Feedback from './common/feedback';
 function HomePage() {
     /*
         Project lists are initialised as null so "Loading" indicators can distinguish between pending service calls
-        and responses that do not return data. IF RENDERED, A DEFAULT VALUE MUST BE PROVIDED (e.g. "recentRuns || []")
+        and responses that do not return data. IF RENDERED, A DEFAULT VALUE MUST BE PROVIDED
     */
     const [projectsToReview, setProjectsToReview] = useState(null);
     const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState(null);
     const [recentDeliveries, setRecentDeliveries] = useState(null);
-    const [recentRuns, setRecentRuns] = useState(null);
 
     const [projectSearch, setProjectSearch] = useState('');
     const [modalUpdate, setModalUpdate] = useState({});
@@ -40,18 +39,6 @@ function HomePage() {
         setModalUpdate(modalUpdate);
     };
 
-    // NOTE - Ordering matters. RecentRuns request doesn't query the LIMS so this will return faster
-    useEffect(() => {
-        getRecentRuns()
-            .then((resp) => {
-                const recentRuns = resp.recentRuns || [];
-                setRecentRuns(recentRuns);
-            })
-            .catch(error => {
-                setRecentRuns([]);
-                addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
-            });
-    }, []);
     useEffect(() => {
         // TODO - modal to display error
         getSeqAnalysisProjects()
@@ -158,8 +145,7 @@ function HomePage() {
                         <Route exact path={config.SITE_HOME}>
                             <Home recentDeliveries={recentDeliveries}
                                   projectsToReview={projectsToReview}
-                                  projectsToSequenceFurther={projectsToSequenceFurther}
-                                  recentRuns={recentRuns}/>
+                                  projectsToSequenceFurther={projectsToSequenceFurther}/>
                         </Route>
                         <Route
                             path={`${config.SITE_HOME}projects/:pid`}
