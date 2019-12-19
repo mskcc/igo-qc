@@ -539,16 +539,17 @@ def project_info(pId):
         get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
     # TODO - picklist constant
-    qc_status_label_resp = get_cached_data(CACHE_PICKLIST)
-    if not qc_status_label_resp:
+    qc_status_label_content = get_cached_data(CACHE_PICKLIST)
+    if not qc_status_label_content:
         qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
         app.logger.info('Submitting request to %s' % qc_status_label_url)
         qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
-        cache_data(CACHE_PICKLIST, qc_status_label_resp.content, CACHE_TIME_LONG)
+        qc_status_label_content = qc_status_label_resp.content
+        cache_data(CACHE_PICKLIST, qc_status_label_content, CACHE_TIME_LONG)
 
     try:
         get_project_qc = json.loads(get_project_qc_resp)
-        qc_status_label = json.loads(qc_status_label_resp)
+        qc_status_label = json.loads(qc_status_label_content)
     except TypeError:
         return create_resp(False, 'Error requesting from LIMS', None)
 
