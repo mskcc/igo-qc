@@ -166,15 +166,24 @@ def get_project_type(samples):
             'SMARTerAmpSeq' in project_recipe or \
             '96Well_SmartSeq2' in project_recipe:
         project_type['table'].append('rna')
-    if 'baitSet' in project_qc:
+    sampleQcs_with_baitSet = get_sampleQcs_with_baitSet(samples)
+    if len(sampleQcs_with_baitSet) > 0:
         project_type['table'].append('hs')
-        project_type['baitSet'] = project_qc['baitSet']
+        # Take the baitSet of one of the samples w/ a baitSet
+        project_type['baitSet'] = sampleQcs_with_baitSet[0]['baitSet']
     if 'HumanWholeGenome' in project_recipe:
         project_type['table'].append('wgs')
     if len(project_type['table']) == 0:
         project_type['table'].append('md')
-
     return project_type
+
+def get_sampleQcs_with_baitSet(samples):
+    """ Returns qc entries for samples with a baitSet entry in their qc.
+            Note: Some projects will have samples w/ & w/o baitSets
+        samples, Object[]
+    """
+    sample_qc_list = map(lambda sample: {} if 'qc' not in sample else sample['qc'], samples)
+    return list(filter(lambda qc_entry: 'baitSet' in qc_entry, sample_qc_list))
 
 def get_header(project_type):
     header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
