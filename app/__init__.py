@@ -27,7 +27,7 @@ config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_co
 config_options = yaml.load(open(config, "r"))
 
 # Constants
-from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID
+from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID, CACHE_PROJECT_PREFIX, CACHE_PICKLIST
 from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
 
 # Configure app
@@ -422,6 +422,11 @@ def change_run_status():
         if len(id_status_success) > 0:
             successful_requests[id] = id_status_success
 
+    # Update the cache for this project to reflect the new run status
+    project_key = '%s%s' % (CACHE_PROJECT_PREFIX, project)
+    get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+project
+    get_and_cache_project_info(get_project_qc_url, project_key)
+
     success = len(failed_requests) == 0
     status = ('Set QC Status' if success else "See 'failedRequests'")
 
@@ -498,34 +503,55 @@ def project_qc(pId):
     project_qc_info = get_project_qc[0]
     return create_resp(True, 'success', project_qc_info)
 
+def get_and_cache_project_info(url, key):
+    app.logger.info('Submitting request to %s' % url)
+    resp = s.get(url, auth=(USER, PASSW), verify=False)
+    content = resp.content
+
+    try:
+        data = json.loads(content)
+    except TypeError:
+        app.logger.error("Failure converting service response")
+        return {}
+
+    entry = data[0]
+    samples = [] if 'samples' not in entry else entry['samples']
+    num_samples = len(samples)
+
+    if num_samples > 200:
+        # TODO - large requests will be cached for a long time
+        cache_data(key, content, CACHE_TIME_LONG)
+    else:
+        cache_data(key, content, CACHE_TIME_SHORT)
+
+    return content
+
 @app.route('/projectInfo/<pId>', methods=['GET'])
 def project_info(pId):
     if not is_project_id_valid(pId):
         return create_resp(False, 'Invalid pId', {})
 
-    # TODO - Cache this response
-    # TODO - DELETE
-    # qc_status_label_resp = s.get(LIMS_API_ROOT + "/getPickListValues?list=Sequencing+QC+Status", auth=(USER, PASSW), verify=False)
-    # get_project_qc_resp = s.get(LIMS_API_ROOT + "/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
+    # TODO - project_prefix constant
+    project_key = '%s%s' % (CACHE_PROJECT_PREFIX, pId)
+    get_project_qc_resp = get_cached_data(project_key)
+    if not get_project_qc_resp:
+        get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
+        get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
-    # get_project_qc_resp = ProjectQc.resp
-    # qc_status_label_resp = GetPickListValue.resp
-    # TODO - ADD
-
-    # TODO - This doesn't need to happen w/ every request...
-    qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
-    app.logger.info('Submitting request to %s' % qc_status_label_url)
-    qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
-
-    get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
-    app.logger.info('Submitting request to %s' % get_project_qc_url)
-    get_project_qc_resp = s.get(get_project_qc_url, auth=(USER, PASSW), verify=False)
+    # TODO - picklist constant
+    qc_status_label_resp = get_cached_data(CACHE_PICKLIST)
+    if not qc_status_label_resp:
+        qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
+        app.logger.info('Submitting request to %s' % qc_status_label_url)
+        qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
+        cache_data(CACHE_PICKLIST, qc_status_label_resp.content, CACHE_TIME_LONG)
 
     try:
-        qc_status_label = json.loads(qc_status_label_resp.content)
-        get_project_qc = json.loads(get_project_qc_resp.content)
+        get_project_qc = json.loads(get_project_qc_resp)
+        qc_status_label = json.loads(qc_status_label_resp)
     except TypeError:
         return create_resp(False, 'Error requesting from LIMS', None)
+
     if len(get_project_qc) == 0:
         return create_resp(False, 'No project data', None)
 
@@ -675,6 +701,7 @@ def get_interops_data():
     return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
 def get_cached_data(key):
+    # TODO - Do a json-dumps so that any data-type can be cached
     if uwsgi.cache_exists(key, CACHE_NAME):
         data = uwsgi.cache_get(key, CACHE_NAME)
         app.logger.info("Using cached data for %s" % key)
@@ -684,7 +711,7 @@ def get_cached_data(key):
 
 def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
-    uwsgi.cache_set(key, content, time, CACHE_NAME)
+    uwsgi.cache_update(key, content, time, CACHE_NAME)
 
 if __name__ == '__main__':
     app.run()

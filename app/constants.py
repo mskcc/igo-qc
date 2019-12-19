@@ -11,5 +11,9 @@ RECIPE_HEMEPACT = 'hemepact'
 RECIPE_IMPACT = 'impact'
 RECIPE_MSK_ACCESS = 'msk-access'
 
+# Cache constants
+CACHE_PROJECT_PREFIX = 'Project_'
+CACHE_PICKLIST = 'picklist'
+
 # Flask Constants
 USER_ID = "user_id"
