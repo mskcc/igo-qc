@@ -25,6 +25,16 @@ pkg:
 	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
 	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
 
+pkg-dev:
+	make test && \
+	python3 settings_writer.py dev && \
+	cp ./lims_user_config_dev ./app/lims_user_config && \
+	mkdir -p dist && \
+	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
+	cat deployed_directories.txt | xargs -I '{}' cp -rf ./'{}' ./dist && \
+	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
+	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
+
 clean:
 	rm -rf dist
 
@@ -38,7 +48,7 @@ deploy:
 	make clean && make pkg && make move
 
 deploy-dev:
-	make clean && make pkg && make move-dev
+	make clean && make pkg-dev && make move-dev
 
 test:
 	python3 test_app.py
