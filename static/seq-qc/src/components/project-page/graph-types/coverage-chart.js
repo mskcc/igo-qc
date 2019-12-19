@@ -66,7 +66,6 @@ const CoverageChart = (props) => {
             const row = [`${coverages[i]}X`, tumorCounts[i], normalCounts[i]];
             tableData.push(row);
         }
-        debugger;
         return tableData;
     };
     return <div>
