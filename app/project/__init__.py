@@ -166,6 +166,7 @@ def get_project_type(samples):
             'SMARTerAmpSeq' in project_recipe or \
             '96Well_SmartSeq2' in project_recipe:
         project_type['table'].append('rna')
+    # TODO - Test this (E.g. https://igo.mskcc.org/run-qc/projects/10212_B)
     sampleQcs_with_baitSet = get_sampleQcs_with_baitSet(samples)
     if len(sampleQcs_with_baitSet) > 0:
         project_type['table'].append('hs')
