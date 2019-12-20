@@ -259,7 +259,12 @@ class QcTable extends React.Component {
         if(tableTypes.length === 1){
             // TODO - Handle case of multiple table types/recipes
             saveConfig(tableTypes[0], newColumnOrder).then((resp) => {
-                this.props.addModalUpdate(MODAL_UPDATE, resp, 2000);
+                if(!resp || resp.toLowerCase().includes('fail')){
+                    this.props.addModalUpdate(MODAL_ERROR, 'Failed to update configuration', 2000);
+                }
+                else {
+                    this.props.addModalUpdate(MODAL_UPDATE, resp, 2000);
+                }
             })
         } else {
             this.props.addModalUpdate(MODAL_ERROR, `Not saving configuration for project w/ ${tableTypes.length} recipes`);

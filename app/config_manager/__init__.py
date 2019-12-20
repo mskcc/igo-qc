@@ -33,7 +33,7 @@ def save_config():
     return create_resp(True, 'Saved Configuration', 'Successfully saved configurations' )
 
 def is_valid_config(type, value):
-    if type and type in ["wgs", "hs", "rns", "md", "default"]:
+    if type and type in ["wgs", "hs", "rna", "md", "default"]:
         if isinstance(value, list):
             return True
     return False
