@@ -37,26 +37,31 @@ const RunRouter = (props) => {
             });
     };
 
+    /**
+     * Helper function to return human readable name for laneBarcode file
+     */
     const formatRunName = (htmlName) =>{
         if(!htmlName) return "";
-
         const name = htmlName.split("_laneBarcode.html")[0]
         return name;
     };
 
-    const hasData = () => {return recentRuns && recentRuns.length > 0};
-    const noData = () => {return recentRuns && recentRuns.length === 0};
-    const loadingData = () => {return recentRuns === null;};
+    /**
+     * Renders table of projects
+     */
     const renderTable = () => {
+        const hasData = recentRuns && recentRuns.length > 0;
+        const noData = recentRuns && recentRuns.length === 0;
+        const loadingData = recentRuns === null;
         // Visualize projects if present and state has been populated w/ fields to visualize
-        if(hasData()){
+        if(hasData){
             return <table className="project-table fill-width">
                 {renderHeaders()}
                 {renderRuns()}
             </table>
-        } else if(noData()) {
+        } else if(noData) {
             return <div><p className={'text-align-center'}>No Runs available</p></div>
-        } else if(loadingData()){
+        } else if(loadingData){
             return <div className="loader margin-auto"></div>;
         } else {
             // Shouldn't ever be reached
