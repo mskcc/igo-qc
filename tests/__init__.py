@@ -21,7 +21,8 @@ from lims_qc_status_label import lims_qc_status_label
 
 from unittest.mock import patch
 @patch('project.session')
-def test_get_project_info(session):
+@patch('project.get_user_configuration_object')
+def test_get_project_info(session, get_user_configuration_object):
     print("***************************\n****** Project Test *******\n***************************")
     print("Success" if test_get_project_info_multiple_recipes() else "Failure")
     print("Success" if test_get_project_info_single_recipe() else "Failure")
