@@ -97,7 +97,8 @@ function App() {
                     </div>
                     <div className={"inline-block margin-left-10"}>
                         <label>
-                            <h6 className={"inline white-color"}>Project:</h6>
+                            <h6 className={"inline white-color"}>HELLO WQORLD
+                            </h6>
                         </label>
                         <input className={"inline vertical-align-top project-search margin-left-10"}
                                type="text"
