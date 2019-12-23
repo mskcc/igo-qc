@@ -47,7 +47,7 @@ function ProjectPage(props){
      * @param pId
      */
     const fetchRecipe = (pId) => {
-        if(!recipe && (props.projectMap[pId] || (projectInfo && Object.keys(projectInfo).length > 0))){
+        if(!recipe && (projectInfo && Object.keys(projectInfo).length > 0)){
             if(projectInfo && Object.keys(projectInfo).length > 0){
                 const projectType = projectInfo['projectType'];
                 const recipe = projectType['recipe'] || '';
@@ -459,6 +459,5 @@ function ProjectPage(props){
 export default ProjectPage;
 
 ProjectPage.propTypes = {
-    projectMap: PropTypes.object,
     addModalUpdate: PropTypes.func
 };

@@ -26,9 +26,6 @@ function App() {
     const [modalUpdate, setModalUpdate] = useState({});
     const [showFeedback, setShowFeedback] = useState(false);
 
-    // TODO - Implement response caching
-    const [projectMap, setProjectMap] = useState({});           // ProjectMap keeps track of data needed by components
-
     // TODO - constants for modal type
     const addModalUpdate = (type, msg, delay) => {
         const modalUpdate = {
@@ -48,9 +45,6 @@ function App() {
 
                 setProjectsToReview(projectsToReview);
                 setProjectsToSequenceFurther(projectsToSequenceFurther);
-
-                addToProjectMap(projectsToReview);
-                addToProjectMap(projectsToSequenceFurther);
             })
             .catch(error => {
                 // Allow rendering of an empty list
@@ -72,25 +66,6 @@ function App() {
                 addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
             });
     }, []);
-
-    const addToProjectMap = (projectList) => {
-        if(projectList.length === 0) return;
-
-        for(let project of projectList){
-            const id = project['requestId'];
-            const recipe = project['requestType'];
-
-            // THIS SHOULD NEVER HAPPEN
-            if(projectMap[id]){
-                throw new Error('TRYING TO REPLACE AN EXISTING REQUEST ID');
-            }
-
-            if(id){
-                projectMap[id] = { recipe }
-            }
-        }
-        setProjectMap(projectMap);
-    };
 
     const handleProjectSearch = (evt) => {
         const query = evt.target.value || '';
@@ -150,7 +125,7 @@ function App() {
                         </Route>
                         <Route
                             path={`${config.SITE_HOME}projects/:pid`}
-                            render={(props) => <CellRanger {...props} projectMap={projectMap} addModalUpdate={addModalUpdate}/>}
+                            render={(props) => <CellRanger {...props} addModalUpdate={addModalUpdate}/>}
                         />
                     </Switch>
                 </div>

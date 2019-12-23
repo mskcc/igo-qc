@@ -20,7 +20,6 @@ describe('ProjectPage', () => {
         mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, projectInfo);
 
         const props = {
-            projectMap: {},
             // Param for url-match
             match: {
                 params: { pid }
