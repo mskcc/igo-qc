@@ -21,23 +21,11 @@ function App() {
     const [projectsToReview, setProjectsToReview] = useState(null);
     const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState(null);
     const [recentDeliveries, setRecentDeliveries] = useState(null);
-
     const [projectSearch, setProjectSearch] = useState('');
     const [modalUpdate, setModalUpdate] = useState({});
     const [showFeedback, setShowFeedback] = useState(false);
 
-    // TODO - constants for modal type
-    const addModalUpdate = (type, msg, delay) => {
-        const modalUpdate = {
-            msg: msg,
-            type: type,
-            delay: delay || 5000
-        };
-        setModalUpdate(modalUpdate);
-    };
-
     useEffect(() => {
-        // TODO - modal to display error
         getSeqAnalysisProjects()
             .then((resp) => {
                 const projectsToReview = resp.projectsToReview || [];
@@ -52,9 +40,6 @@ function App() {
                 setProjectsToSequenceFurther([]);
                 addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
             });
-    }, []);
-    useEffect(() => {
-        // TODO - modal to display error
         getRequestProjects()
             .then((resp) => {
                 const recentDeliveries = resp.recentDeliveries || [];
@@ -67,24 +52,36 @@ function App() {
             });
     }, []);
 
+    const addModalUpdate = (type, msg, delay) => {
+        const modalUpdate = {
+            msg: msg,
+            type: type,
+            delay: delay || 5000
+        };
+        setModalUpdate(modalUpdate);
+    };
     const handleProjectSearch = (evt) => {
         const query = evt.target.value || '';
         setProjectSearch(query.toUpperCase());
     };
-    const ButtonToNavigate = ({ history }) => (
-        <MuiButton
-            variant="contained"
-            type="submit"
-            onClick={() => history.push(`${config.SITE_HOME}projects/` + projectSearch)}
-            className={"project-search-submit vertical-align-top project-search margin-left-10"}
-            disabled={false}
-            size={"small"}>
-            <p className={"margin-0"}>Search</p>
-        </MuiButton>
-    );
-    const SearchButton = () => (
-        <Route path="/" render={(props) => <ButtonToNavigate {...props} title="Navigate to project" />} />
-    );
+
+    /**
+     * Returns a Route component that can push paths to the site history
+     */
+    const SearchButton = () => {
+        return <Route path="/"
+                      render={ (props) => {
+                          return <MuiButton
+                              variant="contained"
+                              type="submit"
+                              onClick={() => props.history.push(`${config.SITE_HOME}projects/` + projectSearch)}
+                              className={"project-search-submit vertical-align-top project-search margin-left-10"}
+                              disabled={false}
+                              size={"small"}>
+                              <p className={"margin-0"}>Search</p>
+                          </MuiButton>
+                      }} />
+    };
 
     return <div>
             <Modal update={modalUpdate}/>
