@@ -62,7 +62,7 @@ function App() {
     };
     const handleProjectSearch = (evt) => {
         const query = evt.target.value || '';
-        setProjectSearch(query.toUpperCase());
+        setProjectSearch(query.toUpperCase().trim());
     };
 
     /**
@@ -94,8 +94,7 @@ function App() {
                     </div>
                     <div className={"inline-block margin-left-10"}>
                         <label>
-                            <h6 className={"inline white-color"}>HELLO WQORLD
-                            </h6>
+                            <h6 className={"inline white-color"}>Project:</h6>
                         </label>
                         <input className={"inline vertical-align-top project-search margin-left-10"}
                                type="text"
