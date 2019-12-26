@@ -19,7 +19,6 @@ const FIELD_MAP = {
  * Router for Projects
  */
 const ProjectRouter = (props) => {
-    // Bit convoluted, but props.projects should be null initially as it is loaded from a service call.
     const [fields, setFields] = useState([]);
     const [headers, setHeaders] = useState([]);
 
