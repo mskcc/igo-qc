@@ -23,18 +23,13 @@ const RunRouter = (props) => {
      *
      * @param range - Number of days from today to query for recent runs
      */
-    const updateRecentRuns = (range = numDays) => {
-        getRecentRuns(range)
-            .then((resp) => {
-                if(recentRuns){
-                    // Non-null "recentRuns" indicates page is being updated by user action, not initialized
-                    props.addModalUpdate(MODAL_SUCCESS, 'Updated Recent Runs');
-                }
-                setRecentRuns(resp.recentRuns || []);
-            })
-            .catch(error => {
-                setRecentRuns([]);
-            });
+    async function updateRecentRuns(range = numDays) {
+        const resp = await getRecentRuns(range);
+        if(recentRuns){
+            // Non-null "recentRuns" indicates page is being updated by user action, not initialized
+            props.addModalUpdate(MODAL_SUCCESS, 'Updated Recent Runs');
+        }
+        setRecentRuns(resp.recentRuns || []);
     };
 
     /**
@@ -53,6 +48,7 @@ const RunRouter = (props) => {
         const hasData = recentRuns && recentRuns.length > 0;
         const noData = recentRuns && recentRuns.length === 0;
         const loadingData = recentRuns === null;
+
         // Visualize projects if present and state has been populated w/ fields to visualize
         if(hasData){
             return <table className="project-table fill-width">
