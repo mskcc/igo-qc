@@ -57,20 +57,13 @@ function ProjectPage(props){
     };
     fetchRecipe(pId);   // Conditionally fetches the recipe if unavailable
 
-    /* Add all actions that should reset on new project id */
+    /* Service Call Effects */
     useEffect(() => {
-        let isSubscribed = true;
-
-        // TODO - Unsubscribe from all service calls in useEffecs
         queryProjectInfo(pId);
-
-        // isSubscribed
-        return () => { isSubscribed = false; };
     }, [pId]);
     useEffect(() => {
-        if(!recipe) return () => {};     // Recipe needs to be available, see "fetchRecipe" recipe
-        queryNgsStatsData(recipe, pId)
-        return () => {};
+        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
+        queryNgsStatsData(recipe, pId);
     }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
 
     /**
@@ -92,28 +85,29 @@ function ProjectPage(props){
      *
      * Sets ngsStatsData in component
      */
-    const queryNgsStatsData = (recipe, pId) => {
-        getNgsStatsData(recipe, pId).then((data) => {
+    async function queryNgsStatsData(recipe, pId){
+        try {
+            const data = await getNgsStatsData(recipe, pId);
             setNgsStatsData(data);
-        })
-        .catch((err) => {
+        } catch(err) {
             addServiceError(NGS_STATS, serviceErrors,setServiceErrors);
             props.addModalUpdate(MODAL_ERROR, 'Ngs Stats Data' + err);
-        });
+        }
     };
     /**
      * Submits request to retrieve data for project from the projectId
      *
      * @param pId, Project ID
      */
-    const queryProjectInfo = (pId) => {
-        getProjectInfo(pId).then((data) => {
+    // Async/await pattern borrowed from here - https://www.robinwieruch.de/react-hooks-fetch-data
+    async function queryProjectInfo(pId) {
+        try {
+            const data = await getProjectInfo(pId)
             setProjectInfo(data);
-        })
-        .catch((err) => {
+        } catch (err) {
             addServiceError(PROJECT_INFO,serviceErrors,setServiceErrors);
             props.addModalUpdate(MODAL_ERROR, 'Project Info: ' + err);
-        })
+        };
     };
 
     /**

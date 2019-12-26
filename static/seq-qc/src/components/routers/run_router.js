@@ -15,12 +15,7 @@ const RunRouter = (props) => {
     const [recentRuns, setRecentRuns] = useState(null);
 
     useEffect(() => {
-        try {
-            updateRecentRuns();
-        } catch(e) {
-            console.error(e);
-            setRecentRuns([]);
-        }
+        updateRecentRuns();
     }, []);
 
     /**
@@ -29,12 +24,17 @@ const RunRouter = (props) => {
      * @param range - Number of days from today to query for recent runs
      */
     async function updateRecentRuns(range = numDays) {
-        const resp = await getRecentRuns(range);
-        if(recentRuns){
-            // Non-null "recentRuns" indicates page is being updated by user action, not initialized
-            props.addModalUpdate(MODAL_SUCCESS, 'Updated Recent Runs');
+        try {
+            const resp = await getRecentRuns(range);
+            if(recentRuns){
+                // Non-null "recentRuns" indicates page is being updated by user action, not initialized
+                props.addModalUpdate(MODAL_SUCCESS, 'Updated Recent Runs');
+            }
+            setRecentRuns(resp.recentRuns || []);
+        } catch(e) {
+            console.error(e);
+            setRecentRuns([]);
         }
-        setRecentRuns(resp.recentRuns || []);
     };
 
     /**
