@@ -14,6 +14,10 @@ describe('Run Router', () => {
     const props = { addModalUpdate: () => {} };
 
     it("Run Router displays load on service call", async() => {
+        /* TODO - "Warning: An update to RunRouter inside a test was not wrapped in act"
+         * Treating above warning as ok :/
+         * Some support issues w/ enzyme & hooks - https://github.com/airbnb/enzyme/issues/2011
+         */
         await act(async() => {
             // No mocking of actual data
             component = mount(<RunRouter {...props}/>);
