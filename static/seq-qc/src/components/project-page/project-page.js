@@ -320,7 +320,7 @@ function ProjectPage(props){
     const renderGraphContainer = (sampleId) => {
         if(serviceErrors[NGS_STATS]){
             return <div className={"black-border"}>
-                <p className={'text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
+                <p className={'load-error text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
             </div>
         }
 
@@ -378,7 +378,7 @@ function ProjectPage(props){
     const renderSummary = (projectInfo) => {
         if(serviceErrors[PROJECT_INFO]){
             return <div className={"black-border"}>
-                <p className={'text-align-center'}>Error loading Project Info stats - Please submit a bug report using the "Feedback" button in the top-right corner</p>
+                <p className={'load-error text-align-center'}>Error loading Project Info stats - Please submit a bug report using the "Feedback" button in the top-right corner</p>
             </div>
         }
         if(!projectInfo){
@@ -411,7 +411,7 @@ function ProjectPage(props){
     const renderGrid = (gridData, headers) => {
         if(serviceErrors[PROJECT_INFO]){
             return <div>
-                <p className={'text-align-center'}>Error loading Project Info stats - Please submit a bug report using the "Feedback" button in the top-right corner</p>
+                <p className={'load-error text-align-center'}>Error loading Project Info stats - Please submit a bug report using the "Feedback" button in the top-right corner</p>
             </div>
         }
 
