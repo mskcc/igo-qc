@@ -15,7 +15,12 @@ const RunRouter = (props) => {
     const [recentRuns, setRecentRuns] = useState(null);
 
     useEffect(() => {
-        updateRecentRuns();
+        try {
+            updateRecentRuns();
+        } catch(e) {
+            console.error(e);
+            setRecentRuns([]);
+        }
     }, []);
 
     /**
