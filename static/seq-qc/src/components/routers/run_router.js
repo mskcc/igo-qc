@@ -120,6 +120,26 @@ const RunRouter = (props) => {
         return <tbody>{runElements}</tbody>;
     };
 
+    /**
+     * Renders Update Button to return runs from a different date range
+     *
+     * @returns {*}
+     */
+    const renderRunUpdateBtn = () => {
+        const showUpdateBtn = isValidRange(tempNumDays) && (numDays !== tempNumDays);
+        if(showUpdateBtn){
+            return <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
+                 onClick={() => {
+                     props.addModalUpdate(MODAL_UPDATE, `Querying Recent Runs from past ${tempNumDays} days`);
+                     setNumDays(tempNumDays);
+                     updateRecentRuns(tempNumDays);
+                 }}>
+                <p>Update</p>
+            </div>
+        }
+        return <div></div>
+    };
+
     return (
         <div>
             <div className={"box height-50px inline-block"}>
@@ -133,19 +153,7 @@ const RunRouter = (props) => {
                         <p className={"inline-block margin-left-10"}>Days</p>
                     </label>
                 </div>
-                {
-                    isValidRange(tempNumDays) && (numDays !== tempNumDays) ?
-                        <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
-                             onClick={() => {
-                                 props.addModalUpdate(MODAL_UPDATE, `Querying Recent Runs from past ${tempNumDays} days`);
-                                 setNumDays(tempNumDays);
-                                 updateRecentRuns(tempNumDays);
-                             }}>
-                            <p>Update</p>
-                        </div>
-                    :
-                        <div></div>
-                }
+                { renderRunUpdateBtn() }
             </div>
             {renderTable()}
         </div>

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 import Home from './components/routers/main-router.js';
-import CellRanger from './components/project-page/project-page.js';
+import ProjectPage from './components/project-page/project-page.js';
 import { getRequestProjects, getSeqAnalysisProjects } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
@@ -122,7 +122,7 @@ function App() {
                         </Route>
                         <Route
                             path={`${config.SITE_HOME}projects/:pid`}
-                            render={(props) => <CellRanger {...props} addModalUpdate={addModalUpdate}/>}
+                            render={(props) => <ProjectPage {...props} addModalUpdate={addModalUpdate}/>}
                         />
                     </Switch>
                 </div>
