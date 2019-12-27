@@ -16,23 +16,23 @@ run-dev:
     uwsgi new-igo-qc.ini;
 
 pkg:
-	make test && \
+	make init && make test && \
 	python3 settings_writer.py prod && \
 	cp ./lims_user_config_prod ./app/lims_user_config && \
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
 	cat deployed_directories.txt | xargs -I '{}' cp -rf ./'{}' ./dist && \
-	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
+	cd ./static/seq-qc && npm install && npm run wbpk:prod && cd - && \
 	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
 
 pkg-dev:
-	make test && \
+	make init && make test && \
 	python3 settings_writer.py prod && \
 	cp ./lims_user_config_dev ./app/lims_user_config && \
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
 	cat deployed_directories.txt | xargs -I '{}' cp -rf ./'{}' ./dist && \
-	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
+	cd ./static/seq-qc && npm install && npm run wbpk:prod && cd - && \
 	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
 
 clean:
