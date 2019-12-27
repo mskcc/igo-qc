@@ -29,7 +29,7 @@ function ProjectPage(props){
     const [projectInfo, setProjectInfo] = useState(null);           // This should initially be null - indicates loading
     const [gridData, setGridData] = useState([]);
     const [headers, setHeaders] = useState([]);
-    const [selectedSample, setSelectedSample] = useState('mocks'); // TODO - change this once real data available
+    const [selectedSample, setSelectedSample] = useState('');
     const [showNgsGraphs, setShowNgsGraphs] = useState(false);
     const [serviceErrors, setServiceErrors] = useState({});
 
@@ -72,13 +72,13 @@ function ProjectPage(props){
      *      i.e. queryProjectInfo update to gridData would not be available to queryNgsStatsData update to gridData
      */
     useEffect(() => {
-        // Add any effects that should occur when ngsStatsData changes
-        updateNgsStatsData(ngsStatsData);
-    }, [ngsStatsData]);
-    useEffect(() => {
         // Add any effects that should occur when projectInfo changes
         updateProjectInfo(projectInfo);
     }, [projectInfo]);
+    useEffect(() => {
+        // Add any effects that should occur when ngsStatsData changes
+        updateNgsStatsData(ngsStatsData);
+    }, [ngsStatsData]);
 
     /**
      * Submits a request to retrieve ngsStatsData
@@ -131,8 +131,11 @@ function ProjectPage(props){
         if(gridObject){
             const grid = gridObject.grid || {};
             const rows = Object.values(grid);
-            setNewGridData(rows);
-            setSelectedSample(rows[0]['IGO Id']);
+            const updatedRows = setNewGridData(rows);
+            if(updatedRows.length > 0) {
+                const selected = updatedRows[0];
+                setSelectedSample(selected['IGO Id'] || '');
+            }
         }
     };
     /**
@@ -175,7 +178,6 @@ function ProjectPage(props){
                 }
                 newGridData.push(clone);
             }
-
             const updated = setNewGridData(newGridData);
             setSelectedSample(updated[0]['IGO Id']);
         }
