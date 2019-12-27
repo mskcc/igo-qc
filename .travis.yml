@@ -5,4 +5,4 @@ cache:
   directories:
     - static/seq-qc/node_modules
 script:
-  - sudo make deploy-dev
+  - sudo apt-get install python3-venv && make deploy-dev
