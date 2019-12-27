@@ -30,14 +30,16 @@ describe('ProjectPage', () => {
             component = mount(<ProjectPage {...props}/>);
         });
     });
-    it("Project Page passes down props on initialization", () => {
-        const qcTable = component.find(QcTable);
-        const qcTableProps = qcTable.props();
-        expect(qcTableProps.project).toBe(pid);
+    it("On initialization, component displays loaders", () => {
         expect(component.find('.loader').length).toBe(3);       // Sections: [Summary, GraphContainer, Grid]
         expect(component.find('.load-error').length).toBe(0);   // No load errors on correct response
     });
-    it("Empty Project Info Response does not render loaders", async () => {
+    it("On initialization, component passes down props on initialization", () => {
+        const qcTable = component.find(QcTable);
+        const qcTableProps = qcTable.props();
+        expect(qcTableProps.project).toBe(pid);
+    });
+    it("On empty projectInfo Response, component does not render loaders", async () => {
         mock = new MockAdapter(axios);
         mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, {data: {data: {}}});
 
