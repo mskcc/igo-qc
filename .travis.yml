@@ -5,4 +5,4 @@ cache:
   directories:
     - static/seq-qc/node_modules
 script:
-  - cd static/seq-qc && npm install && cd - && make deploy-dev
+  - make deploy-dev
