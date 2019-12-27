@@ -5,4 +5,4 @@ cache:
   directories:
     - static/seq-qc/node_modules
 script:
-  - make deploy-dev
+  - sudo make deploy-dev
