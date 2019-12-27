@@ -1,6 +1,6 @@
 init:
 	python3 -m venv venv && \
-	./venv/bin/activate && \
+	sudo ./venv/bin/activate && \
 	pip install -r requirements.txt
 
 run-prod:
