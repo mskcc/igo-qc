@@ -49,7 +49,7 @@ function ProjectPage(props){
     const fetchRecipe = (pId) => {
         if(!recipe && (projectInfo && Object.keys(projectInfo).length > 0)){
             if(projectInfo && Object.keys(projectInfo).length > 0){
-                const projectType = projectInfo['projectType'];
+                const projectType = projectInfo['projectType'] || {};
                 const recipe = projectType['recipe'] || '';
                 setRecipe(recipe);
             }

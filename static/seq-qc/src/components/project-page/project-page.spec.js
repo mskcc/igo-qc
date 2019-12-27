@@ -7,6 +7,7 @@ import MockAdapter from 'axios-mock-adapter';
 import ProjectPage from './project-page';
 import config from "../../config";
 import projectInfo from '../../mocks/projectInfo';
+import ngsStatsGraph from '../../mocks/cell-ranger';
 import QcTable from "./components/qc-table";
 
 describe('ProjectPage', () => {
@@ -17,7 +18,8 @@ describe('ProjectPage', () => {
         pid = 'TEST_PID';
 
         mock = new MockAdapter(axios);
-        mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, projectInfo);
+        mock.onGet(new RegExp(`${config.IGO_QC}/projectInfo/.*`)).reply(200, projectInfo);
+        mock.onGet(new RegExp(`${config.NGS_STATS}/ngs-stats/getCellRangerSample.*`)).reply(200, ngsStatsGraph);
 
         act(() => {
             const props = {
@@ -40,9 +42,9 @@ describe('ProjectPage', () => {
         expect(qcTableProps.project).toBe(pid);
     });
     it("On empty projectInfo Response, component does not render loaders", async () => {
+        // Re-mock this call since we want an empty response (different from the mocking in 'beforeEach')
         mock = new MockAdapter(axios);
         mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, {data: {data: {}}});
-
         await act( async () => {
             const props = {
                 // Param for url-match
