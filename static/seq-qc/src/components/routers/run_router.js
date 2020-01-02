@@ -78,7 +78,7 @@ const RunRouter = (props) => {
     };
 
     const renderHeaders = () => {
-        const headers = ["Lane Name", "Date", "Lane Summary", "Run Stats"];
+        const headers = ["Run Name", "Date", "Lane Summary", "Run Stats"];
 
         return <thead><tr className="fill-width">
             { headers.map( (field) =>
