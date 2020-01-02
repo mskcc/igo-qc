@@ -28,10 +28,10 @@ config_options = yaml.load(open(config, "r"))
 
 # Constants
 from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID, CACHE_PROJECT_PREFIX, CACHE_PICKLIST
-from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX
+from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX, STATIC_FOLDER, TEMPLATE_FOLDER
 
 # Configure app
-app = Flask(__name__)
+app = Flask(__name__, static_folder=os.path.abspath(STATIC_FOLDER), template_folder=os.path.abspath(TEMPLATE_FOLDER))
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
@@ -200,7 +200,14 @@ def navbarForm(func):
 @navbarForm
 @login_required
 def index():
-    return render_template("index.html", **locals())
+    return render_template('index.html', **locals())
+
+@app.route('/static/<path:path>', methods=['GET', 'POST'])
+def route_static(path):
+    if path != "" and os.path.exists(app.static_folder + path):
+        return send_from_directory(app.static_folder, path)
+    app.logger.error('Could not find asset: %s' % path)
+    return render_template('404.html', **locals())
 
 # This function validates the shape of the project ID
 def is_project_id_valid(project_id):

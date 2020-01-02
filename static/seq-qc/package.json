@@ -1,5 +1,6 @@
 {
   "name": "seq-qc",
+  "homepage": "/run-qc",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

@@ -15,25 +15,24 @@ run-dev:
     source venv/bin/activate && \
     uwsgi new-igo-qc.ini;
 
-pkg:
-	make test && \
+pkg-prod:
 	python3 settings_writer.py prod && \
 	cp ./lims_user_config_prod ./app/lims_user_config && \
-	mkdir -p dist && \
-	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
-	cat deployed_directories.txt | xargs -I '{}' cp -rf ./'{}' ./dist && \
-	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
-	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
+    make pkg
 
 pkg-dev:
-	make test && \
 	python3 settings_writer.py prod && \
 	cp ./lims_user_config_dev ./app/lims_user_config && \
+    make pkg
+
+pkg:
+	rm -rf dist && \
+	make test && \
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
 	cat deployed_directories.txt | xargs -I '{}' cp -rf ./'{}' ./dist && \
-	cd ./static/seq-qc && npm run wbpk:prod && cd - && \
-	mkdir -p dist/static/seq-qc/dist && cp -rf static/seq-qc/dist dist/static/seq-qc
+	cd ./static/seq-qc && npm run build && cd - && \
+	mkdir -p dist/app/view && cp -rf static/seq-qc/build/* dist/app/view
 
 clean:
 	rm -rf dist
