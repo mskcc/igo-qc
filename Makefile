@@ -4,16 +4,21 @@ init:
 	pip install -r requirements.txt
 
 run-prod:
+	make prep-recent-runs && \
 	cp ./lims_user_config_prod ./app/lims_user_config && \
-	python3 settings_writer.py prod && \
+	python3 settings_writer.py dev && \
 	source venv/bin/activate && \
 	uwsgi new-igo-qc.ini;
 
 run-dev:
+	make prep-recent-runs && \
 	cp ./lims_user_config_dev ./app/lims_user_config && \
 	python3 settings_writer.py dev && \
     source venv/bin/activate && \
     uwsgi new-igo-qc.ini;
+
+prep-recent-runs:
+	find ./static/html/FASTQ -type f -name "*.html" -exec touch '{}' \;
 
 pkg-prod:
 	python3 settings_writer.py prod && \

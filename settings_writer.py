@@ -16,7 +16,7 @@ if __name__ == "__main__":
         STATIC_FOLDER = "'./app/view/static'"
     else:
         print("Configuration: DEV")
-        APP_ROOT = "os.path.dirname(os.path.abspath(__file__))"
+        APP_ROOT = "os.path.dirname(os.path.abspath(os.path.dirname( __file__ )))"
         URL_PREFIX = "'http://localhost:9009/'"
         TEMPLATE_FOLDER = "'./templates'"
         STATIC_FOLDER = "'./templates'"

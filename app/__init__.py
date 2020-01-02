@@ -28,7 +28,7 @@ config_options = yaml.load(open(config, "r"))
 
 # Constants
 from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID, CACHE_PROJECT_PREFIX, CACHE_PICKLIST
-from .settings import APP_STATIC, FASTQ_PATH, URL_PREFIX, STATIC_FOLDER, TEMPLATE_FOLDER
+from .settings import FASTQ_PATH, URL_PREFIX, STATIC_FOLDER, TEMPLATE_FOLDER
 
 # Configure app
 app = Flask(__name__, static_folder=os.path.abspath(STATIC_FOLDER), template_folder=os.path.abspath(TEMPLATE_FOLDER))
