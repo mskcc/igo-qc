@@ -26,7 +26,6 @@ pkg-dev:
     make pkg
 
 pkg:
-	rm -rf dist && \
 	make test && \
 	mkdir -p dist && \
 	cat deployed_files.txt | xargs -I '{}' cp '{}' ./dist && \
@@ -44,7 +43,7 @@ move-dev:
 	scp -r dist dlviigoweb1:deployments/new-igo-qc
 
 deploy:
-	make clean && make pkg && make move
+	make clean && make pkg-prod && make move
 
 deploy-dev:
 	make clean && make pkg-dev && make move-dev
