@@ -13,20 +13,19 @@ const RunRouter = (props) => {
     const [numDays, setNumDays] = useState(7);
     const [tempNumDays, setTempNumDays] = useState(numDays);
     const [recentRuns, setRecentRuns] = useState(null);
-    const [runsWithPicard, setRunsWithPicard] = useState(new Set([]));  // Set of runs w/ available picard stats
+    // Set of runs w/ available picard stats. Null initialization to flag that service call needs to be made to set
+    const [runsWithPicard, setRunsWithPicard] = useState(null);
 
     useEffect(() => {
-        updateRecentRuns();
+        updateRecentRuns(); // After recentRuns are available, runsWithPicard is set
     }, []);
-    useEffect(() => {
-        checkPicard(recentRuns || []);
-    }, [recentRuns]);
 
     /**
      * Submits request to obtain recent run information.
      *
      * @param range - Number of days from today to query for recent runs
      */
+    // TODO - move out to app or use redux so that this is sent first
     async function updateRecentRuns(range = numDays) {
         try {
             const resp = await getRecentRuns(range);
@@ -42,6 +41,25 @@ const RunRouter = (props) => {
     };
 
     /**
+     * For each input run, makes service request to check whether picard stats are available for that run
+     *
+     * @param runs, string[]
+     */
+    async function checkPicard(runNames) {
+        const runsWithStats = new Set([]);
+        for( const name of runNames ) {
+            await getPicardRunExcel(name)
+                .then((resp) => {
+                    runsWithStats.add(name);
+                })
+                .catch( (err)=> {
+                    console.log(`Picard Stats not available: ${name}`)
+                })
+        }
+        setRunsWithPicard(runsWithStats);
+    };
+
+    /**
      * Helper function to return human readable name for laneBarcode file
      */
     const formatRunName = (htmlName) =>{
@@ -50,22 +68,12 @@ const RunRouter = (props) => {
         return name;
     };
 
-    /**
-     * For each input run, makes service request to check whether picard stats are available for that run
-     *
-     * @param runs, string[]
-     */
-    const checkPicard = (runs) => {
-        for( const run of runs ) {
-            const name = formatRunName(run.runName);
-            getPicardRunExcel(name)
-                .then((resp) => {
-                    runsWithPicard.add(name);
-                    setRunsWithPicard(runsWithPicard);
-                })
-                .catch( (err)=> { console.log(`Picard Stats not available: ${name}`) })
-        }
-    };
+    // Check for runs that have picard stats if recentRuns have been returned, but runsWithPicard has not been set
+    if(!runsWithPicard && recentRuns && recentRuns.length > 0){
+        setRunsWithPicard(new Set([]));
+        const runNames = recentRuns.map((run) => {return formatRunName(run.runName)});
+        checkPicard(runNames);
+    }
 
     /**
      * Renders table of projects
@@ -129,14 +137,14 @@ const RunRouter = (props) => {
                     </a>
                 </td>
                 <td className={"text-align-center"}>
-                    <a href={`${config.SITE_HOME}${run['runStats']}`}>
+                    <a href={`${config.SITE_HOME}${run['runStats']}`} target="_blank">
                         <button className="btn btn-primary run-info-button">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
                         </button>
                     </a>
                 </td>
                 <td className={"text-align-center"}>
-                    { runsWithPicard.has(name) ?
+                    { runsWithPicard && runsWithPicard.has(name) ?
                         <a href={`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${name}`}>
                             <button className="btn btn-primary run-info-button picard-stats-btn">
                                 <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faDna}/>
