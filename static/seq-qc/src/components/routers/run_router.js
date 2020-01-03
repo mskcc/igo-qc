@@ -108,7 +108,7 @@ const RunRouter = (props) => {
                     </button>
                 </td>
                 <td className={"text-align-center"}>
-                    <button className="btn btn-primary run-info-button">
+                    <button className="btn btn-primary run-info-button" target="_blank">
                         <a href={`${config.SITE_HOME}${run['runStats']}`} target="_blank">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
                         </a>
