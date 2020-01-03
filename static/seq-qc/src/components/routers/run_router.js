@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChartBar, faFile } from '@fortawesome/free-solid-svg-icons'
+import {faChartBar, faFile, faDna, faBan, faSave} from '@fortawesome/free-solid-svg-icons'
 import { getRecentRuns } from "../../services/igo-qc-service";
 import config from '../../config.js';
-import {MODAL_SUCCESS, MODAL_UPDATE} from "../../resources/constants";
-
+import { MODAL_SUCCESS, MODAL_UPDATE} from "../../resources/constants";
+import { getPicardRunExcel } from '../../services/ngs-stats-service';
 /**
  * Router for Recent Runs
  */
@@ -13,10 +13,14 @@ const RunRouter = (props) => {
     const [numDays, setNumDays] = useState(7);
     const [tempNumDays, setTempNumDays] = useState(numDays);
     const [recentRuns, setRecentRuns] = useState(null);
+    const [runsWithPicard, setRunsWithPicard] = useState(new Set([]));  // Set of runs w/ available picard stats
 
     useEffect(() => {
         updateRecentRuns();
     }, []);
+    useEffect(() => {
+        checkPicard(recentRuns || []);
+    }, [recentRuns]);
 
     /**
      * Submits request to obtain recent run information.
@@ -44,6 +48,23 @@ const RunRouter = (props) => {
         if(!htmlName) return "";
         const name = htmlName.split("_laneBarcode.html")[0]
         return name;
+    };
+
+    /**
+     * For each input run, makes service request to check whether picard stats are available for that run
+     *
+     * @param runs, string[]
+     */
+    const checkPicard = (runs) => {
+        for( const run of runs ) {
+            const name = formatRunName(run.runName);
+            getPicardRunExcel(name)
+                .then((resp) => {
+                    runsWithPicard.add(name);
+                    setRunsWithPicard(runsWithPicard);
+                })
+                .catch( (err)=> { console.log(`Picard Stats not available: ${name}`) })
+        }
     };
 
     /**
@@ -78,7 +99,7 @@ const RunRouter = (props) => {
     };
 
     const renderHeaders = () => {
-        const headers = ["Run Name", "Date", "Lane Summary", "Run Stats"];
+        const headers = ["Run Name", "Date", "Lane Summary", "Run Stats", "Picard Stats"];
 
         return <thead><tr className="fill-width">
             { headers.map( (field) =>
@@ -101,18 +122,32 @@ const RunRouter = (props) => {
                     <p>{run.date}</p>
                 </td>
                 <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
-                    <button className="btn btn-primary run-info-button">
-                        <a href={`/seq-qc/${run.path}`} target="_blank">
+                    <a href={`/seq-qc/${run.path}`} target="_blank">
+                        <button className="btn btn-primary run-info-button">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
-                        </a>
-                    </button>
+                        </button>
+                    </a>
                 </td>
                 <td className={"text-align-center"}>
-                    <button className="btn btn-primary run-info-button">
-                        <a href={`${config.SITE_HOME}${run['runStats']}`} target="_blank">
+                    <a href={`${config.SITE_HOME}${run['runStats']}`}>
+                        <button className="btn btn-primary run-info-button">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
+                        </button>
+                    </a>
+                </td>
+                <td className={"text-align-center"}>
+                    { runsWithPicard.has(name) ?
+                        <a href={`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${name}`}>
+                            <button className="btn btn-primary run-info-button picard-stats-btn">
+                                <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faDna}/>
+                            </button>
                         </a>
-                    </button>
+                            :
+                        <div className={"tooltip"}>
+                            <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faBan}/>
+                            <span className={"tooltiptext"}>Not available</span>
+                        </div>
+                    }
                 </td>
             </tr>;
             runElements.push(element);

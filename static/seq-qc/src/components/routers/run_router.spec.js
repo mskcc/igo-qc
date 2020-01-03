@@ -30,6 +30,7 @@ describe('Run Router', () => {
         await act(async() => {
             mock = new MockAdapter(axios);
             mock.onGet(`${config.IGO_QC}/getRecentRuns?days=7`).reply(200, recentRuns);
+            mock.onGet(`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/*`).reply(500, null);
             component = mount(<RunRouter {...props}/>);
         });
 
@@ -37,6 +38,19 @@ describe('Run Router', () => {
 
         expect(component.find('.loader').length).toBe(0);
         expect(component.find('.project-table').length).toBe(1);
+    });
+    it("Run Router does not display the picard-stats-btn when not available", async () => {
+        await act(async() => {
+            mock = new MockAdapter(axios);
+            mock.onGet(`${config.IGO_QC}/getRecentRuns?days=7`).reply(200, recentRuns);
+            mock.onGet(`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/*`).reply(500, null);
+            component = mount(<RunRouter {...props}/>);
+        });
+
+        component.setProps({}); // Update the component
+
+        expect(component.find('.picard-stats-btn').length).toBe(0);
+        expect(component.find('.tooltip').length).toBe(15);             // The number of recentRuns
     });
 });
 

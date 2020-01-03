@@ -7,6 +7,16 @@ import config from '../config.js';
 import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../resources/constants";
 
 /**
+ * Returns promise of request sent to ngs-stats for the excel sheet of a run
+ *
+ * @param run
+ * @returns {Promise<AxiosResponse<T>>}
+ */
+export const getPicardRunExcel = (run) => {
+    return axios.get(`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${run}`)
+};
+
+/**
  * Queries ngs-stats for additional data based on the recipe
  *
  * @param recipe
