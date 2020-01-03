@@ -463,7 +463,6 @@ footer {
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
 }
 /* Tooltip text */
 .tooltip .tooltiptext {
@@ -475,6 +474,7 @@ footer {
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
+    font-family: "Roboto", "Helvetica", "Arial", "sans-serif";
 
     /* Position the tooltip text - see examples below! */
     position: absolute;
@@ -486,6 +486,7 @@ footer {
 .tooltip:hover .tooltiptext {
     visibility: visible;
     transition-delay: 0.3s;
+    box-shadow: 1px 1px #9e9e98;
 }
 
 
