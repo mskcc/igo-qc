@@ -174,6 +174,7 @@ const RunRouter = (props) => {
         if(showUpdateBtn){
             return <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
                  onClick={() => {
+                     setRunsWithPicard(null);   // Need to reset so that it will be populated with new recentRuns
                      props.addModalUpdate(MODAL_UPDATE, `Querying Recent Runs from past ${tempNumDays} days`);
                      setNumDays(tempNumDays);
                      updateRecentRuns(tempNumDays);
