@@ -3,10 +3,19 @@ import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faSave, faSearch, faAngleDown, faAngleRight, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import {
+    faSave,
+    faSearch,
+    faAngleDown,
+    faAngleRight,
+    faFileExcel,
+    faDna,
+    faBan
+} from "@fortawesome/free-solid-svg-icons";
 import { BehaviorSubject } from 'rxjs';
 import FileSaver from "file-saver";
 import XLSX from 'xlsx';
+import config from '../../../config.js';
 
 import 'handsontable/dist/handsontable.full.css'
 import './qc-table.css';
@@ -312,9 +321,20 @@ class QcTable extends React.Component {
                                             <p className={"inline-block vertical-align-top"}>Customize View</p>
                                         </div>
                                         <div className={"xlsx-container"}>
-                                            <FontAwesomeIcon className={"font-size-24 hover center-hv"}
-                                                             icon={faFileExcel}
-                                                             onClick={this.downloadExcel}/>
+                                            <div className={"xlsx-selector"}>
+                                                <div className={"xlsx-selector-inner"}>
+                                                    <div className={"xlsx-type-selector black-border-right hover"} onClick={this.downloadExcel}>
+                                                        <p className={"font-bold"}>Table Excel</p>
+                                                    </div>
+                                                    <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
+                                                        <div className={"xlsx-type-selector hover"}>
+                                                            <p className={"font-bold"}>Picard Excel</p>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <FontAwesomeIcon className={"font-size-24 center-hv hover"}
+                                                             icon={faFileExcel}/>
                                         </div>
                                     </div>
                                     <div className={"center-v table-search-container"}>
