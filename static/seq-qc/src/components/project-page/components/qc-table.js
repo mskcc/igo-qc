@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { HotTable } from '@handsontable/react';
-import Handsontable from 'handsontable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faSave,
     faSearch,
     faAngleDown,
     faAngleRight,
-    faFileExcel,
-    faDna,
-    faBan
+    faFileExcel
 } from "@fortawesome/free-solid-svg-icons";
 import { BehaviorSubject } from 'rxjs';
 import FileSaver from "file-saver";
@@ -30,23 +27,24 @@ class QcTable extends React.Component {
         this.state = {
             data: [],                       // true state of data. Contains all rows w/o filter
             displayedData: [],              // Data that has been filterd by user
-            removedHeaders: new Set([]),
+            columns: [],                    // Mutable column order
             hotTableRef: React.createRef(),
             selected: [],
             statusChange: '',
             searchTerm: '',
-            rowHeight: 25,                   // Reflects handsontable classes, ".handsontable td/th" (Default: 23px)
-            showRemoveColumn: false,
-            filteredData: [],                // This needs to be updated whenever displayedData/removedColumns changes
+            rowHeight: 25,                  // Reflects handsontable classes, ".handsontable td/th" (Default: 23px)
+            showCustomizeColumns: false,
+            // This needs to be updated whenever displayedData/removedColumns changes
+            filteredData: [],               // filteredData will be passed as-is directly to HandsOnTable
             // For QC status change
             selectionSubject: new BehaviorSubject([]),       // Observable that can emit updates of user-selection
-            numericColumns: new Set([])                             // Tracks numeric columns to receive special formatting
         };
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        // Until this component depends on the selectedSample, don't update when changed. This will re-render and
-        // reset the grid of the table
+        /*  Until this component depends on the selectedSample, don't update when changed. This will re-render and
+            reset the grid of the table
+        */
         if(nextProps.selectedSample !== this.props.selectedSample &&
             // TODO
             // Add all additional conditions to make sure that this will still render as component is loading
@@ -68,30 +66,73 @@ class QcTable extends React.Component {
                 this.props.addModalUpdate(MODAL_UPDATE, `Table Updated for project ${this.props.project}`, 2000);
             };
 
+            /**
+             * Process Columns so that they are,
+             *      1) Unique
+             *      2) Ordered
+             *      3) Enriched with data for HandsOnTable formatting
+             **/
             const data = Object.assign([], this.props.data);
-            const headers = this.props.headers || [];
+            let headers = this.props.headers || [];
             const numericColumns = this.getNumericColumns(data, headers);
+            // Remove duplicate columns
+            const lowerCaseHeaders = headers.slice().map((header) => {return header.toLowerCase()});
+            for(let i = lowerCaseHeaders.length-1; i>=0; i--){
+                const val = lowerCaseHeaders[i];
+                const firstIdx = lowerCaseHeaders.indexOf(val);
+                if(firstIdx !== i){
+                    // Remove from headers array
+                    headers.splice(i,1);
+                }
+            }
+            // Re-order columns according to columnOrder
+            const orderedHeaders = this.props.columnOrder.slice();
+            // Add all other headers to back
+            for(const header of headers){
+                if(this.props.columnOrder.indexOf(header) < 0){
+                    orderedHeaders.push(header);
+                }
+            }
+            // Enrich column object with metadata for column viewing
+            const columns = orderedHeaders.map((col) => {
+                // Create data object w/ flag, 'show', that indicates whether to show the column
+                const column = {
+                    data: col,
+                    show: this.props.columnOrder.indexOf(col) >= 0
+                };
+                if(numericColumns.has(data)){
+                    // Numeric Formatting: 31415 -> 31,415
+                    column.type = 'numeric';
+                    column.numericFormat = {pattern: '0,0'};
+                }
+                if(col === 'QC Status'){
+                    column.renderer = (instance, td, row, col, prop, value, cellProperties) => {
+                        td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
+                        return td;
+                    }
+                }
+                return column;
+            });
 
-            // Removed headers are any headers not passed in as a columnOrder property
-            const removedHeaders = new Set(
-                headers.filter((header) => {
-                    return this.props.columnOrder.indexOf(header) < 0;
-                })
-            );
-            // Get latest filtered data depending on the removed headers
-            const filteredData = this.getFilteredData(data, removedHeaders);
+            // Initialize data for HandsOnTable
+            const filteredData = this.getFilteredData(data, columns);
 
-            // Enrich data, e.g. w/ checkmark field
             this.setState({
                 filteredData,
-                removedHeaders,
-                numericColumns,
+                columns,
                 data,
                 displayedData: data
             });
         }
     }
 
+    /**
+     * Returns set of columns that should be formatted numerically
+     *
+     * @param data
+     * @param columns
+     * @returns {Set<*>}
+     */
     getNumericColumns = (data, columns) => {
         if(!data || data.length === 0) return new Set([]);
 
@@ -135,21 +176,12 @@ class QcTable extends React.Component {
         this.state.selectionSubject.next(unique_selected);
     };
 
-    // REF - https://handsontable.com/blog/articles/2016/12/getting-started-with-cell-renderers
-    checkRenderer(instance, td, row, col, prop, value, cellProperties) {
-        Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
-        if (value) {
-            td.className = 'selected';
-        } else {
-            td.className = 'unselected'
-        }
-    }
-
     /**
-     * Filters the state's data and assigns to displayedData
-     * TODO - Test
+     * Filters handsOnTable based on searchTerm. Must recalculate filteredData to pass to handsOnTable
+     *
      * @param evt
      */
+    // TODO - Test
     runSearch = (evt) => {
         const searchTerm = evt.target.value;
         const returnedData = this.state.data.filter((row) => {
@@ -160,8 +192,7 @@ class QcTable extends React.Component {
             return false;
         });
 
-        // TODO - set filtered data
-        const filteredData = this.getFilteredData(returnedData, null);
+        const filteredData = this.getFilteredData(returnedData, this.state.columns);
 
         this.setState({searchTerm, displayedData: returnedData, filteredData});
     };
@@ -187,27 +218,6 @@ class QcTable extends React.Component {
         return `${neededHeight + headerSize}px`;
     };
 
-    getHeaders = () => {
-        const headers = [];
-
-        // Columns specified by columnOrder props should come first
-        for(const header of this.props.columnOrder){
-            if(!this.state.removedHeaders.has(header)) {
-                headers.push(header);
-            }
-        }
-
-        // Append differences between all headers & column order that have not been removed
-        let difference = this.props.headers.filter((header) => !this.props.columnOrder.includes(header));
-        for(const header of difference){
-            if(!this.state.removedHeaders.has(header)) {
-                headers.push(header);
-            }
-        }
-
-        return headers;
-    };
-
     downloadExcel = () => {
         const xlsxData = Object.assign([], this.props.data);
         const fileName = this.props.project || 'Project';
@@ -224,25 +234,19 @@ class QcTable extends React.Component {
     };
 
     /**
-     * Returns filtered data based on latest state updates to,
-     *      displayedData
-     *      removedHeaders
+     * Returns filtered list of @data objects, which have columns removed based on the @columns flag to 'show'
      *
-     *      * Only one should be non-null as this will return the latest filtered data where only one should change
+     * @param data, List of objects w/ all data for each row entry
+     * @param columns, List of objects, { data: {HEADER_VALUE}, show: boolean }
      * @returns {[]}
      */
-    getFilteredData = (displayedData, removedHeaders) => {
-        if(displayedData === null) {
-            displayedData = this.state.displayedData;
-        }
-        if(removedHeaders === null){
-            removedHeaders = this.state.removedHeaders;
-        }
+    getFilteredData = (data, columns) => {
+        const removedHeaders = columns.filter((col) => {return !col.show});
         const filtered = [];
-        for(const row of displayedData) {
+        for(const row of data) {
             const copy = Object.assign({}, row);
-            for(const removed of removedHeaders){
-                delete copy[removed];
+            for(const column of removedHeaders){
+                delete copy[column.data];
             }
             filtered.push(copy);
         }
@@ -253,21 +257,14 @@ class QcTable extends React.Component {
      * This saves user configurations for columnOrder
      */
     saveColumnOrder = () => {
-        const newColumnOrder = [];
-        for(const column of this.props.headers){
-            if(!this.state.removedHeaders.has(column)){
-                newColumnOrder.push(column);
-            }
-        }
-        // Check for equality - Do nothing if no changes to column order
-        if(newColumnOrder.length === this.props.columnOrder){
-            const diff = newColumnOrder.filter((col) => {return !this.props.columnOrder.includes(col)});
-            if(diff.length === 0) return;
-        }
         const tableTypes = this.props.projectType.table || [];
         if(tableTypes.length === 1){
+            const headerValues = this.state.columns
+                .filter((col) => {return col.show})
+                .map((col) => {return col.data});
+
             // TODO - Handle case of multiple table types/recipes
-            saveConfig(tableTypes[0], newColumnOrder).then((resp) => {
+            saveConfig(tableTypes[0], headerValues).then((resp) => {
                 if(!resp || resp.toLowerCase().includes('fail')){
                     this.props.addModalUpdate(MODAL_ERROR, 'Failed to update configuration', 2000);
                 }
@@ -280,6 +277,97 @@ class QcTable extends React.Component {
         }
     };
 
+    renderColumnSelectors = () => {
+        // Columns not shown as selectors, i.e. shouldn't be toggled off so are not shown
+        const mandatoryColumns = new Set(['Sample', 'QC Status', 'QC Record Id']);
+
+        return this.state.columns.filter(
+            // Prevent mandatory columns from being toggled-off
+            (col) => { return !mandatoryColumns.has(col.data)}
+        ).map((header) => {
+            // Add css classes to show whether a column will be shown on the grid
+            let classes = "inline-block header-selector";
+            if(!header.show){
+                classes += " btn-selected";
+            }
+            const headerValue = header.data || '';
+            const toggle = () => {
+                const newColumns = Object.assign([], this.state.columns);
+
+                let flagged = false;
+                for(const column of newColumns){
+                    if(column.data === headerValue) {
+                        flagged = true;
+                        column.show = !column.show; //
+                    }
+                }
+                if(!flagged) throw Error(`Couldn't find header: ${headerValue}`);
+
+                // Update the filteredData w/ the new removedHeaders
+                const filteredData = this.getFilteredData(this.state.displayedData, newColumns);
+                this.setState({columns: newColumns, filteredData});
+            };
+            return <div className={classes} onClick={toggle} key={`civ-${headerValue}`}>
+                <p className={"inline"}>{headerValue}</p>
+            </div>
+        })
+    };
+
+    renderColumnCustomizer = () => {
+        return <div className={"material-gray-background"}>
+            <div className={"table-tools pos-rel"}>
+                <div className={"height-inherit"}>
+                    <div className={"table-option hover"} onClick={() => {this.setState({showCustomizeColumns: !this.state.showCustomizeColumns})}}>
+                        <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
+                            <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
+                                             icon={this.state.showCustomizeColumns ? faAngleDown : faAngleRight}/>
+                        </div>
+                        <p className={"inline-block vertical-align-top"}>Customize View</p>
+                    </div>
+                    <div className={"xlsx-container"}>
+                        <div className={"xlsx-selector"}>
+                            <div className={"xlsx-selector-inner"}>
+                                <div className={"xlsx-type-selector black-border-right hover"} onClick={this.downloadExcel}>
+                                    <p className={"font-bold"}>Table Excel</p>
+                                </div>
+                                <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
+                                    <div className={"xlsx-type-selector hover"}>
+                                        <p className={"font-bold"}>Picard Excel</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <FontAwesomeIcon className={"font-size-24 center-hv hover"}
+                                         icon={faFileExcel}/>
+                    </div>
+                </div>
+                <div className={"center-v table-search-container"}>
+                    <FontAwesomeIcon className={"em5"}
+                                     icon={faSearch}/>
+                    <input className={"inline vertical-align-top project-search margin-left-10"}
+                           type="text"
+                           value={this.state.searchTerm} onChange={this.runSearch} />
+                </div>
+            </div>
+            <div className={"header-removal-selector fill-width"}>
+                <div className={this.state.showCustomizeColumns ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
+                    <div>
+                        <div className={"margin-bottom-15"}>
+                            <p className={"inline-block"}>Columns in View</p>
+                            <div className={"tooltip"}>
+                                <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
+                                                 icon={faSave}
+                                                 onClick={this.saveColumnOrder}/>
+                                <span className={"tooltiptext"}>Save View</span>
+                            </div>
+                        </div>
+                        {this.renderColumnSelectors()}
+                    </div>
+                </div>
+            </div>
+        </div>
+    };
+
     render() {
         /*
             Return an empty div if there is no data to render. This is REQUIRED b/c rendering the HotTable before data
@@ -289,18 +377,8 @@ class QcTable extends React.Component {
         if(this.state.data.length === 0) return <div></div>;
 
         const style = { "height": `${this.calculateHeight()}`, "overflow-y": "scroll" };
-
-        const colHeaders = this.getHeaders();
-        const mandatoryColumns = new Set(['Sample', 'QC Record Id']);
-        const headersToRemove = [];
-        if(this.state.showRemoveColumn){
-            for(const header of this.props.headers){
-                if(!mandatoryColumns.has(header)){
-                    headersToRemove.push(header);
-                }
-            }
-        }
-        
+        const filteredColumns = this.state.columns.filter((col) => {return col.show});
+        const filteredColumnsValues = filteredColumns.map((col) => {return col.data});
         return (<div>
                     <StatusSubmitter selectionSubject={this.state.selectionSubject}
                                      statuses={this.props.qcStatuses}
@@ -308,104 +386,14 @@ class QcTable extends React.Component {
                                      project={this.props.project}
                                      recipe={this.props.recipe}
                                      updateProjectInfo={this.props.updateProjectInfo}/>
-                    {
-                        this.state.data.length > 0 ?
-                            <div className={"material-gray-background"}>
-                                <div className={"table-tools pos-rel"}>
-                                    <div className={"height-inherit"}>
-                                        <div className={"table-option hover"} onClick={() => {this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
-                                            <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
-                                                <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
-                                                                 icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
-                                            </div>
-                                            <p className={"inline-block vertical-align-top"}>Customize View</p>
-                                        </div>
-                                        <div className={"xlsx-container"}>
-                                            <div className={"xlsx-selector"}>
-                                                <div className={"xlsx-selector-inner"}>
-                                                    <div className={"xlsx-type-selector black-border-right hover"} onClick={this.downloadExcel}>
-                                                        <p className={"font-bold"}>Table Excel</p>
-                                                    </div>
-                                                    <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
-                                                        <div className={"xlsx-type-selector hover"}>
-                                                            <p className={"font-bold"}>Picard Excel</p>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <FontAwesomeIcon className={"font-size-24 center-hv hover"}
-                                                             icon={faFileExcel}/>
-                                        </div>
-                                    </div>
-                                    <div className={"center-v table-search-container"}>
-                                        <FontAwesomeIcon className={"em5"}
-                                                         icon={faSearch}/>
-                                        <input className={"inline vertical-align-top project-search margin-left-10"}
-                                               type="text"
-                                               value={this.state.searchTerm} onChange={this.runSearch} />
-                                    </div>
-                                </div>
-                                <div className={"header-removal-selector fill-width"}>
-                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
-                                        <div>
-                                            <div className={"margin-bottom-15"}>
-                                                <p className={"inline-block"}>Columns in View</p>
-                                                <div className={"tooltip"}>
-                                                    <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
-                                                                     icon={faSave}
-                                                                     onClick={this.saveColumnOrder}/>
-                                                    <span className={"tooltiptext"}>Save View</span>
-                                                </div>
-                                            </div>
-                                            {headersToRemove.map((header) => {
-                                                let classes = "inline-block header-selector";
-                                                if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
-                                                const toggle = () => {
-                                                    // TODO - Add endpoint to igoLims to see what columns get removed
-                                                    const removedHeaders = this.state.removedHeaders;
-                                                    if(removedHeaders.has(header)) {
-                                                        removedHeaders.delete(header);
-                                                    }
-                                                    else{
-                                                        removedHeaders.add(header);
-                                                    }
-
-                                                    // Update the filteredData w/ the new removedHeaders
-                                                    const filteredData = this.getFilteredData(null, removedHeaders);
-                                                    this.setState({removedHeaders, filteredData});
-                                                };
-                                                return <div className={classes} onClick={toggle} key={`civ-${header}`}>
-                                                    <p className={"inline"}>{header}</p>
-                                                </div>
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        :
-                            <div></div>
-                    }
+                    { this.renderColumnCustomizer() }
                     <HotTable
                         ref={this.state.hotTableRef}
                         licenseKey="non-commercial-and-evaluation"
                         id="qc-grid"
                         data={this.state.filteredData}
-                        colHeaders={colHeaders}
-                        columns={colHeaders.map((data)=>{
-                            const col = { data };
-                            if(this.state.numericColumns.has(data)){
-                                // Numeric Formatting: 31415 -> 31,415
-                                col.type = 'numeric';
-                                col.numericFormat = {pattern: '0,0'};
-                            }
-                            if(data === 'QC Status'){
-                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
-                                    return td;
-                                }
-                            }
-                            return col;
-                        })}
+                        colHeaders={filteredColumnsValues}
+                        columns={filteredColumns}
                         rowHeaders={true}
                         filters="true"
                         dropdownMenu={['filter_by_value', 'filter_action_bar']}
