@@ -19,7 +19,7 @@ import './qc-table.css';
 
 import {saveConfig} from "../../../services/igo-qc-service";
 import StatusSubmitter from './sample-status-modal';
-import {MODAL_ERROR, MODAL_UPDATE} from "../../../resources/constants";
+import { TABLE_MANDATORY_COLUMNS, MODAL_ERROR, MODAL_UPDATE } from "../../../resources/constants";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -278,12 +278,9 @@ class QcTable extends React.Component {
     };
 
     renderColumnSelectors = () => {
-        // Columns not shown as selectors, i.e. shouldn't be toggled off so are not shown
-        const mandatoryColumns = new Set(['Sample', 'QC Status', 'QC Record Id']);
-
         return this.state.columns.filter(
             // Prevent mandatory columns from being toggled-off
-            (col) => { return !mandatoryColumns.has(col.data)}
+            (col) => { return !TABLE_MANDATORY_COLUMNS.has(col.data)}
         ).map((header) => {
             // Add css classes to show whether a column will be shown on the grid
             let classes = "inline-block header-selector";
@@ -292,13 +289,28 @@ class QcTable extends React.Component {
             }
             const headerValue = header.data || '';
             const toggle = () => {
-                const newColumns = Object.assign([], this.state.columns);
+                const newColumns = this.state.columns.slice();
 
                 let flagged = false;
-                for(const column of newColumns){
+                for(let i = this.state.columns.length-1; i>=0; i--){
+                    const column = newColumns[i];
                     if(column.data === headerValue) {
                         flagged = true;
-                        column.show = !column.show; //
+                        column.show = !column.show;
+                        const splicedList = newColumns.splice(i, 1);
+                        if(splicedList.length !== 1){
+                            console.error("Error toggling");
+                            break;
+                        }
+                        const spliced = splicedList[0];
+                        if(column.show){
+                            // If column is no longer hidden, it should be the first optional column
+                            const optionalStartIdx = TABLE_MANDATORY_COLUMNS.size;   // Insert directly after mandatory
+                            newColumns.splice(optionalStartIdx, 0, spliced);
+                        } else {
+                            newColumns.splice(newColumns.length, 0, spliced);
+                        }
+                        break;
                     }
                 }
                 if(!flagged) throw Error(`Couldn't find header: ${headerValue}`);
