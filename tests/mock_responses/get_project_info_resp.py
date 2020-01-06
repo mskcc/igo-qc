@@ -287,6 +287,7 @@ get_project_info_resp ={
    'columnOrder':[
       'QC Status',
       'Sample',
+      'QC Record Id',
       'Concentr.  (nM)',
       'Final Library Yield (fmol)',
       'Sum Reads',

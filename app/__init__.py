@@ -698,7 +698,6 @@ def get_interops_data():
     InterOps data from LIMS database.
     :return: run_summary.html web-page with InterOps data displayed in a table.
     """
-    print(request.args.get("runId"))
     runName = get_flowcell_id(request.args.get("runId"))
     cache_key = "interOps-%s" % runName
     run_summary = get_cached_data(cache_key)

@@ -135,6 +135,7 @@ chip_seq_resp = {
              'columnOrder':[
                 'QC Status',
                 'Sample',
+                'QC Record Id',
                 'Coverage Target',
                 'Concentr.  (nM)',
                 'Final Library Yield (fmol)',

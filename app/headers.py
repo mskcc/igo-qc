@@ -1,7 +1,7 @@
 order = {
     # MANADTORY COLUMNS WILL ALWAYS BE FIRST
     'MANDATORY': [
-        "QC Status", "Sample"
+        "QC Status", "Sample", "QC Record Id"
     ],
     'hs': [
         "Mean Tgt Cvg", "Coverage Target", "Sum MTC",
