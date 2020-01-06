@@ -85,6 +85,11 @@ class QcTable extends React.Component {
                     headers.splice(i,1);
                 }
             }
+            /**
+                TODO - Some projects do not have a 'QC Record Id' column. Logic that adds visible columns to first
+                'optional' column position is flawed b/c it goes by the size of TABLE_MANDATORY_COLUMNS, which includes
+                'QC Record Id'
+            */
             // Re-order columns according to columnOrder
             const orderedHeaders = this.props.columnOrder.slice();
             // Add all other headers to back
