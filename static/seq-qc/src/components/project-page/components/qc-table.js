@@ -105,7 +105,7 @@ class QcTable extends React.Component {
                     data: col,
                     show: this.props.columnOrder.indexOf(col) >= 0
                 };
-                if(numericColumns.has(data)){
+                if(numericColumns.has(col)){
                     // Numeric Formatting: 31415 -> 31,415
                     column.type = 'numeric';
                     column.numericFormat = {pattern: '0,0'};
