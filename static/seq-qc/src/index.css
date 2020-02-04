@@ -301,6 +301,9 @@ h3 {
 .material-gray-background {
     background-color: #eceff1;
 }
+.light-blue-background {
+    background-color: #ebf0fa;
+}
 /* SPECIFIC STYLES */
 /* BUTTONS */
 button:hover{
@@ -441,7 +444,7 @@ footer {
     border-top: 1px solid black;
 }
 .logo {
-    border-radius: 10px;
+    border-radius: 2px;
     top: 10px;
     position: relative;
     height: 80px;
@@ -449,6 +452,7 @@ footer {
     margin-left: auto;
     margin-right: auto;
     display: block;
+    border: 2px solid #f29934;
 }
 .box {
     background-color: #fff;
@@ -491,6 +495,16 @@ footer {
 
 
 /*     IDs     */
+.router-section-container {
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #f29934;
+    margin-bottom: 10px;
+}
+.projects-table-container {
+    border-radius: 5px;
+    padding: 10px 20px;
+}
 .coverage-chart-container {
     position: relative;
     display: inline-block;

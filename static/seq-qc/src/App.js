@@ -83,7 +83,7 @@ function App() {
                       }} />
     };
 
-    return <div>
+    return <div className={"light-blue-background"}>
             <Modal update={modalUpdate}/>
             <Router>
                 <header className={"padding-24"}>
