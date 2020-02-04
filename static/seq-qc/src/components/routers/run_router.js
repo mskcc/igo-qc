@@ -86,7 +86,7 @@ const RunRouter = (props) => {
 
         // Visualize projects if present and state has been populated w/ fields to visualize
         if(hasData){
-            return <table className="project-table fill-width">
+            return <table className="project-table border-collapse fill-width">
                 {renderHeaders()}
                 {renderRuns()}
             </table>
@@ -112,7 +112,7 @@ const RunRouter = (props) => {
 
         return <thead><tr className="fill-width">
             { headers.map( (field) =>
-                <th className="project-field" key={field}>
+                <th className="project-field light-blue-border" key={field}>
                     <p className="font-size-16 font-bold">{field}</p>
                 </th>)
             }
@@ -124,27 +124,27 @@ const RunRouter = (props) => {
         for( const run of recentRuns ){
             const name = formatRunName(run.runName);
             const element = <tr className="fill-width project-row" key={run['runName']}>
-                <td className="project-field field-header text-align-center" key={`${name}-href`}>
+                <td className="project-field field-header text-align-center light-blue-border" key={`${name}-href`}>
                     <p>{ name }</p>
                 </td>
-                <td className="project-field field-header text-align-center" key={`${run['runName']}-date`}>
+                <td className="project-field field-header text-align-center light-blue-border" key={`${run['runName']}-date`}>
                     <p>{run.date}</p>
                 </td>
-                <td className="project-field field-header text-align-center" key={`${name}-lane-summary`} target="_blank">
+                <td className="project-field field-header text-align-center light-blue-border" key={`${name}-lane-summary`} target="_blank">
                     <a href={`/seq-qc/${run.path}`} target="_blank">
                         <button className="btn btn-primary run-info-button">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faFile}/>
                         </button>
                     </a>
                 </td>
-                <td className={"text-align-center"}>
+                <td className={"text-align-center light-blue-border"}>
                     <a href={`${config.SITE_HOME}${run['runStats']}`} target="_blank">
                         <button className="btn btn-primary run-info-button">
                             <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faChartBar}/>
                         </button>
                     </a>
                 </td>
-                <td className={"text-align-center"}>
+                <td className={"text-align-center light-blue-border"}>
                     { runsWithPicard && runsWithPicard.has(name) ?
                         <a href={`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${name}`}>
                             <button className="btn btn-primary run-info-button picard-stats-btn">

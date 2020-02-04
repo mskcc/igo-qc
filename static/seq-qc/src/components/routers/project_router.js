@@ -51,9 +51,9 @@ const ProjectRouter = (props) => {
 
     const renderHeaders = () => {
         return <thead><tr className="fill-width">
-            <th></th>
+            <th className={"light-blue-border"}></th>
             { headers.map( (field) =>
-                <th className="project-field" key={field}>
+                <th className="project-field light-blue-border" key={field}>
                     <p className="font-size-16 font-bold">{field}</p>
                 </th>)
             }
