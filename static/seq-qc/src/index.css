@@ -70,11 +70,10 @@ h3 {
 .margin-auto {
     margin: auto;
 }
+/* Removes spacing between cells in table */
 .border-collapse {
     border-collapse: collapse;
 }
-
-
 
 /* TODO: Consolidate index.css & app.css */
 .display-none {
