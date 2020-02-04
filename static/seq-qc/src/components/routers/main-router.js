@@ -11,20 +11,26 @@ const App = (props) => {
             <div className="widget-box">
                 <div className="widget-container table-responsive">
                     <div className="content noPad clearfix">
-                        <h3 className={"margin-0"}>Sequence Analysis</h3>
-                        <div className="black-border-bottom padding-vert-15 project-router-container">
-                            <ProjectRouter name="Needs Review" projects={props.projectsToReview}/>
+                        <div className={"router-section-container"}>
+                            <h3 className={"margin-0"}>Sequence Analysis</h3>
+                            <div className="project-router-container">
+                                <ProjectRouter name="Needs Review" projects={props.projectsToReview}/>
+                            </div>
+                            <div className="project-router-container">
+                                <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
+                            </div>
                         </div>
-                        <div className="black-border-bottom padding-vert-15 project-router-container">
-                            <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
+                        <div className={"router-section-container"}>
+                            <h3 className={"margin-0"}>Recent Deliveries</h3>
+                            <div className="project-router-container">
+                                <ProjectRouter name="" projects={props.recentDeliveries}/>
+                            </div>
                         </div>
-                        <h3 className={"margin-0"}>Recent Deliveries</h3>
-                        <div className="black-border-bottom padding-vert-15 project-router-container">
-                            <ProjectRouter name="" projects={props.recentDeliveries}/>
-                        </div>
-                        <h3 className={"margin-0"}>Recent Runs</h3>
-                        <div className="padding-vert-15 project-router-container">
-                            <RunRouter addModalUpdate={props.addModalUpdate}/>
+                        <div className={"router-section-container"}>
+                            <h3 className={"margin-0"}>Recent Runs</h3>
+                            <div className="padding-vert-15 project-router-container">
+                                <RunRouter addModalUpdate={props.addModalUpdate}/>
+                            </div>
                         </div>
                     </div>
                 </div>

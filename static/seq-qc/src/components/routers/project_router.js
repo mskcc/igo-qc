@@ -99,7 +99,7 @@ const ProjectRouter = (props) => {
     };
 
     return (
-        <div>
+        <div className={"projects-table-container"}>
             <div>
                 <p className="margin-0 font-size-24">{props.name}</p>
             </div>
