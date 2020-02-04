@@ -64,13 +64,13 @@ const ProjectRouter = (props) => {
         for( const project of props.projects ){
             const values = fields.map( (field) => project[field] );
             const element = <tr className="fill-width project-row" key={project.requestId}>
-                        <td  className="project-field field-header project-row-link" key={`${project.requestId}-link`}>
+                        <td className="project-field field-header project-row-link text-align-center light-blue-border" key={`${project.requestId}-link`}>
                             <Link to={`${config.SITE_HOME}projects/${project.requestId}`}>
                                 <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faArrowAltCircleRight}/>
                             </Link>
                         </td>
                         {values.map( field =>
-                            <td className="project-field field-header text-align-center" key={field}>
+                            <td className="project-field field-header text-align-center light-blue-border" key={field}>
                                 <p className="font-size-12">{field}</p>
                             </td>)
                         }

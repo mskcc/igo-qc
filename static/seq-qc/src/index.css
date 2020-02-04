@@ -53,8 +53,12 @@ h3 {
 .italics {
     font-style: italic;
 }
+.project-row p {
+    font-size: 14px;
+}
 .project-row:hover {
-    background-color: #d9d9d9;
+    background-color: #eaeffa;
+    color: #193167;
 }
 .project-row .project-row-link:hover{
     cursor: pointer;
@@ -204,6 +208,9 @@ h3 {
 }
 .black-border {
     border: 1px solid black;
+}
+.light-blue-border {
+    border: 2px solid #d6e0f5;
 }
 .black-border-bottom {
     border-bottom: 1px solid black;
