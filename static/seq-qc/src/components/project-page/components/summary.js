@@ -8,7 +8,7 @@ const Summary = (props) => {
     const pipelineableClass = props.requester.pipelinable === true ? 'mskcc-dark-green' : 'mskcc-dark-magenta';
     const analysisRequestedClass = props.requester.analysisRequested === true ? 'mskcc-dark-green' : 'mskcc-dark-magenta';
 
-    return <div className={"black-border"}>
+    return <div className={"black-border background-white"}>
         <div className={"info-block inline-block"}>
             <div className={"fill-width margin-hor-5per"}>
                 <p className={"text-align-center font-bold em5"}>Project Requester</p>
