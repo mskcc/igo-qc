@@ -363,6 +363,7 @@ button:hover{
     border-radius: 5px;
 }
 .graph-container {
+    background-color: white;
     border-top: none;
     border: 1px solid black;
 }
@@ -501,6 +502,13 @@ footer {
 
 
 /*     IDs     */
+.flag-container p {
+    display: none;
+    margin-bottom: 0px;
+}
+.flag-container:hover p {
+    display: block;
+}
 .router-section-container {
     background-color: white;
     padding: 20px;

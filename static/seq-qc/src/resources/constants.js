@@ -13,5 +13,11 @@ export const NGS_HEADERS_TO_REMOVE = ["id", "Chemistry", "CellRangerVersion", "C
 export const NGS_STATS = 'ngs-stats';
 export const PROJECT_INFO = 'project-info';
 
-// DATA COLUMNS
+// API fields - Fields of the service response objects
+// LIMS
+export const LIMS_REQUEST_ID = 'requestId';
+
+// NGS-Stats
+export const CROSSCHECK_METRICS_PASS = 'pass';
+export const CROSSCHECK_METRICS_FLAG = 'flag';
 export const CELL_RANGER_SAMPLE_NAME = 'Name';
