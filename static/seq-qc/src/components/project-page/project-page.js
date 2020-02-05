@@ -445,7 +445,7 @@ function ProjectPage(props){
             <p className={'text-align-center'}>No data is available - Piccard stats need to be run</p>
         </div>
     };
-    return <div key={pId}>
+    return <div key={pId} className={"background-white"}>
             {renderSummary(projectInfo)}
             {renderGraphContainer(selectedSample)}
             {renderGrid(gridData,headers)}
