@@ -12,7 +12,7 @@ import {
     CROSSCHECK_METRICS_FLAG,
     CROSSCHECK_METRICS_PASS,
     LIMS_REQUEST_ID,
-    MODAL_ERROR
+    MODAL_ERROR, PROJECT_FLAGS
 } from "./resources/constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
@@ -97,8 +97,8 @@ function App() {
         if(projects === null || Object.keys(projects).length === 0) return;
         const updatedProjects = projects.map((project) => {
             const flags = getFlags(project, cmProjectsUpdate);
-            if(flags && flags !== ''){
-                project[CROSSCHECK_METRICS_FLAG] = {
+            if(flags !== null && flags !== undefined){
+                project[PROJECT_FLAGS] = {
                     [type]: flags
                 };
             }
@@ -118,24 +118,9 @@ function App() {
      * @returns {string|null|any}
      */
     const getFlags = (project, cmProjectsUpdate) => {
-        const pId = project[LIMS_REQUEST_ID] || '';
-        const projectEntry = cmProjectsUpdate[pId];
-        if(projectEntry){
-            let expected;
-            let flag;
-            try {
-                expected = JSON.parse(projectEntry[CROSSCHECK_METRICS_PASS]);
-                flag = projectEntry[CROSSCHECK_METRICS_FLAG];
-            } catch(err) {
-                console.error(`Failed to parse flags for ${pId}`);
-                expected = false;
-            }
-            if(!expected && flag){
-                return flag
-            }
-            return '';
-        }
-        return null;
+        const pId = project[LIMS_REQUEST_ID];
+        const projectEntry = cmProjectsUpdate[pId] || {};
+        return projectEntry[CROSSCHECK_METRICS_FLAG];
     };
 
     /**

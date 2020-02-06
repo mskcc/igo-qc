@@ -7,10 +7,16 @@ import {
     faArrowAltCircleRight,
     faCheck,
     faExclamationTriangle,
+    faExclamationCircle,
     faEllipsisH
 } from '@fortawesome/free-solid-svg-icons'
 import config from '../../config.js';
-import {CROSSCHECK_METRICS_FLAG, LIMS_REQUEST_ID} from "../../resources/constants";
+import {
+    PROJECT_FLAGS,
+    LIMS_REQUEST_ID,
+    CROSSCHECK_METRICS_FLAG_PASS,
+    CROSSCHECK_METRICS_FLAG_ERROR, CROSSCHECK_METRICS_FLAG_WARNING
+} from "../../resources/constants";
 
 // ALL POSSIBLE FIELDS OF ROWS
 const TEXT_FIELDS = {
@@ -21,7 +27,7 @@ const TEXT_FIELDS = {
     "date": "Date of Latest Stats"
 };
 const ICON_FIELDS = {
-    [CROSSCHECK_METRICS_FLAG]: "Quality Checks"
+    [PROJECT_FLAGS]: "Quality Checks"
 };
 const ALL_FIELDS = Object.assign(Object.assign({}, ICON_FIELDS), TEXT_FIELDS);
 /**
@@ -98,15 +104,26 @@ const ProjectRouter = (props) => {
      * @returns {*}
      */
     const getFlagIcon = (flagField) => {
-        if(flagField){
+        if(flagField && Object.keys(flagField).length > 0){
             const flags = Object.keys(flagField);
-            if(flags.length > 0){
+            const errorFlags = flags.filter((f) => {return flagField[f] === CROSSCHECK_METRICS_FLAG_ERROR});
+            const warningFlags = flags.filter((f) => {return flagField[f] === CROSSCHECK_METRICS_FLAG_WARNING});
+
+            if(errorFlags.length > 0){
                 return <div className={"flag-container tooltip"}>
-                        <FontAwesomeIcon className="em5 mskcc-red" icon={faExclamationTriangle}/>
+                        <FontAwesomeIcon className="em5 mskcc-red" icon={faExclamationCircle}/>
                         <span className={"tooltiptext"}>View Project for Info</span>
                         { flags.map((flagType) => {
                             return <p>{flagType}</p>
                         }) }
+                </div>
+            } else if (warningFlags.length > 0){
+                return <div className={"flag-container tooltip"}>
+                    <FontAwesomeIcon className="em5 mskcc-dark-yellow" icon={faExclamationTriangle}/>
+                    <span className={"tooltiptext"}>View Project for Info</span>
+                    { flags.map((flagType) => {
+                        return <p>{flagType}</p>
+                    }) }
                 </div>
             } else {
                 // Quality Checks Passed
