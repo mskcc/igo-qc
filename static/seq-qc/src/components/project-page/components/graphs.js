@@ -18,8 +18,7 @@ const Graph = (props) => {
         <p className={showDescription ? 'display-inline' : 'display-none'}>{props.chart.description}</p>
         <Plot data={props.chart.data}
               layout={props.chart.layout}
-              config={props.chart.config}
-              style={{'zIndex': '-1', 'position': 'relative'}}/>
+              config={props.chart.config}/>
     </div>;
 };
 
