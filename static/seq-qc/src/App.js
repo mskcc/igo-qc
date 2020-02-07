@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Home from './components/routers/main-router.js';
 import ProjectPage from './components/project-page/project-page.js';
 import { getRequestProjects, getSeqAnalysisProjects } from "./services/igo-qc-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
-import { MODAL_ERROR, MODAL_SUCCESS, MODAL_UPDATE } from "./resources/constants";
+import {
+    CROSSCHECK_METRICS_FLAG,
+    LIMS_REQUEST_ID,
+    MODAL_ERROR, PROJECT_FLAGS
+} from "./resources/constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
 import Logo from './resources/igo-logo.jpeg';
 import Feedback from './components/common/feedback';
+import {getCrosscheckMetrics} from "./services/ngs-stats-service";
+import {SET_PROJECTS} from "./redux/actionTypes";
 
 function App() {
     /*
@@ -25,14 +32,30 @@ function App() {
     const [modalUpdate, setModalUpdate] = useState({});
     const [showFeedback, setShowFeedback] = useState(false);
 
+    const stateProjects = useSelector(state => state.projects );
+    const dispatch = useDispatch();
+
     useEffect(() => {
         getSeqAnalysisProjects()
             .then((resp) => {
                 const projectsToReview = resp.projectsToReview || [];
                 const projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
-
                 setProjectsToReview(projectsToReview);
                 setProjectsToSequenceFurther(projectsToSequenceFurther);
+
+                // Call crosscheck metrics on all projects in @resp
+                const projectsToReviewList = projectsToReview.map((proj) => {return proj['requestId']});
+                const projectsToSequenceFurtherList = projectsToSequenceFurther.map((proj) => {return proj['requestId']});
+                const projectList = projectsToSequenceFurtherList.concat(projectsToReviewList);
+
+                getCrosscheckMetrics(projectList)
+                    .then((cmProjectsUpdate) => {
+                        // Update store w/ projects
+                        updateProjects(cmProjectsUpdate);
+                        // Enrich projects in component state w/ flags returned from crosscheckMetrics update
+                        updateProjectFlags(projectsToReview, setProjectsToReview, cmProjectsUpdate, "Fingerprinting");
+                        updateProjectFlags(projectsToSequenceFurther, setProjectsToSequenceFurther, cmProjectsUpdate, "Fingerprinting");
+                    });
             })
             .catch(error => {
                 // Allow rendering of an empty list
@@ -44,6 +67,15 @@ function App() {
             .then((resp) => {
                 const recentDeliveries = resp.recentDeliveries || [];
                 setRecentDeliveries(recentDeliveries);
+
+                const projectList = recentDeliveries.map((proj) => { return proj['requestId']});
+                getCrosscheckMetrics(projectList)
+                    .then((cmProjectsUpdate) => {
+                        // Update store w/ projects
+                        updateProjects(cmProjectsUpdate);
+                        // Enrich projects in component state w/ flags returned from crosscheckMetrics update
+                        updateProjectFlags(recentDeliveries, setRecentDeliveries, cmProjectsUpdate, "Fingerprinting");
+                    });
             })
             .catch(error => {
                 // Allow rendering of an empty list
@@ -51,6 +83,57 @@ function App() {
                 addModalUpdate(MODAL_ERROR, error.message || 'ERROR')
             });
     }, []);
+
+    /**
+     * Updates flags of projects. Enriches flag field on each project object
+     *
+     * @param projects, Projects in state to update (projectsToReview, projectsToSequenceFurther, recentDeliveries)
+     * @param updateFunction, state-update function
+     * @param cmProjectsUpdate, service response with updates
+     * @param type, type of flag to update
+     */
+    const updateProjectFlags = (projects, updateFunction, cmProjectsUpdate, type) => {
+        if(projects === null || Object.keys(projects).length === 0) return;
+        const updatedProjects = projects.map((project) => {
+            const flags = getFlags(project, cmProjectsUpdate);
+            if(flags !== null && flags !== undefined){
+                project[PROJECT_FLAGS] = {
+                    [type]: flags
+                };
+            }
+            return project;
+        });
+        updateFunction(updatedProjects);
+    };
+
+    /**
+     * Returns project flags for a project based on the crossmetric update
+     *      Null:       No data available
+     *      Empty List: Passes checks
+     *      List:       Did not pass checks
+     *
+     * @param project, Object
+     * @param cmProjectsUpdate, Object
+     * @returns {string|null|any}
+     */
+    const getFlags = (project, cmProjectsUpdate) => {
+        const pId = project[LIMS_REQUEST_ID];
+        const projectEntry = cmProjectsUpdate[pId] || {};
+        return projectEntry[CROSSCHECK_METRICS_FLAG];
+    };
+
+    /**
+     * Updates the state of projects in the application
+     *
+     * @param resp, { [PROJECT_KEY]: {...}, ... }
+     */
+    const updateProjects = (cmProjectsUpdate) => {
+        const updatedProjects = Object.assign(stateProjects, cmProjectsUpdate);
+        dispatch({
+            type: SET_PROJECTS,
+            payload: updatedProjects
+        });
+    };
 
     const addModalUpdate = (type, msg, delay) => {
         const modalUpdate = {

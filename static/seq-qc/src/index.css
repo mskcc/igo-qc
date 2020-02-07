@@ -134,6 +134,9 @@ h3 {
 .margin-left-10 {
     margin-left: 10px;
 }
+.margin-left-25 {
+    margin-left: 25px;
+}
 .margin-hor-5per {
     margin-left: 5%;
     margin-right: 5%;
@@ -187,6 +190,9 @@ h3 {
 }
 .font-bold {
     font-weight: bold;
+}
+.underline {
+    text-decoration: underline;
 }
 .center-hv {
     top: 50%;
@@ -357,12 +363,20 @@ button:hover{
     transition: max-height 0.4s ease-in;
     overflow: hidden;
 }
+/* For hot-table tables, height needs to be set on the parent div. Transitions do not work */
+.table-dropdown-closed {
+    height: 0px;
+}
+.table-dropdown-open {
+    height: 600px;
+}
 .run-info-button {
     width: 65px;
     height: 40px;
     border-radius: 5px;
 }
-.graph-container {
+.dropdown-container {
+    background-color: white;
     border-top: none;
     border: 1px solid black;
 }
@@ -501,6 +515,13 @@ footer {
 
 
 /*     IDs     */
+.flag-container p {
+    display: none;
+    margin-bottom: 0px;
+}
+.flag-container:hover p {
+    display: block;
+}
 .router-section-container {
     background-color: white;
     padding: 20px;
@@ -522,4 +543,18 @@ footer {
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
+}
+.check-description {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+.fingerprint-check-wrapper {
+    min-width: 1000px;
+    width: 100%;
+    padding-left: 5%;
+    padding-right: 5%;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }

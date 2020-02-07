@@ -11,6 +11,7 @@ import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
 import CoverageChart from './graph-types/coverage-chart';
+import QualityChecksSection from "./components/quality-checks/quality-checks-section";
 import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO, CELL_RANGER_SAMPLE_NAME } from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
 
@@ -351,7 +352,7 @@ function ProjectPage(props){
                                  icon={showNgsGraphs ? faAngleDown : faAngleRight}/>
             </div>
             <div className={`${showNgsGraphs ? "dropdown-open" : "dropdown-closed"}`}>
-                <div className={'graph-container'}>
+                <div className={'dropdown-container'}>
                     <div>
                         <p className={"text-align-center font-bold em2"}>{title}</p>
                     </div>
@@ -452,6 +453,7 @@ function ProjectPage(props){
     return <div key={pId} className={"background-white"}>
             {renderSummary(projectInfo)}
             {renderGraphContainer(selectedSample)}
+            <QualityChecksSection project={pId}/>
             {renderGrid(gridData,headers)}
         </div>;
 }

@@ -1,13 +1,9 @@
 import axios from 'axios';
 
 import config from '../config.js';
-import { handleError } from '../utils/service-utils';
+import { handleError, getData } from '../utils/service-utils';
 
-const getData = (resp) => {
-    const wrapper = resp.data || {};
-    const data = wrapper.data || {};
-    return data;
-};
+// TODO - remove
 const parseResp = (resp) => {
     const payload = resp.data
     return payload.data

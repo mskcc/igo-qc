@@ -3,23 +3,38 @@ import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
+import {
+    faArrowAltCircleRight,
+    faCheck,
+    faExclamationTriangle,
+    faExclamationCircle,
+    faEllipsisH
+} from '@fortawesome/free-solid-svg-icons'
 import config from '../../config.js';
+import {
+    PROJECT_FLAGS,
+    LIMS_REQUEST_ID,
+    CROSSCHECK_METRICS_FLAG_ERROR, CROSSCHECK_METRICS_FLAG_WARNING
+} from "../../resources/constants";
 
 // ALL POSSIBLE FIELDS OF ROWS
-const FIELD_MAP = {
+const TEXT_FIELDS = {
     "pi": "PI",
     "requestType": "Type",
-    "requestId": "Request Id",
+    [LIMS_REQUEST_ID]: "Request Id",
     "run": "Recent Runs",
     "date": "Date of Latest Stats"
 };
-
+const ICON_FIELDS = {
+    [PROJECT_FLAGS]: "Quality Checks"
+};
+const ALL_FIELDS = Object.assign(Object.assign({}, ICON_FIELDS), TEXT_FIELDS);
 /**
  * Router for Projects
  */
 const ProjectRouter = (props) => {
-    const [fields, setFields] = useState([]);
+    const [textFields, setTextFields] = useState([]);
+    const [iconFields, setIconFields] = useState([]);
     const [headers, setHeaders] = useState([]);
 
     useEffect(() => {
@@ -36,15 +51,36 @@ const ProjectRouter = (props) => {
         return projects && projects.length > 0;
     };
 
+    /**
+     * Filters out any field not present in any of the input projects
+     *
+     * @param project
+     * @param fieldMap
+     * @returns {string[]}
+     */
+    const getPresentFields = (projects, fieldMap) => {
+        const presentFields = Object.keys(fieldMap).filter((field) => {
+            // Fields not present will be evaluated to false and filtered out
+            for(const project of projects){
+                if (project[field]) return true;
+            }
+            return false;
+        });
+        return presentFields;
+    };
+
     const setFieldsFromProjects = (projects) => {
         if(validProjects(projects)){
-            // Only take the fields that are present in the project, based on the first project
-            const firstProject = projects[0];
-            const fieldsUpdate = Object.keys(FIELD_MAP).filter((field) => {
-                return firstProject[field]
-            });
-            const headersUpdate = fieldsUpdate.map((field) => FIELD_MAP[field]);
-            setFields(fieldsUpdate);
+            const presentTextFields = getPresentFields(projects, TEXT_FIELDS);
+            const presentIconFields = getPresentFields(projects, ICON_FIELDS);
+
+            // Gets human-readable headers from the valid fields of object
+            const rowFields = presentTextFields.concat(presentIconFields);
+            const headersUpdate = rowFields.map((field) => ALL_FIELDS[field]);
+
+            setTextFields(presentTextFields);
+            setIconFields(presentIconFields);
+
             setHeaders(headersUpdate);
         }
     };
@@ -59,19 +95,71 @@ const ProjectRouter = (props) => {
             }
         </tr></thead>;
     };
+
+    /**
+     * Does logic to parse out flag information to visualize in table cell
+     *
+     * @param flagField, { FLAG_TYPE: String, ... }
+     * @returns {*}
+     */
+    const getFlagIcon = (flagField) => {
+        if(flagField && Object.keys(flagField).length > 0){
+            const flags = Object.keys(flagField);
+            const errorFlags = flags.filter((f) => {return flagField[f] === CROSSCHECK_METRICS_FLAG_ERROR});
+            const warningFlags = flags.filter((f) => {return flagField[f] === CROSSCHECK_METRICS_FLAG_WARNING});
+
+            if(errorFlags.length > 0){
+                // ERROR
+                return <div className={"flag-container tooltip"}>
+                        <FontAwesomeIcon className="em5 mskcc-red" icon={faExclamationCircle}/>
+                        <span className={"tooltiptext"}>Checks failed. View Project</span>
+                        { flags.map((flagType) => {
+                            return <p>{flagType}</p>
+                        }) }
+                </div>
+            } else if (warningFlags.length > 0){
+                // WARNING
+                return <div className={"flag-container tooltip"}>
+                    <FontAwesomeIcon className="em5 mskcc-dark-yellow" icon={faExclamationTriangle}/>
+                    <span className={"tooltiptext"}>Inconclusive results</span>
+                    { flags.map((flagType) => {
+                        return <p>{flagType}</p>
+                    }) }
+                </div>
+            } else {
+                // Quality Checks Passed
+                return <div className={"flag-container tooltip"}>
+                    <FontAwesomeIcon className="em5 mskcc-dark-green" icon={faCheck}/>
+                    <span className={"tooltiptext"}>Passed</span>
+                </div>
+            }
+        }
+        // Waiting for results
+        return <div className={"flag-container tooltip"}>
+            <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faEllipsisH}/>
+            <span className={"tooltiptext"}>No data</span>
+        </div>
+    }
+
     const renderProjects = () => {
         const projectElements = [];
         for( const project of props.projects ){
-            const values = fields.map( (field) => project[field] );
+            const textValues = textFields.map( (field) => project[field] );
+            const iconValues = iconFields.map( (field) => project[field] );
             const element = <tr className="fill-width project-row" key={project.requestId}>
                         <td className="project-field field-header project-row-link text-align-center light-blue-border" key={`${project.requestId}-link`}>
                             <Link to={`${config.SITE_HOME}projects/${project.requestId}`}>
                                 <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faArrowAltCircleRight}/>
                             </Link>
                         </td>
-                        {values.map( field =>
+                        {textValues.map( field =>
                             <td className="project-field field-header text-align-center light-blue-border" key={field}>
                                 <p className="font-size-12">{field}</p>
+                            </td>)
+                        }
+                        {iconValues.map( field =>
+                            <td className="project-field field-header text-align-center light-blue-border" key={field}>
+                                {getFlagIcon(field)}
                             </td>)
                         }
                     </tr>;
@@ -108,7 +196,7 @@ const ProjectRouter = (props) => {
     );
 };
 
-export default ProjectRouter;
+export default ProjectRouter
 
 ProjectRouter.propTypes = {
     name: PropTypes.string,
