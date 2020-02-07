@@ -13,7 +13,7 @@ const Summary = (props) => {
             <div className={"fill-width margin-hor-5per"}>
                 <p className={"text-align-center font-bold em5"}>Project Requester</p>
                 <div className={"fill-width float-left"}>
-                    <p className={"float-left"}>Investgator</p>
+                    <p className={"float-left"}>Investigator</p>
                     <p className={"float-right"}>{props.requester.investigator}</p>
                 </div>
                  <div className={"fill-width float-left"}>
