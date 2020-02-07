@@ -2,7 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {HotTable} from "@handsontable/react";
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
+import {faFileExcel, faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
+import {downloadExcel} from "../../../../../utils/other-utils";
 
 const types = {
     NUMERIC: 'NUMERIC',
@@ -10,24 +11,32 @@ const types = {
 };
 
 const HEADERS = {
+    'result': types.STRING,
     'lodScore': types.NUMERIC,
     'lodScoreTumorNormal': types.NUMERIC,
     'lodScoreNormalTumor': types.NUMERIC,
-    'result': types.STRING,
     'igoIdA': types.STRING,
-    'igoIdB': types.STRING
+    'igoIdB': types.STRING,
+    "tumorNormalA": types.STRING,
+    "tumorNormalB": types.STRING,
+    "patientIdA": types.STRING,
+    "patientIdB": types.STRING
 };
 
-const FingerprintingCheck = ({entries}) => {
+const FingerprintingCheck = ({entries, project}) => {
     const [showDescription, setShowDescription] = useState(false);
 
     const toggleDescription = () => {
         setShowDescription(!showDescription);
     };
+
     return <div className={"fingerprint-check-wrapper"}>
             <div className={"text-align-center"}>
                 <h1 className={"inline-block"}>Fingerprinting</h1>
                 <FontAwesomeIcon className="hover block inline-block margin-bottom-15" icon={faQuestionCircle} onClick={toggleDescription}/>
+                <FontAwesomeIcon className={"font-size-24 margin-left-25 hover"}
+                                 onClick={() => {downloadExcel(entries, `${project}_fingerprinting`)}}
+                                 icon={faFileExcel}/>
             </div>
             <div className={"check-description"}>
                 <div className={showDescription ? 'inline-block' : 'display-none'}>
@@ -59,27 +68,27 @@ const FingerprintingCheck = ({entries}) => {
                     <p><span className={"font-bold"}>More Information</span>: <a href={"https://github.com/broadinstitute/picard/blob/master/docs/fingerprinting/main.pdf"}>Sample Swap</a></p>
                 </div>
             </div>
-            <div className={"hotTable-wrapper"}>
-                <HotTable
-                    licenseKey="non-commercial-and-evaluation"
-                    id="data-check-table"
-                    colHeaders={Object.keys(HEADERS)}
-                    data={entries}
-                    columns={Object.keys(HEADERS).map((header)=>{
-                        const col = { data: header };
-                        if(HEADERS[header] === types.NUMERIC){
-                            col.type = 'numeric';
-                            col.numericFormat = {pattern: '0,0'};
-                        }
-                        return col;
-                    })}
-                    rowHeaders={true}
-                    filters="true"
-                    dropdownMenu={['filter_by_value', 'filter_action_bar']}
-                    columnSorting={true}
-                    manualColumnMove={true}
-                />
-            </div>
+            <HotTable
+                licenseKey="non-commercial-and-evaluation"
+                id="data-check-table"
+                colHeaders={Object.keys(HEADERS)}
+                data={entries}
+                columns={Object.keys(HEADERS).map((header)=>{
+                    const col = { data: header };
+                    if(HEADERS[header] === types.NUMERIC){
+                        col.type = 'numeric';
+                        col.numericFormat = {pattern: '0,0'};
+                    }
+                    return col;
+                })}
+                rowHeaders={true}
+                filters="true"
+                dropdownMenu={['filter_by_value', 'filter_action_bar']}
+                columnSorting={true}
+                manualColumnMove={true}
+                preventOverflow="horizontal"
+                style={{"border": "black 1px solid"}}
+            />
         </div>
 };
 

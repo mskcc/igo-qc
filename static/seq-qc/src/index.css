@@ -134,6 +134,9 @@ h3 {
 .margin-left-10 {
     margin-left: 10px;
 }
+.margin-left-25 {
+    margin-left: 25px;
+}
 .margin-hor-5per {
     margin-left: 5%;
     margin-right: 5%;
@@ -542,17 +545,16 @@ footer {
     position: absolute;
 }
 .check-description {
-    width: 100%;
-    display: inline-block;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
 }
 .fingerprint-check-wrapper {
     min-width: 1000px;
-    width: 1%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    padding-left: 5%;
+    padding-right: 5%;
     margin-top: 30px;
     margin-bottom: 30px;
-}
-.hotTable-wrapper {
-    overflow-y: overlap;
 }

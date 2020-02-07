@@ -21,6 +21,7 @@ export const PROJECT_INFO = 'project-info';
 export const LIMS_REQUEST_ID = 'requestId';
 
 // NGS-Stats
+export const CROSSCHECK_METRICS_ENTRIES = 'entries';
 export const CROSSCHECK_METRICS_PASS = 'pass';
 export const CROSSCHECK_METRICS_FLAG = 'flag';
 export const CROSSCHECK_METRICS_FLAG_PASS = 'PASS';

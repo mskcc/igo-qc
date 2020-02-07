@@ -14,7 +14,6 @@ import config from '../../config.js';
 import {
     PROJECT_FLAGS,
     LIMS_REQUEST_ID,
-    CROSSCHECK_METRICS_FLAG_PASS,
     CROSSCHECK_METRICS_FLAG_ERROR, CROSSCHECK_METRICS_FLAG_WARNING
 } from "../../resources/constants";
 

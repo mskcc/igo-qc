@@ -23,6 +23,7 @@ import './qc-table.css';
 import {saveConfig} from "../../../services/igo-qc-service";
 import StatusSubmitter from './sample-status-modal';
 import {MODAL_ERROR, MODAL_UPDATE} from "../../../resources/constants";
+import {downloadExcel} from "../../../utils/other-utils";
 
 class QcTable extends React.Component {
     constructor(props) {
@@ -208,21 +209,6 @@ class QcTable extends React.Component {
         return headers;
     };
 
-    downloadExcel = () => {
-        const xlsxData = Object.assign([], this.props.data);
-        const fileName = this.props.project || 'Project';
-        const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-        const fileExtension = ".xlsx";
-        const ws = XLSX.utils.json_to_sheet(xlsxData);
-        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-        const excelBuffer = XLSX.write(wb, {
-            bookType: "xlsx",
-            type: "array"
-        });
-        const data = new Blob([excelBuffer], { type: fileType });
-        FileSaver.saveAs(data, fileName + fileExtension);
-    };
-
     /**
      * Returns filtered data based on latest state updates to,
      *      displayedData
@@ -300,127 +286,132 @@ class QcTable extends React.Component {
                 }
             }
         }
-        
-        return (<div>
-                    <StatusSubmitter selectionSubject={this.state.selectionSubject}
-                                     statuses={this.props.qcStatuses}
-                                     addModalUpdate={this.props.addModalUpdate}
-                                     project={this.props.project}
-                                     recipe={this.props.recipe}
-                                     updateProjectInfo={this.props.updateProjectInfo}/>
-                    {
-                        this.state.data.length > 0 ?
-                            <div className={"material-gray-background"}>
-                                <div className={"table-tools pos-rel"}>
-                                    <div className={"height-inherit"}>
-                                        <div className={"table-option hover"} onClick={() => {this.setState({showRemoveColumn: !this.state.showRemoveColumn})}}>
-                                            <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
-                                                <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
-                                                                 icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
-                                            </div>
-                                            <p className={"inline-block vertical-align-top"}>Customize View</p>
-                                        </div>
-                                        <div className={"xlsx-container"}>
-                                            <div className={"xlsx-selector"}>
-                                                <div className={"xlsx-selector-inner"}>
-                                                    <div className={"xlsx-type-selector black-border-right hover"} onClick={this.downloadExcel}>
-                                                        <p className={"font-bold"}>Table Excel</p>
-                                                    </div>
-                                                    <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
-                                                        <div className={"xlsx-type-selector hover"}>
-                                                            <p className={"font-bold"}>Picard Excel</p>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <FontAwesomeIcon className={"font-size-24 center-hv hover"}
-                                                             icon={faFileExcel}/>
-                                        </div>
-                                    </div>
-                                    <div className={"center-v table-search-container"}>
-                                        <FontAwesomeIcon className={"em5"}
-                                                         icon={faSearch}/>
-                                        <input className={"inline vertical-align-top project-search margin-left-10"}
-                                               type="text"
-                                               value={this.state.searchTerm} onChange={this.runSearch} />
-                                    </div>
-                                </div>
-                                <div className={"header-removal-selector fill-width"}>
-                                    <div className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
-                                        <div>
-                                            <div className={"margin-bottom-15"}>
-                                                <p className={"inline-block"}>Columns in View</p>
-                                                <div className={"tooltip"}>
-                                                    <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
-                                                                     icon={faSave}
-                                                                     onClick={this.saveColumnOrder}/>
-                                                    <span className={"tooltiptext"}>Save View</span>
-                                                </div>
-                                            </div>
-                                            {headersToRemove.map((header) => {
-                                                let classes = "inline-block header-selector";
-                                                if(this.state.removedHeaders.has(header)) { classes += " btn-selected"; }
-                                                const toggle = () => {
-                                                    // TODO - Add endpoint to igoLims to see what columns get removed
-                                                    const removedHeaders = this.state.removedHeaders;
-                                                    if(removedHeaders.has(header)) {
-                                                        removedHeaders.delete(header);
-                                                    }
-                                                    else{
-                                                        removedHeaders.add(header);
-                                                    }
 
-                                                    // Update the filteredData w/ the new removedHeaders
-                                                    const filteredData = this.getFilteredData(null, removedHeaders);
-                                                    this.setState({removedHeaders, filteredData});
-                                                };
-                                                return <div className={classes} onClick={toggle} key={`civ-${header}`}>
-                                                    <p className={"inline"}>{header}</p>
+        return (<div>
+            <StatusSubmitter selectionSubject={this.state.selectionSubject}
+                             statuses={this.props.qcStatuses}
+                             addModalUpdate={this.props.addModalUpdate}
+                             project={this.props.project}
+                             recipe={this.props.recipe}
+                             updateProjectInfo={this.props.updateProjectInfo}/>
+            {
+                this.state.data.length > 0 ?
+                    <div className={"material-gray-background"}>
+                        <div className={"table-tools pos-rel"}>
+                            <div className={"height-inherit"}>
+                                <div className={"table-option hover"} onClick={() => {
+                                    this.setState({showRemoveColumn: !this.state.showRemoveColumn})
+                                }}>
+                                    <div className={"table-option-dropdown height-inherit pos-rel inline-block"}>
+                                        <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
+                                                         icon={this.state.showRemoveColumn ? faAngleDown : faAngleRight}/>
+                                    </div>
+                                    <p className={"inline-block vertical-align-top"}>Customize View</p>
+                                </div>
+                                <div className={"xlsx-container"}>
+                                    <div className={"xlsx-selector"}>
+                                        <div className={"xlsx-selector-inner"}>
+                                            <div className={"xlsx-type-selector black-border-right hover"}
+                                                 onClick={() => {downloadExcel(this.props.data, this.props.project || 'Project')}}>
+                                                <p className={"font-bold"}>Table Excel</p>
+                                            </div>
+                                            <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
+                                                <div className={"xlsx-type-selector hover"}>
+                                                    <p className={"font-bold"}>Picard Excel</p>
                                                 </div>
-                                            })}
+                                            </a>
                                         </div>
                                     </div>
+                                    <FontAwesomeIcon className={"font-size-24 center-hv hover"}
+                                                     icon={faFileExcel}/>
                                 </div>
                             </div>
-                        :
-                            <div></div>
+                            <div className={"center-v table-search-container"}>
+                                <FontAwesomeIcon className={"em5"}
+                                                 icon={faSearch}/>
+                                <input className={"inline vertical-align-top project-search margin-left-10"}
+                                       type="text"
+                                       value={this.state.searchTerm} onChange={this.runSearch}/>
+                            </div>
+                        </div>
+                        <div className={"header-removal-selector fill-width"}>
+                            <div
+                                className={this.state.showRemoveColumn ? "inline-block margin-bottom-15 width-95" : "display-none margin-bottom-15 width-95"}>
+                                <div>
+                                    <div className={"margin-bottom-15"}>
+                                        <p className={"inline-block"}>Columns in View</p>
+                                        <div className={"tooltip"}>
+                                            <FontAwesomeIcon className={"em5 hover inline-block margin-left-10"}
+                                                             icon={faSave}
+                                                             onClick={this.saveColumnOrder}/>
+                                            <span className={"tooltiptext"}>Save View</span>
+                                        </div>
+                                    </div>
+                                    {headersToRemove.map((header) => {
+                                        let classes = "inline-block header-selector";
+                                        if (this.state.removedHeaders.has(header)) {
+                                            classes += " btn-selected";
+                                        }
+                                        const toggle = () => {
+                                            // TODO - Add endpoint to igoLims to see what columns get removed
+                                            const removedHeaders = this.state.removedHeaders;
+                                            if (removedHeaders.has(header)) {
+                                                removedHeaders.delete(header);
+                                            } else {
+                                                removedHeaders.add(header);
+                                            }
+
+                                            // Update the filteredData w/ the new removedHeaders
+                                            const filteredData = this.getFilteredData(null, removedHeaders);
+                                            this.setState({removedHeaders, filteredData});
+                                        };
+                                        return <div className={classes} onClick={toggle} key={`civ-${header}`}>
+                                            <p className={"inline"}>{header}</p>
+                                        </div>
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    :
+                    <div></div>
+            }
+            <HotTable
+                ref={this.state.hotTableRef}
+                licenseKey="non-commercial-and-evaluation"
+                id="qc-grid"
+                data={this.state.filteredData}
+                colHeaders={colHeaders}
+                columns={colHeaders.map((data) => {
+                    const col = {data};
+                    if (this.state.numericColumns.has(data)) {
+                        // Numeric Formatting: 31415 -> 31,415
+                        col.type = 'numeric';
+                        col.numericFormat = {pattern: '0,0'};
                     }
-                    <HotTable
-                        ref={this.state.hotTableRef}
-                        licenseKey="non-commercial-and-evaluation"
-                        id="qc-grid"
-                        data={this.state.filteredData}
-                        colHeaders={colHeaders}
-                        columns={colHeaders.map((data)=>{
-                            const col = { data };
-                            if(this.state.numericColumns.has(data)){
-                                // Numeric Formatting: 31415 -> 31,415
-                                col.type = 'numeric';
-                                col.numericFormat = {pattern: '0,0'};
-                            }
-                            if(data === 'QC Status'){
-                                col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
-                                    td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
-                                    return td;
-                                }
-                            }
-                            return col;
-                        })}
-                        rowHeaders={true}
-                        filters="true"
-                        dropdownMenu={['filter_by_value', 'filter_action_bar']}
-                        columnSorting={true}
-                        manualColumnMove={true}
-                        fixedRowsTop={0}
-                        fixedColumnsLeft={0}
-                        preventOverflow="horizontal"
-                        selectionMode={"multiple"}
-                        outsideClickDeselects={true}
-                        afterSelection={this.afterSelection}
-                        rowHeights={`${this.state.rowHeight}px`}
-                        style={style}
-                    />
-                </div>);
+                    if (data === 'QC Status') {
+                        col.renderer = (instance, td, row, col, prop, value, cellProperties) => {
+                            td.innerHTML = `<div class="background-white black-border curved-border text-align-center hover"><p class="margin-1">${value}</p></div>`;
+                            return td;
+                        }
+                    }
+                    return col;
+                })}
+                rowHeaders={true}
+                filters="true"
+                dropdownMenu={['filter_by_value', 'filter_action_bar']}
+                columnSorting={true}
+                manualColumnMove={true}
+                fixedRowsTop={0}
+                fixedColumnsLeft={0}
+                preventOverflow="horizontal"
+                selectionMode={"multiple"}
+                outsideClickDeselects={true}
+                afterSelection={this.afterSelection}
+                rowHeights={`${this.state.rowHeight}px`}
+                style={style}
+            />
+        </div>);
     }
 }
 

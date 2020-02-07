@@ -10,7 +10,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Modal from './components/common/modal';
 import {
     CROSSCHECK_METRICS_FLAG,
-    CROSSCHECK_METRICS_PASS,
     LIMS_REQUEST_ID,
     MODAL_ERROR, PROJECT_FLAGS
 } from "./resources/constants";
