@@ -28,3 +28,7 @@ export const CROSSCHECK_METRICS_FLAG_PASS = 'PASS';
 export const CROSSCHECK_METRICS_FLAG_WARNING = 'WARNING';
 export const CROSSCHECK_METRICS_FLAG_ERROR = 'ERROR';
 export const CELL_RANGER_SAMPLE_NAME = 'Name';
+
+// HANDSONTABLE
+// Columns not shown as selectors, i.e. shouldn't be toggled off so are not shown
+export const TABLE_MANDATORY_COLUMNS = new Set(['Sample', 'QC Status', 'QC Record Id']);
