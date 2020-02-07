@@ -188,6 +188,9 @@ h3 {
 .font-bold {
     font-weight: bold;
 }
+.underline {
+    text-decoration: underline;
+}
 .center-hv {
     top: 50%;
     left: 50%;
@@ -357,12 +360,19 @@ button:hover{
     transition: max-height 0.4s ease-in;
     overflow: hidden;
 }
+/* For hot-table tables, height needs to be set on the parent div. Transitions do not work */
+.table-dropdown-closed {
+    height: 0px;
+}
+.table-dropdown-open {
+    height: 600px;
+}
 .run-info-button {
     width: 65px;
     height: 40px;
     border-radius: 5px;
 }
-.graph-container {
+.dropdown-container {
     background-color: white;
     border-top: none;
     border: 1px solid black;
@@ -530,4 +540,19 @@ footer {
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
+}
+.check-description {
+    width: 100%;
+    display: inline-block;
+}
+.fingerprint-check-wrapper {
+    min-width: 1000px;
+    width: 1%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+.hotTable-wrapper {
+    overflow-y: overlap;
 }

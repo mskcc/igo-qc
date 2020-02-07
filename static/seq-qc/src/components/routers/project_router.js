@@ -110,17 +110,19 @@ const ProjectRouter = (props) => {
             const warningFlags = flags.filter((f) => {return flagField[f] === CROSSCHECK_METRICS_FLAG_WARNING});
 
             if(errorFlags.length > 0){
+                // ERROR
                 return <div className={"flag-container tooltip"}>
                         <FontAwesomeIcon className="em5 mskcc-red" icon={faExclamationCircle}/>
-                        <span className={"tooltiptext"}>View Project for Info</span>
+                        <span className={"tooltiptext"}>Checks failed. View Project</span>
                         { flags.map((flagType) => {
                             return <p>{flagType}</p>
                         }) }
                 </div>
             } else if (warningFlags.length > 0){
+                // WARNING
                 return <div className={"flag-container tooltip"}>
                     <FontAwesomeIcon className="em5 mskcc-dark-yellow" icon={faExclamationTriangle}/>
-                    <span className={"tooltiptext"}>View Project for Info</span>
+                    <span className={"tooltiptext"}>Inconclusive results</span>
                     { flags.map((flagType) => {
                         return <p>{flagType}</p>
                     }) }

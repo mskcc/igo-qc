@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {HotTable} from "@handsontable/react";
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -24,36 +24,40 @@ const FingerprintingCheck = ({entries}) => {
     const toggleDescription = () => {
         setShowDescription(!showDescription);
     };
-
-    return <div>
-            <FontAwesomeIcon className="hover" icon={faQuestionCircle} onClick={toggleDescription}/>
-            <div className={'check-description ' + (showDescription ? 'display-inline' : 'display-none')}>
-                <p>
-                    <span className={"font-bold black-color"}>LOD Score</span>
-                    <a href={"http://genomics.broadinstitute.org/data-sheets/POS_DetectionSampleSwapsContaminantsPedigrees_AGBT_2017.pdf"}> (Link)</a>:
-                    Combined odds ratio for identity combined across set of selected SNPs
-                </p>
-                <p>
-                    <span className={"font-bold black-color"}>LOD Score, Tumor Aware</span>
-                    <a href={"https://gatk.broadinstitute.org/hc/en-us/articles/360036482352-CrosscheckFingerprints-Picard-#--CALCULATE_TUMOR_AWARE_RESULTS"}> (Link)</a>:
-                    Assess identity in the presence of loss-of-heterozygosity (LOH).
-                    LOH could mistakenly conclude samples from the same individual are from different individuals.
-                </p>
-                <p>
-                    <span className={"font-bold"}>Result</span>: Result of Fingerprinting
-                </p>
-                <div className={"margin-left-10"}>
+    return <div className={"fingerprint-check-wrapper"}>
+            <div className={"text-align-center"}>
+                <h1 className={"inline-block"}>Fingerprinting</h1>
+                <FontAwesomeIcon className="hover block inline-block margin-bottom-15" icon={faQuestionCircle} onClick={toggleDescription}/>
+            </div>
+            <div className={"check-description"}>
+                <div className={showDescription ? 'inline-block' : 'display-none'}>
                     <p>
-                        Expected Match: Same sample yielded LOD greater than threshold, Unexpected Match: Different sample yielded LOD greater than threshold
+                        <span className={"font-bold black-color"}>LOD Score</span>
+                        <a href={"http://genomics.broadinstitute.org/data-sheets/POS_DetectionSampleSwapsContaminantsPedigrees_AGBT_2017.pdf"}> (Link)</a>:
+                        Numerical result for determining identity created from the logarithm of odds scores combined across a set of selected SNPs.
+                        Higher scores indicate greater likelihood of being from the same subject
                     </p>
                     <p>
-                        Expected Mismatch: Different sample yielded LOD less than threshold, Unexpected Mismatch: Same sample yielded LOD less than threshold
+                        <span className={"font-bold black-color "}>LOD Score, Tumor Aware</span>
+                        <a href={"https://gatk.broadinstitute.org/hc/en-us/articles/360036482352-CrosscheckFingerprints-Picard-#--CALCULATE_TUMOR_AWARE_RESULTS"}> (Link)</a>:
+                        Assesses identity in the presence of loss-of-heterozygosity (LOH)
                     </p>
                     <p>
-                        Inconclusive: LOD score is less than the absolute value of the threshold
+                        <span className={"font-bold"}>Result</span>: Result of Fingerprinting
                     </p>
+                    <div className={"margin-left-10"}>
+                        <p>
+                            <span className={"underline"}>Expected Match</span>: Same sample yielded LOD greater than threshold, <span className={"underline"}>Unexpected Match</span>: Different sample yielded LOD greater than threshold
+                        </p>
+                        <p>
+                            <span className={"underline"}>Expected Mismatch</span>: Different sample yielded LOD less than threshold, <span className={"underline"}>Unexpected Mismatch</span>: Same sample yielded LOD less than threshold
+                        </p>
+                        <p>
+                            <span className={"underline"}>Inconclusive</span>: LOD score is less than the absolute value of the threshold
+                        </p>
+                    </div>
+                    <p><span className={"font-bold"}>More Information</span>: <a href={"https://github.com/broadinstitute/picard/blob/master/docs/fingerprinting/main.pdf"}>Sample Swap</a></p>
                 </div>
-                <p><span className={"font-bold"}>More Information</span>: <a href={"https://github.com/broadinstitute/picard/blob/master/docs/fingerprinting/main.pdf"}>Sample Swap</a></p>
             </div>
             <div className={"hotTable-wrapper"}>
                 <HotTable
@@ -69,11 +73,11 @@ const FingerprintingCheck = ({entries}) => {
                         }
                         return col;
                     })}
+                    rowHeaders={true}
                     filters="true"
                     dropdownMenu={['filter_by_value', 'filter_action_bar']}
                     columnSorting={true}
                     manualColumnMove={true}
-                    style={{"height": "500px"}}
                 />
             </div>
         </div>

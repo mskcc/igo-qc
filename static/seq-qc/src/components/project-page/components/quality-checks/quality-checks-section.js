@@ -11,7 +11,7 @@ const QualityChecksSection = ({project}) => {
     // TODO - constants
     const entries = projectData['entries'] || [];
 
-    return <div className={"dropdown-container"}>
+    return <div>
         <div className={"pos-rel nav-container"} onClick={() => setShowChecks(!showChecks)}>
             <div className={"margin-left-10 inline-block"}>
                 <p className={"text-align-center"}>Quality Checks</p>
@@ -19,8 +19,10 @@ const QualityChecksSection = ({project}) => {
             <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                              icon={showChecks ? faAngleDown : faAngleRight}/>
         </div>
-        <div className={'table-dropdown ' + `${showChecks ? "table-dropdown-open" : "table-dropdown-closed"}`}>
-            <FingerprintingCheck entries={entries}/>
+        <div className={`${showChecks ? "overflow-y-scroll table-dropdown-open" : "table-dropdown-closed"}`}>
+            {
+                showChecks ? <FingerprintingCheck entries={entries}/> : <div></div>
+            }
         </div>
     </div>
 };
