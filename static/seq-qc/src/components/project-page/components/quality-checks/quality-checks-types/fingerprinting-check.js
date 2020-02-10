@@ -26,6 +26,28 @@ const HEADERS = {
 const FingerprintingCheck = ({entries, project}) => {
     const [showDescription, setShowDescription] = useState(false);
 
+    /**
+     * Removing duplicate pairs from the data to be displayed to the user
+     *
+     * @param entryList, Object[]
+     * @returns {[]}
+     */
+    const filtereDuplicatePairs = (entryList) => {
+        // return entryList;
+        const filteredEntries = [];
+        const pairs = new Set();
+        for(let entry of entryList){
+            // Get unique key for every pair (must sort)
+            const key = [entry['igoIdA'], entry['igoIdB']].sort().join(',');
+            if(!pairs.has(key)){
+                pairs.add(key);
+                filteredEntries.push(entry);
+            }
+        }
+        return filteredEntries;
+    };
+    // Remove duplicate pairs
+    const [filteredEntries, setFilteredEntries] = useState(filtereDuplicatePairs(entries));
     const toggleDescription = () => {
         setShowDescription(!showDescription);
     };
@@ -72,7 +94,7 @@ const FingerprintingCheck = ({entries, project}) => {
                 licenseKey="non-commercial-and-evaluation"
                 id="data-check-table"
                 colHeaders={Object.keys(HEADERS)}
-                data={entries}
+                data={filteredEntries}
                 columns={Object.keys(HEADERS).map((header)=>{
                     const col = { data: header };
                     if(HEADERS[header] === types.NUMERIC){
@@ -95,5 +117,6 @@ const FingerprintingCheck = ({entries, project}) => {
 export default FingerprintingCheck;
 
 FingerprintingCheck.propTypes = {
-    entries: PropTypes.array
+    entries: PropTypes.array,
+    project: PropTypes.string
 };

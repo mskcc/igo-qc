@@ -18,7 +18,7 @@
 .status-change {
     position: absolute;
     background-color: #eceff1;
-    z-index: 1;
+    z-index: 210;
     top: -465px;
     left: 10px;
     height: 455px;
