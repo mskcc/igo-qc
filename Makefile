@@ -54,5 +54,5 @@ deploy-dev:
 	make clean && make pkg-dev && make move-dev
 
 test:
-	python3 test_app.py
+	python3 test_app.py && cd static/seq-qc/ && npm run test-no-watch && cd -
 
