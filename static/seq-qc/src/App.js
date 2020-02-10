@@ -181,6 +181,7 @@ function App() {
                         </label>
                         <input className={"inline vertical-align-top project-search margin-left-10"}
                                type="text"
+                               id={"project-search"}
                                value={projectSearch} onChange={handleProjectSearch} />
                     </div>
                     <SearchButton/>
