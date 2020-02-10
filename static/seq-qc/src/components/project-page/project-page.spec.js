@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -9,6 +9,12 @@ import config from "../../config";
 import projectInfo from '../../mocks/projectInfo';
 import ngsStatsGraph from '../../mocks/cell-ranger';
 import QcTable from "./components/qc-table";
+import Provider from "react-redux/lib/components/Provider";
+import thunk from "redux-thunk";
+import configureStore from "redux-mock-store";
+
+const middlewares = [thunk];
+const mockStore = configureStore(middlewares);
 
 describe('ProjectPage', () => {
     let component;
@@ -21,6 +27,9 @@ describe('ProjectPage', () => {
         mock.onGet(new RegExp(`${config.IGO_QC}/projectInfo/.*`)).reply(200, projectInfo);
         mock.onGet(new RegExp(`${config.NGS_STATS}/ngs-stats/getCellRangerSample.*`)).reply(200, ngsStatsGraph);
 
+        const store = mockStore({
+            projects: {}
+        });
         act(() => {
             const props = {
                 // Param for url-match
@@ -29,7 +38,9 @@ describe('ProjectPage', () => {
                 },
                 addModalUpdate: () => {}
             };
-            component = mount(<ProjectPage {...props}/>);
+            component = mount(<Provider store={store}>
+                <ProjectPage {...props}/>
+            </Provider>);
         });
     });
     it("On initialization, component displays loaders", () => {
@@ -45,6 +56,9 @@ describe('ProjectPage', () => {
         // Re-mock this call since we want an empty response (different from the mocking in 'beforeEach')
         mock = new MockAdapter(axios);
         mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, {data: {data: {}}});
+        const store = mockStore({
+            projects: {}
+        });
         await act( async () => {
             const props = {
                 // Param for url-match
@@ -53,7 +67,9 @@ describe('ProjectPage', () => {
                 },
                 addModalUpdate: () => {}
             };
-            component = mount(<ProjectPage {...props}/>);
+            component = mount(<Provider store={store}>
+                <ProjectPage {...props}/>
+            f</Provider>);
         });
 
         component.setProps({});     // Update the component
