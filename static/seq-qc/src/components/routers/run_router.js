@@ -172,7 +172,7 @@ const RunRouter = (props) => {
     const renderRunUpdateBtn = () => {
         const showUpdateBtn = isValidRange(tempNumDays) && (numDays !== tempNumDays);
         if(showUpdateBtn){
-            return <div className={"btn-info width-80px pos-rel inline-block float-right text-align-center hover"}
+            return <div className={"btn-info width-65px pos-rel inline-block float-right text-align-center hover"}
                  onClick={() => {
                      setRunsWithPicard(null);   // Need to reset so that it will be populated with new recentRuns
                      props.addModalUpdate(MODAL_UPDATE, `Querying Recent Runs from past ${tempNumDays} days`);
@@ -191,7 +191,7 @@ const RunRouter = (props) => {
                 <div className={"width-300px pos-rel inline-block text-align-center"}>
                     <label className={"inline-block"}>
                         <p className={"inline-block"}>Query from past</p>
-                        <input className={"width-50px inline-block margin-left-10"}
+                        <input className={"width-30px inline-block margin-left-10"}
                                type="text"
                                value={tempNumDays}
                                onChange={(evt) => setTempNumDays(evt.target.value)}/>
