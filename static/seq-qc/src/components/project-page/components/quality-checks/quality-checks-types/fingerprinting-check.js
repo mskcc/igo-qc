@@ -27,16 +27,32 @@ const FingerprintingCheck = ({entries, project}) => {
     const [showDescription, setShowDescription] = useState(false);
 
     /**
-     * Removing duplicate pairs from the data to be displayed to the user
+     * Removing same-igoId comparisions and duplicate pairs from the data to be displayed to the user
+     *
+     *      Input   1:1, 1:3, 2:1, 1:2, 2:3, 3:1, 2:2, 3:3, 3:2
+     *                   1:3, 2:1, 1:2, 2:3, 3:1,           3:2     (Same-Sample Filter)
+     *      Output  1:2, 1:3, 2:3
      *
      * @param entryList, Object[]
      * @returns {[]}
      */
     const filtereDuplicatePairs = (entryList) => {
-        // return entryList;
+        const orderedEntries = entryList
+            // Remove any same-sample lines
+            .filter((entry) => {
+                return entry['igoIdA'] !== entry['igoIdB']
+            })
+            // Order alphabetically by igoIdA & igoIdB
+            .sort((e1, e2) => {
+                const id1 = e1['igoIdA'].toUpperCase() + e1['igoIdB'].toUpperCase();
+                const id2 = e2['igoIdA'].toUpperCase() + e2['igoIdB'].toUpperCase();
+
+                return (id1 < id2) ? -1 : (id1 > id2) ? 1 : 0;
+            });
+
         const filteredEntries = [];
         const pairs = new Set();
-        for(let entry of entryList){
+        for(let entry of orderedEntries){
             // Get unique key for every pair (must sort)
             const key = [entry['igoIdA'], entry['igoIdB']].sort().join(',');
             if(!pairs.has(key)){
