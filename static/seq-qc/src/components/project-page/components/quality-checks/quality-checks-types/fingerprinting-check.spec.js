@@ -29,7 +29,7 @@ describe('Run Router', () => {
         const tableData = tableProps['data'] || [];
 
         expect(FINGERPRINT_ENTRIES.length).toBe(9); // [ (1,1), (1,2), (1,3), (2,1), (2,2), (2,3), (3,1), (3,2), (3,3) ]
-        expect(tableData.length).toBe(6);           // [ (1,1), (1,2), (1,3),        (2,2), (2,3),               (3,3) ]
+        expect(tableData.length).toBe(3);           // [        (1,2), (1,3),               (2,3),                     ]
     });
 });
 
