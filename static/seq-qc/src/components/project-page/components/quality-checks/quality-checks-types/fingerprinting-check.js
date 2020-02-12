@@ -23,6 +23,9 @@ const HEADERS = {
     "patientIdB": types.STRING
 };
 
+// TODO - Serve this dynamically
+const CROSSCHECK_METRICS_THERSHOLD = 3;
+
 const FingerprintingCheck = ({entries, project}) => {
     const [showDescription, setShowDescription] = useState(false);
 
@@ -103,6 +106,7 @@ const FingerprintingCheck = ({entries, project}) => {
                             <span className={"underline"}>Inconclusive</span>: LOD score is less than the absolute value of the threshold
                         </p>
                     </div>
+                    <p><span className={"font-bold"}>Current Threshold: </span>{CROSSCHECK_METRICS_THERSHOLD} (Any absolute value lodScore less than this is considered inconclusive)</p>
                     <p><span className={"font-bold"}>More Information</span>: <a href={"https://github.com/broadinstitute/picard/blob/master/docs/fingerprinting/main.pdf"}>Sample Swap</a></p>
                 </div>
             </div>
