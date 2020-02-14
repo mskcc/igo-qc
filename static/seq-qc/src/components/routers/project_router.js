@@ -3,19 +3,9 @@ import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faArrowAltCircleRight,
-    faCheck,
-    faExclamationTriangle,
-    faExclamationCircle,
-    faEllipsisH
-} from '@fortawesome/free-solid-svg-icons'
+import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
 import config from '../../config.js';
-import {
-    PROJECT_FLAGS,
-    LIMS_REQUEST_ID,
-    CROSSCHECK_METRICS_FLAG_ERROR, CROSSCHECK_METRICS_FLAG_WARNING
-} from "../../resources/constants";
+import { PROJECT_FLAGS,  LIMS_REQUEST_ID } from "../../resources/constants";
 import {getFlagIcon} from "../project-page/components/quality-checks/quality-checks-utils";
 
 // ALL POSSIBLE FIELDS OF ROWS
