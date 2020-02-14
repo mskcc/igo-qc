@@ -2,6 +2,7 @@ import {CROSSCHECK_METRICS_FLAG_ERROR, CROSSCHECK_METRICS_FLAG_WARNING} from "..
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEllipsisH, faExclamationCircle, faExclamationTriangle} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import {SET_PROJECTS} from "../../../../redux/actionTypes";
 
 /**
  * Does logic to parse out flag information to visualize in table cell
@@ -46,4 +47,17 @@ export const getFlagIcon = (flagField) => {
         <FontAwesomeIcon className="em5 mskcc-medium-blue" icon={faEllipsisH}/>
         <span className={"tooltiptext"}>No data</span>
     </div>
-}
+};
+
+/**
+ * Updates the state of projects in the application
+ *
+ * @param resp, { [PROJECT_KEY]: {...}, ... }
+ */
+export const updateProjects = (dispatch, stateProjects, projectUpdate) => {
+    const updatedProjects = Object.assign(stateProjects || {}, projectUpdate);
+    dispatch({
+        type: SET_PROJECTS,
+        payload: updatedProjects
+    });
+};

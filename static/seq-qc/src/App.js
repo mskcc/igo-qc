@@ -18,7 +18,7 @@ import config from './config.js';
 import Logo from './resources/igo-logo.jpeg';
 import Feedback from './components/common/feedback';
 import {getCrosscheckMetrics} from "./services/ngs-stats-service";
-import {SET_PROJECTS} from "./redux/actionTypes";
+import {updateProjects} from "./components/project-page/components/quality-checks/quality-checks-utils";
 
 function App() {
     /*
@@ -50,8 +50,8 @@ function App() {
 
                 getCrosscheckMetrics(projectList)
                     .then((cmProjectsUpdate) => {
-                        // Update store w/ projects
-                        updateProjects(cmProjectsUpdate);
+                        updateProjects(dispatch, stateProjects, cmProjectsUpdate);
+
                         // Enrich projects in component state w/ flags returned from crosscheckMetrics update
                         updateProjectFlags(projectsToReview, setProjectsToReview, cmProjectsUpdate, "Fingerprinting");
                         updateProjectFlags(projectsToSequenceFurther, setProjectsToSequenceFurther, cmProjectsUpdate, "Fingerprinting");
@@ -71,8 +71,8 @@ function App() {
                 const projectList = recentDeliveries.map((proj) => { return proj['requestId']});
                 getCrosscheckMetrics(projectList)
                     .then((cmProjectsUpdate) => {
-                        // Update store w/ projects
-                        updateProjects(cmProjectsUpdate);
+                        updateProjects(dispatch, stateProjects, cmProjectsUpdate);
+
                         // Enrich projects in component state w/ flags returned from crosscheckMetrics update
                         updateProjectFlags(recentDeliveries, setRecentDeliveries, cmProjectsUpdate, "Fingerprinting");
                     });
@@ -120,19 +120,6 @@ function App() {
         const pId = project[LIMS_REQUEST_ID];
         const projectEntry = cmProjectsUpdate[pId] || {};
         return projectEntry[CROSSCHECK_METRICS_FLAG];
-    };
-
-    /**
-     * Updates the state of projects in the application
-     *
-     * @param resp, { [PROJECT_KEY]: {...}, ... }
-     */
-    const updateProjects = (cmProjectsUpdate) => {
-        const updatedProjects = Object.assign(stateProjects, cmProjectsUpdate);
-        dispatch({
-            type: SET_PROJECTS,
-            payload: updatedProjects
-        });
     };
 
     const addModalUpdate = (type, msg, delay) => {
