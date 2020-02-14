@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { getNgsStatsData } from '../../services/ngs-stats-service';
+import {getCrosscheckMetrics, getNgsStatsData} from '../../services/ngs-stats-service';
 import { getProjectInfo } from '../../services/igo-qc-service.js';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
@@ -14,6 +14,8 @@ import CoverageChart from './graph-types/coverage-chart';
 import QualityChecksSection from "./components/quality-checks/quality-checks-section";
 import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO, CELL_RANGER_SAMPLE_NAME } from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
+import {useDispatch, useSelector} from "react-redux";
+import {updateProjects} from "./components/quality-checks/quality-checks-utils";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -34,7 +36,17 @@ function ProjectPage(props){
     const [showNgsGraphs, setShowNgsGraphs] = useState(false);
     const [serviceErrors, setServiceErrors] = useState({});
 
+    const stateProjects = useSelector(state => state.projects);
+    const dispatch = useDispatch();
+
     const pId = props.match ? props.match.params.pid : '';  // pId should be passed in by the route
+
+    // Loads crosscheck metrics stats specifically for project loaded on page if homepage service call hasn't
+    if(!stateProjects[pId]){
+        getCrosscheckMetrics([pId]).then(cmProjectsUpdate => {
+            updateProjects(dispatch, stateProjects, cmProjectsUpdate);
+        })
+    }
 
     /**
      * Fetches recipe if not currently available using the pId
