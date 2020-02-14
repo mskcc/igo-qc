@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -20,6 +20,7 @@ describe('ProjectPage', () => {
     let component;
     let mock;
     let pid;
+    let store;
     beforeEach(() => {
         pid = 'TEST_PID';
 
@@ -27,8 +28,10 @@ describe('ProjectPage', () => {
         mock.onGet(new RegExp(`${config.IGO_QC}/projectInfo/.*`)).reply(200, projectInfo);
         mock.onGet(new RegExp(`${config.NGS_STATS}/ngs-stats/getCellRangerSample.*`)).reply(200, ngsStatsGraph);
 
-        const store = mockStore({
-            projects: {}
+        store = mockStore({
+            projects: {
+                [pid]: {}
+            }
         });
         act(() => {
             const props = {
@@ -52,27 +55,26 @@ describe('ProjectPage', () => {
         const qcTableProps = qcTable.props();
         expect(qcTableProps.project).toBe(pid);
     });
-    it("On empty projectInfo Response, component does not render loaders", async () => {
+    it("When projectInfo response is an error, component does not render loaders", async () => {
         // Re-mock this call since we want an empty response (different from the mocking in 'beforeEach')
         mock = new MockAdapter(axios);
-        mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(200, {data: {data: {}}});
-        const store = mockStore({
-            projects: {}
-        });
+        mock.onGet(`${config.IGO_QC}/projectInfo/${pid}`).reply(404, {});
         await act( async () => {
+            // Re-mount w/ the failed axios response
             const props = {
                 // Param for url-match
                 match: {
-                    params: { pid: '' }
+                    params: { pid: pid }
                 },
                 addModalUpdate: () => {}
             };
             component = mount(<Provider store={store}>
-                <ProjectPage {...props}/>
-            f</Provider>);
+                    <ProjectPage {...props}/>
+                </Provider>);
         });
 
         component.setProps({});     // Update the component
+
         expect(component.find('.loader').length).toBe(1);       // Section: [GraphContainer] <- dependent on ngsStats
         expect(component.find('.load-error').length).toBe(2);   // Correctly renders the load errors
     });
