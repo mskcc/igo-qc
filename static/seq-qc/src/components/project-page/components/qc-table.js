@@ -9,7 +9,7 @@ import {
     faAngleRight,
     faFileExcel
 } from "@fortawesome/free-solid-svg-icons";
-import { BehaviorSubject } from 'rxjs';=
+import { BehaviorSubject } from 'rxjs';
 import config from '../../../config.js';
 
 import 'handsontable/dist/handsontable.full.css'
@@ -349,7 +349,7 @@ class QcTable extends React.Component {
                     <div className={"xlsx-container"}>
                         <div className={"xlsx-selector"}>
                             <div className={"xlsx-selector-inner"}>
-                                <div className={"xlsx-type-selector black-border-right hover"} onClick={downloadExcel}>
+                                <div className={"xlsx-type-selector black-border-right hover"} onClick={() => downloadExcel(this.props.data, this.props.project || 'Project')}>
                                     <p className={"font-bold"}>Table Excel</p>
                                 </div>
                                 <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
