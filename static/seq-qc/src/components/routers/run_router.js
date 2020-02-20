@@ -16,10 +16,9 @@ const RunRouter = (props) => {
     // Set of runs w/ available picard stats. Null initialization to flag that service call needs to be made to set
     const [runsWithPicard, setRunsWithPicard] = useState(null);
 
-    useEffect(() => {
-        // TODO - move this to app level or use redux so that call isn't made every time homepage is navigated to
-        updateRecentRuns(); // After recentRuns are available, runsWithPicard is set
-    }, []);
+    if(!recentRuns){
+        updateRecentRuns();
+    }
 
     /**
      * Submits request to obtain recent run information.
