@@ -36,6 +36,9 @@ function App() {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        // TODO - for getSeqAnalysisProjects & getRequestProjects - save this to redux
+        // FEATURE - When there is a mismatch between the samples and the project (E.g. project page's recipe (which pulls
+        // from the samples) and project (which is set on the project), add a warning flag
         getSeqAnalysisProjects()
             .then((resp) => {
                 const projectsToReview = resp.projectsToReview || [];
