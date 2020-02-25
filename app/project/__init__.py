@@ -305,8 +305,8 @@ def get_grid(samples, project_type):
             grid.set_value("PCT_80X", row, round_float(qc['percentTarget80x']* 100) )
             grid.set_value("PCT_100X", row, round_float(qc['percentTarget100x']* 100) )
         if 'hs' in project_type['table']:
-            grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
             add_sum_mtc(grid, row, sample, qc)
+            grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
             grid.set_value("Pct. Zero Cvg", row, round_float(qc['zeroCoveragePercent'] * 100))
             grid.set_value("Pct. Off Bait", row, round_float(qc['percentOffBait'] * 100))
             # TODO - these are redundant w/ 'wgs'
@@ -401,7 +401,6 @@ def get_sample_value(sample, field):
     return val
 
 def add_sum_mtc(grid, row, sample, qc):
-    grid.set_value("Mean Tgt Cvg", row, round_float(qc['meanTargetCoverage']))
     if "sumMtc" in sample:
        grid.set_value("Sum MTC", row, round_float(sample['sumMtc']))
 
