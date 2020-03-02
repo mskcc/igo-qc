@@ -161,7 +161,7 @@ const Feedback = (props) => {
 
 export default Feedback;
 
-QcTable.propTypes = {
+Feedback.propTypes = {
     addModalUpdate: PropTypes.func,
-    closeFeedback: PropTypes.boolean
+    closeFeedback: PropTypes.bool
 };
