@@ -11,6 +11,20 @@
         3               3
 */
 
+export const REDUNDANT_DIFFERENT_RESULT =     {
+        "result":"INCONCLUSIVE",
+        "patientIdB":"C-FHVEXK",
+        "patientIdA":"C-FHVEXK",
+        "lodScore":39.635364,
+        "project":"09443_AM",
+        "tumorNormalB":"Normal",
+        "lodScoreTumorNormal":31.947564,
+        "lodScoreNormalTumor":31.947564,
+        "igoIdB":"IGO_ID_2",
+        "igoIdA":"IGO_ID_1",
+        "tumorNormalA":"Normal"
+    };
+
 export const FINGERPRINT_ENTRIES = [
     {
         "result":"EXPECTED_MATCH",

@@ -57,7 +57,10 @@ const FingerprintingCheck = ({entries, project}) => {
         const pairs = new Set();
         for(let entry of orderedEntries){
             // Get unique key for every pair (must sort)
-            const key = [entry['igoIdA'], entry['igoIdB']].sort().join(',');
+            const key_list = [entry['igoIdA'], entry['igoIdB']].sort();
+            key_list.push(entry['result']);
+            const key = key_list.join(',');
+
             if(!pairs.has(key)){
                 pairs.add(key);
                 filteredEntries.push(entry);

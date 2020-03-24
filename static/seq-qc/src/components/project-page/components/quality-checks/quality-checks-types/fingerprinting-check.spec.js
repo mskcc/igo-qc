@@ -6,7 +6,7 @@ import Provider from "react-redux/lib/components/Provider";
 import thunk from "redux-thunk";
 
 import FingerprintingCheck from "./fingerprinting-check";
-import { FINGERPRINT_ENTRIES } from "../../../../../mocks/fingerprint-entries";
+import {FINGERPRINT_ENTRIES, REDUNDANT_DIFFERENT_RESULT} from "../../../../../mocks/fingerprint-entries";
 import {HotTable} from "@handsontable/react";
 
 const middlewares = [thunk];
@@ -30,6 +30,22 @@ describe('Run Router', () => {
 
         expect(FINGERPRINT_ENTRIES.length).toBe(9); // [ (1,1), (1,2), (1,3), (2,1), (2,2), (2,3), (3,1), (3,2), (3,3) ]
         expect(tableData.length).toBe(3);           // [        (1,2), (1,3),               (2,3),                     ]
+    });
+    it('Redundant pair w/ different result should NOT be filtered from data', async() => {
+        const entries = FINGERPRINT_ENTRIES;
+        entries.push(REDUNDANT_DIFFERENT_RESULT);
+
+        const props = {project: 'TEST_PID', entries};
+        const store = mockStore({});
+        component = mount(<Provider store={store}>
+            <FingerprintingCheck {...props}/>
+        </Provider>);
+
+        const tableProps = component.find(HotTable).props();
+        const tableData = tableProps['data'] || [];
+
+        expect(FINGERPRINT_ENTRIES.length).toBe(10);
+        expect(tableData.length).toBe(4);
     });
 });
 
