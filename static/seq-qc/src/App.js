@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import {faHome, faQuestion} from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Home from './components/routers/main-router.js';
@@ -19,6 +19,7 @@ import Logo from './resources/igo-logo.jpeg';
 import Feedback from './components/common/feedback';
 import {getCrosscheckMetrics} from "./services/ngs-stats-service";
 import {updateProjects} from "./components/project-page/components/quality-checks/quality-checks-utils";
+import HelpPage from "./components/help/help-page";
 
 function App() {
     /*
@@ -175,6 +176,11 @@ function App() {
                                value={projectSearch} onChange={handleProjectSearch} />
                     </div>
                     <SearchButton/>
+                    <div className={"inline-block margin-left-10 float-right"}>
+                        <Link to={config.SITE_HELP}>
+                            <FontAwesomeIcon className={"white-color em5"} icon={faQuestion}/>
+                        </Link>
+                    </div>
                     <MuiButton
                         variant="contained"
                         onClick={() => setShowFeedback(!showFeedback)}
@@ -193,6 +199,9 @@ function App() {
                                   projectsToReview={projectsToReview}
                                   projectsToSequenceFurther={projectsToSequenceFurther}
                                   addModalUpdate={addModalUpdate}/>
+                        </Route>
+                        <Route exact path={config.SITE_HELP}>
+                            <HelpPage></HelpPage>
                         </Route>
                         <Route
                             path={`${config.SITE_HOME}projects/:pid`}
