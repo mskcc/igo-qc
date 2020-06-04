@@ -111,7 +111,7 @@ current_user = User("username")
 @app.before_request
 def before_request():
     session.permanent = True
-    app.permanent_session_lifetime = datetime.timedelta(minutes=15)     # TODO - Find way to refresh (forces login)
+    app.permanent_session_lifetime = datetime.timedelta(minutes=120)     # TODO - Find way to refresh (forces login)
 @login_manager.user_loader
 def load_user(user_id):
     return current_user
