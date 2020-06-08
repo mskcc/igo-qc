@@ -80,7 +80,7 @@ def get_interops_data(run, fields):
 
 joinedInterOpsCsv = open("interOpsQc.csv", "w")
 
-fields = ["Sample", "Run"]
+fields = ["Sample", "Run", "Pct. Duplic.", "PCT_EXC_DUPE", "Pct. Adapters", "Quant-it", "Sum Reads", "Sum MTC", "Unmapped", "Unpaired Reads", "Concentr.  (nM)", "Final Library Yield (fmol)", "Mean Tgt Cvg", "PCT_EXC_BASEQ", "PCT_EXC_MAPQ", "PCT_EXC_TOTAL"]
 interops_fields = ["i_ClusterPF", "i_ReadsPFM", "i_Q30", "i_Aligned", "i_ErrorRate", "i_Percent_Occupied"]
 
 # TODO - delete
@@ -95,6 +95,9 @@ def get_interops_for_run(interops_dic, fields, run):
         interops_dic[run] = run_interops
     return interops_dic[run]
 
+# Write headers
+joinedInterOpsCsv.write("Project,%s,%s,%s\n" % (",".join(fields),"Lane",",".join(interops_fields)))
+
 for project in projects:
     print("processing project: " + project)
 
@@ -104,8 +107,6 @@ for project in projects:
     print("\tqc grid...")
     qc_grid = get_qc_grid(project)
 
-    # Write headers
-    joinedInterOpsCsv.write("Project,%s,%s,%s\n" % (",".join(fields),"Lane",",".join(interops_fields)))
     for k,row in qc_grid.items():
         base_row = "%s," % project
         prj_sample = row["IGO Id"]
