@@ -98,7 +98,12 @@ def get_interops_for_run(interops_dic, fields, run):
     return interops_dic[run]
 
 for project in projects:
+    print("processing project: " + project)
+
+    print("\tlane mapping...")
     lane_dic = get_sample_to_lane_dic(project)
+
+    print("\tqc grid...")
     qc_grid = get_qc_grid(project)
 
     # Write headers
@@ -108,6 +113,7 @@ for project in projects:
         prj_sample = row["IGO Id"]
         run = row["Run"]
 
+        print("\tinterops for run: %s ..." % run)
         run_interops = get_interops_for_run(interops_dic, interops_fields, run)
 
         for field in fields:
@@ -115,7 +121,6 @@ for project in projects:
             base_row = "%s %s," % (base_row, val)
 
         lanes = lane_dic[project][prj_sample]
-
         for lane in lanes:
             # TODO - work out w/ Liping.
             # e.g. (Run: TOMS_5330_000000000-C536J, Igo Id: 05732_AJ_37) has FlowCell lanes [1, 2, 3, 4], but the run has only one lane...
