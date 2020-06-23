@@ -3,11 +3,14 @@ import json
 import csv
 import datetime
 
-USER = "pms"
-PASSW = "tiagostarbuckslightbike"
+USER = ""   # TODO - Add
+PASSW = ""  # TODO - Add
 LIMS_INTEROPS_ROOT = "https://igolims.mskcc.org:8443/LimsRest/getInterOpsData?runId="
 LIMS_PROJECT_LANES = "https://igolims.mskcc.org:8443/LimsRest/getSampleFlowCellLanes?projects="
 RUN_QC_ROOT = "https://igo.mskcc.org/run-qc//projectInfo/"
+
+# TODO - Add Projects
+projects = []
 
 def safe_string_extract(obj, field):
     if field in obj and obj[field] != None:
@@ -82,9 +85,6 @@ joinedInterOpsCsv = open("interOpsQc.csv", "w")
 
 fields = ["Sample", "Run", "Pct. Duplic.", "PCT_EXC_DUPE", "Pct. Adapters", "Quant-it", "Sum Reads", "Sum MTC", "Unmapped", "Unpaired Reads", "Concentr.  (nM)", "Final Library Yield (fmol)", "Mean Tgt Cvg", "PCT_EXC_BASEQ", "PCT_EXC_MAPQ", "PCT_EXC_TOTAL"]
 interops_fields = ["i_ClusterPF", "i_ReadsPFM", "i_Q30", "i_Aligned", "i_ErrorRate", "i_Percent_Occupied"]
-
-# TODO - delete
-projects = ["05732_AJ"]
 
 # Store all interops data (since a run may be used across multiple projects)
 interops_dic = {}

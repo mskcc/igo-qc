@@ -3,35 +3,11 @@ import json
 import csv
 import datetime
 
-projects = ["07428_AH",
-"07428_AF",
-"07428_AM",
-"07428_C",
-"07428_AJ",
-"07428_T",
-"07428_N",
-"07428_S",
-"07428_O",
-"07428_X",
-"07428_BB",
-"07428_Z",
-"07428_H",
-"07428_P",
-"07428_AY",
-"07428_AV",
-"07428_BE",
-"07428_AS",
-"07428_F",
-"07428_AG",
-"07428_K",
-"07428_AR",
-"07428_AP",
-"07428_BF",
-"07428_AD"]
+# TODO - Add projects
+projects = []
 
-
-USER = "pms"
-PASSW = "tiagostarbuckslightbike"
+USER = ""   # TODO - Pull from lims_user_config
+PASSW = ""  # TODO - Pull from lims_user_config
 LIMS_QC_ROOT = "https://igolims.mskcc.org:8443/LimsRest/getProjectQc?project="
 
 def safe_string_extract(obj, field):
