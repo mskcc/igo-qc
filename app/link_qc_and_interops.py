@@ -6,7 +6,7 @@ import datetime
 USER = "pms"
 PASSW = "tiagostarbuckslightbike"
 LIMS_INTEROPS_ROOT = "https://igolims.mskcc.org:8443/LimsRest/getInterOpsData?runId="
-LIMS_PROJECT_LANES = "http://localhost:5007/LimsRest/getSampleFlowCellLanes?projects="
+LIMS_PROJECT_LANES = "https://igolims.mskcc.org:8443/LimsRest/getSampleFlowCellLanes?projects="
 RUN_QC_ROOT = "https://igo.mskcc.org/run-qc//projectInfo/"
 
 def safe_string_extract(obj, field):
