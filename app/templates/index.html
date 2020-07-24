@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html class="lt-ie9" lang="en" >
+<![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en" >
+<!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="shortcut icon" href="{{ url_for('static', filename="images/msk.ico") }}">
+        <title>QC Stats</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <!-- Entry point for react -->
+            <div class="row" id="react_app"></div>
+        </div>
+        <!-- Load our React component. -->
+        <script src="{{ url_for('static', filename='seq-qc/dist/main.js') }}" type="module"></script>
+        <script src="{{ url_for('static', filename='seq-qc/dist/vendors~main.js') }}" type="module"></script>
+    </body>
+</html>
+

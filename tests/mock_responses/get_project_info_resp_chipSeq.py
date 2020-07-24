@@ -1,0 +1,151 @@
+chip_seq_resp = {
+             'requester':{
+                'requestId':'10433_B',
+                'investigator':'Joris Van der Veeken',
+                'pi':'Alexander Rudensky',
+                'projectManager':'N/A',
+                'cmoProject':'N/A',
+                'pipelinable':False,
+                'analysisRequested':False,
+                'requestedNumberOfReads':'N/A',
+                'tumorCount':0,
+                'normalCount':1,
+                'numSamples':64
+             },
+             'statuses':{
+                'Under-Review':1,
+                'IGO-Complete':0,
+                'Passed':0,
+                'Failed':0,
+                'Resequence-Pool':0,
+                'Repool-Sample':0,
+                'Recapture-Sample':0,
+                'New-Library-Needed':0,
+                'Required-Additional-Reads':0
+             },
+             'recordIds':[
+                6324145
+             ],
+             'grid':{
+                'header':[
+                   'Run',
+                   'Sample',
+                   'IGO Id',
+                   'Genome',
+                   'Quant-it',
+                   'Library Quality Control',
+                   'Starting Amount',
+                   'Tumor or Normal',
+                   'Concentr.  (nM)',
+                   'Final Library Yield (fmol)',
+                   'Coverage Target',
+                   'Requested Reads (Millions)',
+                   'Initial Pool',
+                   'QC Status',
+                   'Pct. Adapters',
+                   'Reads Examined',
+                   'Unpaired Reads',
+                   'Sum Reads',
+                   'Unmapped',
+                   'Pct. Duplic.'
+                ],
+                'val_types':{
+                   'Run':'s',
+                   'Sample':'s',
+                   'IGO Id':'s',
+                   'Genome':'s',
+                   'Quant-it':'.2f',
+                   'Library Quality Control':'.2f',
+                   'Starting Amount':'.2f',
+                   'Tumor or Normal':'s',
+                   'Concentr.  (nM)':'.2f',
+                   'Final Library Yield (fmol)':'.2f',
+                   'Coverage Target':'d',
+                   'Requested Reads (Millions)':'.2f',
+                   'Initial Pool':'s',
+                   'QC Status':'.2f',
+                   'Pct. Adapters':'4f',
+                   'Reads Examined':'d',
+                   'Unpaired Reads':'d',
+                   'Sum Reads':'d',
+                   'Unmapped':'d',
+                   'Pct. Duplic.':'.2f'
+                },
+                'grid':{
+                   0:{
+                      'Run':'PITT_0434_BHFTYMBBXY',
+                      'QC Status':'Under-Review',
+                      'Sample':'Fixpel_Nuc_phoStat_hi',
+                      'QC Record Id':6324145,
+                      'IGO Id':'10433_B_51',
+                      'Genome':'Mouse',
+                      'Tumor or Normal':'Normal',
+                      'Concentr.  (nM)':7.0,
+                      'Final Library Yield (fmol)':0.0,
+                      'Coverage Target':'',
+                      'Requested Reads (Millions)':9,
+                      'Pct. Adapters':0.0,
+                      'Reads Examined':0,
+                      'Unpaired Reads':21,
+                      'Initial Pool':'Pool-10433_B-Tube1',
+                      'Unmapped':41,
+                      'Pct. Duplic.':0.0,
+                      'Starting Amount':0.0,
+                      'Library Quality Control':'0.00 0.0',
+                      'Quant-it':'0.00 NA',
+                      'Sum Reads':21
+                   }
+                },
+                'style':{
+                   0:{
+                      'Run':None,
+                      'QC Status':None,
+                      'Sample':None,
+                      'QC Record Id':None,
+                      'IGO Id':None,
+                      'Genome':None,
+                      'Tumor or Normal':'text-primary',
+                      'Concentr.  (nM)':None,
+                      'Final Library Yield (fmol)':None,
+                      'Coverage Target':None,
+                      'Requested Reads (Millions)':None,
+                      'Pct. Adapters':None,
+                      'Reads Examined':None,
+                      'Unpaired Reads':None,
+                      'Initial Pool':None,
+                      'Unmapped':None,
+                      'Pct. Duplic.':None,
+                      'Starting Amount':None,
+                      'Library Quality Control':None,
+                      'Quant-it':None,
+                      'Sum Reads':None
+                   }
+                }
+             },
+             'chartsLinks':{
+
+             },
+             'projectType':{
+                'recipe':'ChIPSeq',
+                'startable':True,
+                'quanted':True,
+                'qcControlled':True,
+                'table': ['md']
+             },
+             'columnOrder':[
+                'QC Status',
+                'Sample',
+                'QC Record Id',
+                'Coverage Target',
+                'Concentr.  (nM)',
+                'Final Library Yield (fmol)',
+                'Requested Reads (Millions)',
+                'Reads Examined',
+                'Unpaired Reads',
+                'Sum Reads',
+                'Unmapped',
+                'Tumor or Normal',
+                'Pct. Adapters',
+                'Pct. Duplic.'
+             ]
+          }
