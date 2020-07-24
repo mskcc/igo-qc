@@ -80,9 +80,15 @@ const processCellRangerResponse = (resp) => {
     const wrapper = resp.data || {};
     const data = wrapper.data || [];
     for(const sample of data) {
+        // TODO - As of the new cell-ranger update, the graph data can't be parsed from the web_summary.html the usual way
         // Parse out graph data if available
-        const decompressedGraph = decompressGraphData(sample['CompressedGraphData']);
-        sample.graphs = decompressedGraph;
+        const compressedGraphData = sample['CompressedGraphData'];
+        if(compressedGraphData && compressedGraphData !== "" && compressedGraphData.length > 100){
+            const decompressedGraph = decompressGraphData(sample['CompressedGraphData']);
+            sample.graphs = decompressedGraph;
+        } else {
+            sample.graphs = [];
+        }
     }
 
     return data;

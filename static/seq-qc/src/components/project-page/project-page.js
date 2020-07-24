@@ -369,10 +369,6 @@ function ProjectPage(props){
                         <p className={"text-align-center font-bold em2"}>{title}</p>
                     </div>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
-                        {
-                            (ngsStatsData && ngsStatsData.length > 0)?
-                                renderNgsGraphs(title) : <CoverageChart data={gridData}/>
-                        }
                     </div>
                     { chartNames.length > 0 ?
                         <div className={'charts-links-container vertical-align-top inline-block'}>
