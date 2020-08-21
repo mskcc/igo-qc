@@ -172,7 +172,7 @@ def get_project_type(samples):
         project_type['table'].append('hs')
         # Take the baitSet of one of the samples w/ a baitSet
         project_type['baitSet'] = sampleQcs_with_baitSet[0]['baitSet']
-    if 'HumanWholeGenome' in project_recipe:
+    if 'HumanWholeGenome' in project_recipe or 'MouseWholeGenome' in project_recipe:
         project_type['table'].append('wgs')
     if len(project_type['table']) == 0:
         project_type['table'].append('md')
