@@ -14,3 +14,15 @@ export const downloadExcel = (data, fileName) => {
     const blob = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(blob, fileName + fileExtension);
 };
+
+/**
+ * Outputs the input data string to a downloadable file
+ * @param data, string
+ * @param fileName
+ */
+export const downloadHtml = (data, fileName) => {
+    const fileType = "text/html";
+    const fileExtension = ".html";
+    const blob = new Blob([data], { type: fileType });
+    FileSaver.saveAs(blob, fileName + fileExtension);
+};

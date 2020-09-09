@@ -5,6 +5,7 @@ import { preProcess } from '../utils/browser-utils';
 
 import config from '../config.js';
 import {CELL_RANGER_APPLICATION_COUNT, CELL_RANGER_APPLICATION_VDJ} from "../resources/constants";
+import {downloadHtml} from "../utils/other-utils";
 
 /**
  * Returns the fingerprint data for an input list of projects
@@ -48,13 +49,58 @@ export const getNgsStatsData = (recipe, projectId) => {
         .then(processCellRangerResponse)
         .catch(handleError)
     */
-    if(recipe.includes(CELL_RANGER_APPLICATION_COUNT)) {
-        // TODO - make "count" & "vdj" constants
-        return getCellRangerData(projectId, "count");       // "count" maps to an ngs-stats endpoint
-    } else if(recipe.includes(CELL_RANGER_APPLICATION_VDJ)) {
-        return getCellRangerData(projectId, "vdj");
+    const mappedType = mapCellRangerRecipe(recipe);
+    if(mappedType){
+        return getCellRangerData(projectId, mappedType);       // "count" maps to an ngs-stats endpoint
     }
     return new Promise((resolve) => resolve([]));
+};
+
+/**
+ * Downloads the webSummary.html file of the specified parameters
+ *
+ * @param type,     e.g. "count"
+ * @param sample,   e.g. "SC16
+ * @param igoId,    e.g. "IGO_09335_O_1"
+ * @param project,  e.g. "09335_O"
+ * @param run
+ * @returns {Promise<String>}
+ */
+export const downloadNgsStatsFile = (type, sample, igoId, project, run) => {
+    // e.g. "09335_O" => "Project_09335_O"
+    if(!project.includes("Project_")){
+        project = `Project_${project}`;
+    }
+    // e.g. [ "SC16-UN", "IGO_09335_O_1" ] => "Sample_SC16-UN_IGO_09335_O_1"
+    sample = `${sample}_IGO_${igoId}`
+    if(!sample.includes("Sample_")){
+        sample = `Sample_${sample}`;
+    }
+
+    return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerFile?run=${run}&project=${project}&sample=${sample}&type=${type}`)
+        .then(res => {
+            const payload = res['data'] || {};
+            const data = payload['data'];
+            downloadHtml(data, sample)
+            return data;
+        })
+        .catch(handleError)
+};
+
+/**
+ * Returns the CellRanger output type taht the input IGO recipe should map to
+ *
+ * @param recipe
+ * @returns {string|null}
+ */
+export const mapCellRangerRecipe = (recipe) => {
+    if(recipe.includes(CELL_RANGER_APPLICATION_COUNT)) {
+        // TODO - make "count" & "vdj" constants
+        return "count"       // "count" maps to an ngs-stats endpoint
+    } else if(recipe.includes(CELL_RANGER_APPLICATION_VDJ)) {
+        return "vdj";
+    }
+    return null;
 };
 
 /**
@@ -90,7 +136,6 @@ const processCellRangerResponse = (resp) => {
             sample.graphs = [];
         }
     }
-
     return data;
 };
 /**
