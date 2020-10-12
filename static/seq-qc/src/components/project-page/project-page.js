@@ -1,21 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import {getCrosscheckMetrics, getNgsStatsData} from '../../services/ngs-stats-service';
+import {
+    downloadNgsStatsFile,
+    getCrosscheckMetrics,
+    getNgsStatsData,
+    mapCellRangerRecipe
+} from '../../services/ngs-stats-service';
 import { getProjectInfo } from '../../services/igo-qc-service.js';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faAngleRight, faAngleDown, faDownload } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
 import CoverageChart from './graph-types/coverage-chart';
 import QualityChecksSection from "./components/quality-checks/quality-checks-section";
-import { CELL_RANGER_APPLICATION_COUNT, MODAL_ERROR, NGS_HEADERS_TO_REMOVE, NGS_STATS, PROJECT_INFO, CELL_RANGER_SAMPLE_NAME } from "../../resources/constants";
+import {
+    CELL_RANGER_APPLICATION_COUNT,
+    MODAL_ERROR,
+    NGS_HEADERS_TO_REMOVE,
+    NGS_STATS,
+    PROJECT_INFO,
+    CELL_RANGER_SAMPLE_NAME,
+    MODAL_UPDATE, MODAL_SUCCESS
+} from "../../resources/constants";
 import { addServiceError } from '../../utils/service-utils';
 import {useDispatch, useSelector} from "react-redux";
 import {updateProjects} from "./components/quality-checks/quality-checks-utils";
+import MuiButton from "@material-ui/core/Button/Button";
+import config from "../../config";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
@@ -336,7 +351,65 @@ function ProjectPage(props){
         }
     };
 
-    const renderGraphContainer = (sampleId) => {
+    /**
+     * Renders web summary container
+     */
+    const renderWebSummaryContainer = () => {
+        return <div>
+            <div className={"pos-rel nav-container"} onClick={toggleGraph}>
+                <div className={"margin-left-10 inline-block"}>
+                    <p className={"text-align-center"}>WebSummary Downloads</p>
+                </div>
+                <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
+                                 icon={showNgsGraphs ? faAngleDown : faAngleRight}/>
+            </div>
+            <div className={`${showNgsGraphs ? "dropdown-open" : "dropdown-closed"}`}>
+                <div className={'dropdown-container'}>
+                    <div>
+                        <p className={"text-align-center font-bold em2"}>WebSummary Downloads</p>
+                    </div>
+                    { gridData.length > 0 ?
+                        <div className={"padding-24"}>
+                            {gridData.map((row)=>{
+                                const sample = `${row['Sample']}_IGO_${row['IGO Id']}`;
+                                return <div>
+                                    <p className={"inline-block"}>
+                                        {sample}
+                                    </p>
+                                    <FontAwesomeIcon
+                                        className={"margin-left-25 inline-block hover"}
+                                        icon={faDownload}
+                                        onClick={() => downloadWebSummary(row)}/>
+                                </div>
+                                })
+                            }
+                        </div>
+                        :
+                        <div></div>}
+                </div>
+            </div>
+        </div>
+    };
+
+    /**
+     * Submits request to download web summary file
+     * @param row
+     */
+    const downloadWebSummary = (row) => {
+        const sample = `${row["Sample"]}_IGO_${row["IGO Id"]}`;
+        props.addModalUpdate(MODAL_UPDATE, `Downloading ${sample}`);
+        downloadNgsStatsFile(mapCellRangerRecipe(recipe), row["Sample"], row["IGO Id"], pId, row["Run"])
+            .then((data) => {
+                if(data){
+                    props.addModalUpdate(MODAL_SUCCESS, `Finished downloading ${sample}`)
+                } else {
+                    // parsed output will be null if not valid
+                    props.addModalUpdate(MODAL_ERROR, `Failed to download ${sample}. Data not available`);
+                }
+            });
+    };
+
+    const renderGraphContainer = () => {
         if(serviceErrors[NGS_STATS]){
             return <div className={"black-border"}>
                 <p className={'load-error text-align-center'}>Error loading NgsGraphs - Please submit a bug report using the "Feedback" button in the top-right corner</p>
@@ -369,10 +442,6 @@ function ProjectPage(props){
                         <p className={"text-align-center font-bold em2"}>{title}</p>
                     </div>
                     <div className={'ngs-stats-graphs-container pos-rel inline-block'}>
-                        {
-                            (ngsStatsData && ngsStatsData.length > 0)?
-                                renderNgsGraphs(title) : <CoverageChart data={gridData}/>
-                        }
                     </div>
                     { chartNames.length > 0 ?
                         <div className={'charts-links-container vertical-align-top inline-block'}>
@@ -464,7 +533,7 @@ function ProjectPage(props){
     };
     return <div key={pId} className={"background-white"}>
             {renderSummary(projectInfo)}
-            {renderGraphContainer(selectedSample)}
+            {(ngsStatsData === null || projectInfo === null) ? renderGraphContainer() : renderWebSummaryContainer()}
             <QualityChecksSection project={pId}/>
             {renderGrid(gridData,headers)}
         </div>;
