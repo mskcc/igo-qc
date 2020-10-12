@@ -11,7 +11,7 @@ import Modal from './components/common/modal';
 import {
     CROSSCHECK_METRICS_FLAG,
     LIMS_REQUEST_ID,
-    MODAL_ERROR, PROJECT_FLAGS
+    MODAL_UPDATE, MODAL_ERROR, PROJECT_FLAGS
 } from "./resources/constants";
 import MuiButton from "@material-ui/core/Button/Button";
 import config from './config.js';
@@ -28,6 +28,7 @@ function App() {
     */
     const [projectsToReview, setProjectsToReview] = useState(null);
     const [projectsToSequenceFurther, setProjectsToSequenceFurther] = useState(null);
+    const [pendingRequests, setPendingRequests] = useState(null);
     const [recentDeliveries, setRecentDeliveries] = useState(null);
     const [projectSearch, setProjectSearch] = useState('');
     const [modalUpdate, setModalUpdate] = useState({});
@@ -44,8 +45,22 @@ function App() {
             .then((resp) => {
                 const projectsToReview = resp.projectsToReview || [];
                 const projectsToSequenceFurther = resp.projectsToSequenceFurther || [];
+                const pendingRequests = resp.requestsPending || [];
                 setProjectsToReview(projectsToReview);
                 setProjectsToSequenceFurther(projectsToSequenceFurther);
+                setPendingRequests(pendingRequests);
+
+                // Grammar for update message
+                const numPending = pendingRequests.length;
+                if(numPending > 0){
+                    let verb = 'is';
+                    let require = 'requires';
+                    if(numPending > 1){
+                        verb = 'are';
+                        require = 'require';
+                    }
+                    addModalUpdate(MODAL_UPDATE, `There ${verb} ${numPending} pending request(s) that ${require} further action. See "Awaiting Further Action"`)
+                }
 
                 // Call crosscheck metrics on all projects in @resp
                 const projectsToReviewList = projectsToReview.map((proj) => {return proj['requestId']});
@@ -198,7 +213,8 @@ function App() {
                             <Home recentDeliveries={recentDeliveries}
                                   projectsToReview={projectsToReview}
                                   projectsToSequenceFurther={projectsToSequenceFurther}
-                                  addModalUpdate={addModalUpdate}/>
+                                  addModalUpdate={addModalUpdate}
+                                  pendingRequests={pendingRequests}/>
                         </Route>
                         <Route exact path={config.SITE_HELP}>
                             <HelpPage></HelpPage>

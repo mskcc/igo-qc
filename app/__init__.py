@@ -275,10 +275,16 @@ def getRecentDateAndRuns(project):
 
 '''
 Returns the recent projects from the Seq Analysis LIMS table
+    {
+        'projectsToReview': [],
+        'projectsToSequenceFurther': [],
+        'requestsPending':  []
+    }
 '''
 @app.route('/getSeqAnalysisProjects', methods=['GET'])
 @navbarForm
 def getSeqAnalysisProjects():
+    # Retrieve requests that require review
     cache_key = "seq-analysis-projects"
     content = get_cached_data(cache_key)
     if not content:
@@ -287,15 +293,32 @@ def getSeqAnalysisProjects():
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
         cache_data(cache_key, content, CACHE_TIME_SHORT)
-    projects = json.loads(content)
+    reviewed_requests = json.loads(content)
 
-    # Logging
-    request_names = map(lambda p: p['requestId'], projects)
-    app.logger.info("Received %d projects: %s" % (len(projects), str(list(request_names))))
+    # Retrieve all sequencing requests that have not been marked igo-complete
+    incomplete_requests_cache_key = "incomplete-requests"
+    incomplete_requests_cached = get_cached_data(incomplete_requests_cache_key)
+    if not incomplete_requests_cached:
+        request_statuses_url = LIMS_API_ROOT + "/LimsRest/getSequencingRequests?days=30&complete=false"
+        app.logger.info("Sending request to %s" % request_statuses_url)
+        resp = s.get(request_statuses_url, auth=(USER, PASSW), verify=False) # , timeout=10)
+        incomplete_requests_cached = resp.content
+        cache_data(incomplete_requests_cache_key, incomplete_requests_cached, CACHE_TIME_SHORT)
+    incomplete_requests_content = json.loads(incomplete_requests_cached)
+    incomplete_requests = incomplete_requests_content['requests']
+
+    reviewed_request_ids = list(sorted(map(lambda p: p['requestId'], reviewed_requests)))
+    app.logger.info("Total Requests for or past review: %d - %s" % (len(reviewed_requests), str(reviewed_request_ids)))
+    incomplete_requests_id = list(sorted(map(lambda p: p['requestId'], incomplete_requests)))
+    app.logger.info("Total Incomplete Requests: %d - %s" % (len(incomplete_requests_id), str(incomplete_requests_id)))
+
+    # Remove any incomplete requests that are not in the review queue or recently delivered. These will be accounted for
+    reviewed_request_ids_set = set(reviewed_request_ids)
+    pending_requests = list(filter(lambda r: r['requestId'] not in reviewed_request_ids_set, incomplete_requests))
 
     projectsToReview = []
     projectsToSequenceFurther = []
-    for project in projects:
+    for project in reviewed_requests:
         projectReady = isProjectReady(project)
         project['ready'] = projectReady
         [ runs, recentDate ] = getRecentDateAndRuns(project)
@@ -309,13 +332,13 @@ def getSeqAnalysisProjects():
         else:
             projectsToSequenceFurther.append(project)
 
-
     projectsToReview.sort(key=itemgetter('ordering'))
     projectsToSequenceFurther.sort(key=itemgetter('ordering'))
 
     data = {
         'projectsToReview': projectsToReview,
-        'projectsToSequenceFurther': projectsToSequenceFurther
+        'projectsToSequenceFurther': projectsToSequenceFurther,
+        'requestsPending': pending_requests
     }
     return create_resp(True, 'success', data)
 

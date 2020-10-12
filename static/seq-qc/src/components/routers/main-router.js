@@ -14,11 +14,22 @@ const App = (props) => {
                         <div className={"router-section-container"}>
                             <h3 className={"margin-0"}>Sequence Analysis</h3>
                             <div className="project-router-container">
-                                <ProjectRouter name="Needs Review" projects={props.projectsToReview}/>
+                                <ProjectRouter name="Needs Review"
+                                               tooltip="Requires review action"
+                                               projects={props.projectsToReview}/>
                             </div>
                             <div className="project-router-container">
-                                <ProjectRouter name="Requires Further Sequencing" projects={props.projectsToSequenceFurther}/>
+                                <ProjectRouter  name="Requires Further Sequencing"
+                                                tooltip="Waiting on sequencing"
+                                                projects={props.projectsToSequenceFurther}/>
                             </div>
+                            {
+                                props.pendingRequests && props.pendingRequests.length > 0 ? <div className="project-router-container">
+                                    <ProjectRouter  name="Awaiting Further Action"
+                                                    tooltip="Requests that are not delivered or pending review"
+                                                    projects={props.pendingRequests}/>
+                                </div> : <span></span>
+                            }
                         </div>
                         <div className={"router-section-container"}>
                             <h3 className={"margin-0"}>Recent Deliveries</h3>
