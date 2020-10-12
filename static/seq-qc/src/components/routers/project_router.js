@@ -7,6 +7,7 @@ import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
 import config from '../../config.js';
 import { PROJECT_FLAGS,  LIMS_REQUEST_ID } from "../../resources/constants";
 import {getFlagIcon} from "../project-page/components/quality-checks/quality-checks-utils";
+import Tooltip from '@material-ui/core/Tooltip';
 
 // ALL POSSIBLE FIELDS OF ROWS
 const TEXT_FIELDS = {
@@ -23,14 +24,14 @@ const ALL_FIELDS = Object.assign(Object.assign({}, ICON_FIELDS), TEXT_FIELDS);
 /**
  * Router for Projects
  */
-const ProjectRouter = (props) => {
+const ProjectRouter = ({name, tooltip, projects}) => {
     const [textFields, setTextFields] = useState([]);
     const [iconFields, setIconFields] = useState([]);
     const [headers, setHeaders] = useState([]);
 
     useEffect(() => {
-        setFieldsFromProjects(props.projects);
-    }, [props.projects]);
+        setFieldsFromProjects(projects);
+    }, [projects]);
 
     /**
      * Determines whether input is valid list of projects that can be rendered
@@ -89,7 +90,7 @@ const ProjectRouter = (props) => {
 
     const renderProjects = () => {
         const projectElements = [];
-        for( const project of props.projects ){
+        for( const project of projects ){
             const textValues = textFields.map( (field) => project[field] );
             const iconValues = iconFields.map( (field) => project[field] );
             const element = <tr className="fill-width project-row" key={project.requestId}>
@@ -115,13 +116,13 @@ const ProjectRouter = (props) => {
     };
     const renderTable = () => {
         // Visualize projects if present and state has been populated w/ fields to visualize
-        if(validProjects(props.projects)){
+        if(validProjects(projects)){
             // LOADED - Data Available
             return <table className="project-table fill-width border-collapse">
                 {renderHeaders()}
                 {renderProjects()}
             </table>
-        } else if (props.projects === null) {
+        } else if (projects === null) {
             // LOADING - Input properties are still loading
             return <div className="loader margin-auto"></div>
         } else {
@@ -135,7 +136,10 @@ const ProjectRouter = (props) => {
     return (
         <div className={"projects-table-container"}>
             <div>
-                <p className="margin-0 font-size-24">{props.name}</p>
+                <Tooltip title={tooltip} aria-label={tooltip} placement="left">
+                    <p className="margin-0 font-size-24 inline-block">{name}</p>
+                </Tooltip>
+
             </div>
             {renderTable()}
         </div>
