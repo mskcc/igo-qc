@@ -59,7 +59,11 @@ function App() {
                         verb = 'are';
                         require = 'require';
                     }
-                    addModalUpdate(MODAL_UPDATE, `There ${verb} ${numPending} pending request(s) that ${require} further action. See "Awaiting Further Action"`)
+                    if(window.location.pathname.replaceAll('/', '') === config.SITE_HOME.replaceAll('/', '')){
+                        // Only add modal on the home page
+                        const msg = `There ${verb} ${numPending} pending request(s) that ${require} further action. See "Awaiting Further Action"`;
+                        addModalUpdate(MODAL_UPDATE, msg);
+                    }
                 }
 
                 // Call crosscheck metrics on all projects in @resp
