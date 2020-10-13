@@ -299,7 +299,7 @@ def getSeqAnalysisProjects():
     incomplete_requests_cache_key = "incomplete-requests"
     incomplete_requests_cached = get_cached_data(incomplete_requests_cache_key)
     if not incomplete_requests_cached:
-        request_statuses_url = LIMS_API_ROOT + "/LimsRest/getSequencingRequests?days=30&complete=false"
+        request_statuses_url = LIMS_API_ROOT + "/LimsRest/getSequencingRequests?days=30&delivered=false"
         app.logger.info("Sending request to %s" % request_statuses_url)
         resp = s.get(request_statuses_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         incomplete_requests_cached = resp.content
