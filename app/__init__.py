@@ -141,8 +141,8 @@ def authenticate():
         session[USER_ID] = username     # Place user_id in the session so we can extract it later
         return redirect(url_for('index'))
     else:
-        flash('Missing username or password. Please try again.')
-        return redirect(url_for('login.html', URL_PREFIX=URL_PREFIX))
+        flash('Authentication Failed - Invalid username/password')
+        return render_template('login.html', URL_PREFIX=URL_PREFIX)
 
 def get_ldap_connection():
     conn = ldap.initialize(LDAP_URL)
@@ -164,6 +164,7 @@ def ldap_authenticate(username, password):
     return result
 
 def is_authorized(result):
+    print("Checking for Authorized Group: %s" % AUTHORIZED_GROUP)
     return AUTHORIZED_GROUP in format_result(result)
 
 def format_result(result):
