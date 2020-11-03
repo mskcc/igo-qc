@@ -79,7 +79,8 @@ class QcTable extends React.Component {
             for(let i = lowerCaseHeaders.length-1; i>=0; i--){
                 const val = lowerCaseHeaders[i];
                 const firstIdx = lowerCaseHeaders.indexOf(val);
-                if(firstIdx !== i){
+                // Run: LIMS run, run: ngs-stats run (this can be different, e.g. _10x)
+                if(firstIdx !== i && val !== 'run'){
                     // Remove from headers array
                     headers.splice(i,1);
                 }

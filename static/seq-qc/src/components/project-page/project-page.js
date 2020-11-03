@@ -398,7 +398,7 @@ function ProjectPage(props){
     const downloadWebSummary = (row) => {
         const sample = `${row["Sample"]}_IGO_${row["IGO Id"]}`;
         props.addModalUpdate(MODAL_UPDATE, `Downloading ${sample}`);
-        downloadNgsStatsFile(mapCellRangerRecipe(recipe), row["Sample"], row["IGO Id"], pId, row["Run"])
+        downloadNgsStatsFile(mapCellRangerRecipe(recipe), row["Sample"], row["IGO Id"], pId, row["run"])
             .then((data) => {
                 if(data){
                     props.addModalUpdate(MODAL_SUCCESS, `Finished downloading ${sample}`)
@@ -528,7 +528,7 @@ function ProjectPage(props){
     // Return a message to indicate no data - projectInfo is required to load the page & ngsStats information
     if(projectInfo && Object.keys(projectInfo).length === 0){
         return <div className={"black-border"}>
-            <p className={'text-align-center'}>No data is available - Piccard stats need to be run</p>
+            <p className={'text-align-center'}>No data is available - Picard stats need to be run</p>
         </div>
     };
     return <div key={pId} className={"background-white"}>
