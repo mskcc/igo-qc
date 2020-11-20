@@ -17,7 +17,9 @@ def save_config():
         return create_resp(False, "Requests should contain 'type' and 'value'", None)
     if not is_valid_config(type,value):
         return create_resp(False, "Invalid update format", None)
-    user = '' if USER_ID not in session else session[USER_ID]
+    user = None if USER_ID not in session else session[USER_ID]
+    if not user:
+        return create_resp(False, "Error updating config", None)
     existing_configuration = get_user_configuration_object(user)
     if existing_configuration:
         config = existing_configuration.get_config()
