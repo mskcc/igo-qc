@@ -709,10 +709,10 @@ def get_flowcell_id(run_name):
     elif len(run_name.split("-")) <= 1:
         if len(re.findall(hiseq_pattern, run_name)) == 1:
             return re.findall(hiseq_pattern, run_name)[0]
-    else:
-        run_values = run_name.split('_')
-        run_id = run_values[0] + "_" + run_values[1] + "_" + run_values[2]
-        return run_id
+    # If we can't parse out the name, return the full run_id, e.g. PEPE_9_AAAKYNGM5_laneBarcode.html -> PEPE_9_AAAKYNGM5
+    run_values = run_name.split('_')
+    run_id = run_values[0] + "_" + run_values[1] + "_" + run_values[2]
+    return run_id
 
 
 @app.route("/getInterOpsData")
