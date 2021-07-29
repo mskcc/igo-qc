@@ -67,10 +67,6 @@ export const getNgsStatsData = (recipe, projectId) => {
  * @returns {Promise<String>}
  */
 export const downloadNgsStatsFile = (type, sample, igoId, project, run) => {
-    // e.g. "09335_O" => "Project_09335_O"
-    if(!project.includes("Project_")){
-        project = `Project_${project}`;
-    }
     // e.g. [ "SC16-UN", "IGO_09335_O_1" ] => "Sample_SC16-UN_IGO_09335_O_1"
     sample = `${sample}_IGO_${igoId}`
     if(!sample.includes("Sample_")){
