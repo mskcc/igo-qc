@@ -67,12 +67,8 @@ export const getNgsStatsData = (recipe, projectId) => {
  * @returns {Promise<String>}
  */
 export const downloadNgsStatsFile = (type, sample, igoId, project, run) => {
-    // e.g. [ "SC16-UN", "IGO_09335_O_1" ] => "Sample_SC16-UN_IGO_09335_O_1"
+    // e.g. [ "SC16-UN", "IGO_09335_O_1" ] => "SC16-UN_IGO_09335_O_1"
     sample = `${sample}_IGO_${igoId}`
-    if(!sample.includes("Sample_")){
-        sample = `Sample_${sample}`;
-    }
-
     return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerFile?run=${run}&project=${project}&sample=${sample}&type=${type}`)
         .then(res => {
             const payload = res['data'] || {};
