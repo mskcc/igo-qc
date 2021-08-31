@@ -67,7 +67,8 @@ AUTHORIZED_GROUP = config_options['authorized_group']
 USER = config_options['username']
 PASSW = config_options['password']
 PORT = config_options['port']
-LIMS_API_ROOT =config_options['lims_end_point']
+LIMS_API_ROOT = config_options['lims_end_point']
+NGS_STATS_API_ROOT = config_options['ngs_stats']
 CACHE_TIME_LONG = 21600     # 6 hours
 CACHE_TIME_SHORT = 300      # 5 minutes
 CACHE_NAME = "igoqc"        # Take from .ini file
@@ -599,6 +600,33 @@ def project_info(pId):
     data = project.get_project_info(pId, qc_status_label, get_project_qc)
 
     return create_resp(True, 'success', data)
+
+
+@app.route('/ngsStatsDownload', methods=['GET'])
+def download_ngs_stats_file():
+    args = request.args
+    ngs_type = args.get("type")
+    sample = args.get("sample")
+    project = args.get("project")
+    run = args.get("run")
+    download = args.get("download")
+    if not download:
+        download = "true"
+
+    app.logger.info("ARGS run=%s&project=%s&sample=%s&type=%s&download=%s" % (run, project, sample, ngs_type, download))
+
+    path = "ngs-stats/getCellRangerFile?run=%s&project=%s&sample=%s&type=%s&download=%s" % (run, project, sample, ngs_type, download)
+    ngs_stats_url = "%s/%s" % (NGS_STATS_API_ROOT, path)
+    app.logger.info('Submitting request to %s' % ngs_stats_url)
+
+    resp = s.get(ngs_stats_url, verify=False)
+    content_bytes = resp.content
+    content = json.loads(content_bytes)
+
+    if 'data' in content.keys() and content['data']:
+        return create_resp(True, 'success', { 'data': content['data'] })
+
+    return create_resp(False, "No Download (run=%s&project=%s&sample=%s&type=%s&download=%s)" % (run, project, sample, ngs_type, download), None)
 
 @app.route('/getFeedback', methods=['GET'])
 def get_feedback():
