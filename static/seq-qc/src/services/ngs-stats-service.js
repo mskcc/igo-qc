@@ -72,8 +72,7 @@ export const downloadNgsStatsFile = (type, sample, igoId, project, run, download
     return axios.get(config.IGO_QC + `/ngsStatsDownload?type=${type}&sample=${sample}&project=${project}&run=${run}&download=${download}`)
         .then(res => {
             const payload = res['data'] || {};
-            const content = payload['data'];
-            const data = content['data'];
+            const data = payload['data'];
             downloadHtml(data, sample)
             return data;
         })
@@ -104,7 +103,7 @@ export const mapCellRangerRecipe = (recipe) => {
  * @returns {Promise<AxiosResponse<T>>}
  */
 const getCellRangerData = (projectId, type) => {
-    return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerSample?project=${projectId}&type=${type}`)
+    return axios.get(`${config.IGO_QC}/getCellRangerSample?project=${projectId}&type=${type}`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };

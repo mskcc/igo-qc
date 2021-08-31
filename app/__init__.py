@@ -601,6 +601,25 @@ def project_info(pId):
 
     return create_resp(True, 'success', data)
 
+@app.route('/getCellRangerSample', methods=['GET'])
+def get_cell_ranger_sample():
+    args = request.args
+    ngs_type = args.get("type")
+    project = args.get("project")
+
+    app.logger.info("ARGS " % ())
+    path = "/ngs-stats/getCellRangerSample?project=%s&type=%s" % (project, ngs_type)
+    ngs_stats_url = "%s/%s" % (NGS_STATS_API_ROOT, path)
+    app.logger.info('URL: %s' % ngs_stats_url)
+
+    resp = s.get(ngs_stats_url, verify=False)
+    content_bytes = resp.content
+    content = json.loads(content_bytes)
+    if 'data' in content.keys() and content['data']:
+        app.logger.info('Successful Response - Returning CellRanger Samples for project=%s type=%s' % (project, ngs_type))
+        return create_resp(True, 'success', content['data'])
+
+    return create_resp(False, "No CellRanger Sample (project=%s&type=%s)" % (project, ngs_type))
 
 @app.route('/ngsStatsDownload', methods=['GET'])
 def download_ngs_stats_file():
@@ -624,7 +643,7 @@ def download_ngs_stats_file():
     content = json.loads(content_bytes)
 
     if 'data' in content.keys() and content['data']:
-        return create_resp(True, 'success', { 'data': content['data'] })
+        return create_resp(True, 'success', content['data'])
 
     return create_resp(False, "No Download (run=%s&project=%s&sample=%s&type=%s&download=%s)" % (run, project, sample, ngs_type, download), None)
 
