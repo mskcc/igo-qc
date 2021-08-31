@@ -601,13 +601,30 @@ def project_info(pId):
 
     return create_resp(True, 'success', data)
 
+@app.route('/getCrosscheckMetrics', methods=['GET'])
+def get_crosscheck_metrics():
+    args = request.args
+    projects = args.get("projects")
+
+    path = "/ngs-stats/getCrosscheckMetrics?projects=%s" % projects
+    ngs_stats_url = "%s/%s" % (NGS_STATS_API_ROOT, path)
+    app.logger.info('URL: %s' % ngs_stats_url)
+
+    resp = s.get(ngs_stats_url, verify=False)
+    content_bytes = resp.content
+    content = json.loads(content_bytes)
+    if 'data' in content.keys() and content['data']:
+        app.logger.info('Successful Response - Returning CrosscheckMetrics for projects=%s' % projects)
+        return create_resp(True, 'success', content['data'])
+
+    return create_resp(False, "No CrosscheckMetrics (projects=%s)" % projects, None)
+
 @app.route('/getCellRangerSample', methods=['GET'])
 def get_cell_ranger_sample():
     args = request.args
     ngs_type = args.get("type")
     project = args.get("project")
 
-    app.logger.info("ARGS " % ())
     path = "/ngs-stats/getCellRangerSample?project=%s&type=%s" % (project, ngs_type)
     ngs_stats_url = "%s/%s" % (NGS_STATS_API_ROOT, path)
     app.logger.info('URL: %s' % ngs_stats_url)
@@ -619,7 +636,7 @@ def get_cell_ranger_sample():
         app.logger.info('Successful Response - Returning CellRanger Samples for project=%s type=%s' % (project, ngs_type))
         return create_resp(True, 'success', content['data'])
 
-    return create_resp(False, "No CellRanger Sample (project=%s&type=%s)" % (project, ngs_type))
+    return create_resp(False, "No CellRanger Sample (project=%s&type=%s)" % (project, ngs_type), None)
 
 @app.route('/ngsStatsDownload', methods=['GET'])
 def download_ngs_stats_file():
