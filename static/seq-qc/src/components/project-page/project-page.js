@@ -398,7 +398,11 @@ function ProjectPage(props){
     const downloadWebSummary = (row) => {
         const sample = `${row["Sample"]}_IGO_${row["IGO Id"]}`;
         props.addModalUpdate(MODAL_UPDATE, `Downloading ${sample}`);
-        downloadNgsStatsFile(mapCellRangerRecipe(recipe), row["Sample"], row["IGO Id"], pId, row["Run"])
+
+        // Depends on what loads first (ngs-stats: row["run"], Lims: row["Run"])
+        const run = row["run"] !== undefined ? row["run"] : row["Run"];
+
+        downloadNgsStatsFile(mapCellRangerRecipe(recipe), row["Sample"], row["IGO Id"], pId, run)
             .then((data) => {
                 if(data){
                     props.addModalUpdate(MODAL_SUCCESS, `Finished downloading ${sample}`)
