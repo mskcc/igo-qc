@@ -145,7 +145,7 @@ const RunRouter = (props) => {
                 </td>
                 <td className={"text-align-center light-blue-border"}>
                     { runsWithPicard && runsWithPicard.has(name) ?
-                        <a href={`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${name}`}>
+                        <a href={`${config.NGS_STATS}/ngs-stats/get-picard-run-excel/${name}`} target="_blank">
                             <button className="btn btn-primary run-info-button picard-stats-btn">
                                 <FontAwesomeIcon className="em5 mskcc-light-blue" icon={faDna}/>
                             </button>

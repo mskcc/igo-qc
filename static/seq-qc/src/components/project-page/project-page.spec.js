@@ -26,7 +26,7 @@ describe('ProjectPage', () => {
 
         mock = new MockAdapter(axios);
         mock.onGet(new RegExp(`${config.IGO_QC}/projectInfo/.*`)).reply(200, projectInfo);
-        mock.onGet(new RegExp(`${config.NGS_STATS}/ngs-stats/getCellRangerSample.*`)).reply(200, ngsStatsGraph);
+        mock.onGet(new RegExp(`${config.IGO_QC}/getCellRangerSample.*`)).reply(200, ngsStatsGraph);
 
         store = mockStore({
             projects: {

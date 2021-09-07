@@ -353,7 +353,7 @@ class QcTable extends React.Component {
                                 <div className={"xlsx-type-selector black-border-right hover"} onClick={() => downloadExcel(this.props.data, this.props.project || 'Project')}>
                                     <p className={"font-bold"}>Table Excel</p>
                                 </div>
-                                <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`}>
+                                <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`} target="_blank">
                                     <div className={"xlsx-type-selector hover"}>
                                         <p className={"font-bold"}>Picard Excel</p>
                                     </div>

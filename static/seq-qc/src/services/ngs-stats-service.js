@@ -21,7 +21,7 @@ import {downloadHtml} from "../utils/other-utils";
  */
 export const getCrosscheckMetrics = (projects) => {
     const projectList = projects.join(',');
-    return axios.get(`${config.NGS_STATS}/ngs-stats/getCrosscheckMetrics?projects=${projectList}`)
+    return axios.get(`${config.IGO_QC}/getCrosscheckMetrics?projects=${projectList}`)
         .then(getData)
         .catch(handleError)
 };
@@ -66,10 +66,10 @@ export const getNgsStatsData = (recipe, projectId) => {
  * @param run
  * @returns {Promise<String>}
  */
-export const downloadNgsStatsFile = (type, sample, igoId, project, run) => {
+export const downloadNgsStatsFile = (type, sample, igoId, project, run, download=true) => {
     // e.g. [ "SC16-UN", "IGO_09335_O_1" ] => "SC16-UN_IGO_09335_O_1"
     sample = `${sample}_IGO_${igoId}`
-    return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerFile?run=${run}&project=${project}&sample=${sample}&type=${type}`)
+    return axios.get(config.IGO_QC + `/ngsStatsDownload?type=${type}&sample=${sample}&project=${project}&run=${run}&download=${download}`)
         .then(res => {
             const payload = res['data'] || {};
             const data = payload['data'];
@@ -103,7 +103,7 @@ export const mapCellRangerRecipe = (recipe) => {
  * @returns {Promise<AxiosResponse<T>>}
  */
 const getCellRangerData = (projectId, type) => {
-    return axios.get(`${config.NGS_STATS}/ngs-stats/getCellRangerSample?project=${projectId}&type=${type}`)
+    return axios.get(`${config.IGO_QC}/getCellRangerSample?project=${projectId}&type=${type}`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };
