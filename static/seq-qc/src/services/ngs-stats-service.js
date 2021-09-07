@@ -21,7 +21,7 @@ import {downloadHtml} from "../utils/other-utils";
  */
 export const getCrosscheckMetrics = (projects) => {
     const projectList = projects.join(',');
-    return axios.get(`${config.NGS_STATS}/ngs-stats/getCrosscheckMetrics?projects=${projectList}`)
+    return axios.get(`${config.IGO_QC}/getCrosscheckMetrics?projects=${projectList}`)
         .then(getData)
         .catch(handleError)
 };
