@@ -36,7 +36,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
 
 # Models
 from mongoengine import connect

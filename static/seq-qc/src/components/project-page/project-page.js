@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown, faDownload } from '@fortawesome/free-solid-svg-icons';
 import CellRangerCount from "./graph-types/cellranger-count";
 import CellRangerVdj from "./graph-types/cellranger-vdj";
-import CoverageChart from './graph-types/coverage-chart';
+// import CoverageChart from './graph-types/coverage-chart';
 import QualityChecksSection from "./components/quality-checks/quality-checks-section";
 import {
     CELL_RANGER_APPLICATION_COUNT,
@@ -29,8 +29,8 @@ import {
 import { addServiceError } from '../../utils/service-utils';
 import {useDispatch, useSelector} from "react-redux";
 import {updateProjects} from "./components/quality-checks/quality-checks-utils";
-import MuiButton from "@material-ui/core/Button/Button";
-import config from "../../config";
+// import MuiButton from "@material-ui/core/Button/Button";
+// import config from "../../config";
 
 /**
  * This component renders the the QC page for a particular project. It is rendered based on the project ID (pId) passed
