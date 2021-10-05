@@ -18,3 +18,11 @@ npm install && npm run start
 ```
 make run-prod
 ```
+
+### Mongo
+```
+mognod
+```
+
+### Troubleshooting
+* Is mongo running? i.e. The `mongo` command allows you to connect to your mongo instance
