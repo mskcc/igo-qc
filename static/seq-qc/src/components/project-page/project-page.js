@@ -90,9 +90,8 @@ function ProjectPage(props){
         queryProjectInfo(pId);
     }, [pId]);
     useEffect(() => {
-        if(!recipe) return;     // Recipe needs to be available, see "fetchRecipe" recipe
-        queryNgsStatsData(recipe, pId);
-    }, [pId, recipe]); // NOTE: Intentionally not dependent on graphs b/c always different
+        queryNgsStatsData(pId);
+    }, [pId]); // NOTE: Intentionally not dependent on graphs b/c always different
 
     /**
      *  These are seperated from the service calls that set ngsStatsData & projectInfo because of issues accessing
@@ -113,9 +112,9 @@ function ProjectPage(props){
      *
      * Sets ngsStatsData in component
      */
-    async function queryNgsStatsData(recipe, pId){
+    async function queryNgsStatsData(pId){
         try {
-            const data = await getNgsStatsData(recipe, pId);
+            const data = await getNgsStatsData(pId);
             setNgsStatsData(data);
         } catch(err) {
             addServiceError(NGS_STATS, serviceErrors,setServiceErrors);
