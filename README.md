@@ -8,6 +8,8 @@ Site displaying run statistics of sequencing projects (E.g. GATK Picard, Cell Ra
 * Allows users to reset qc-status of runs
 
 ## Dev
+After setting up `Frontend`, `Backend`, & `Mongo`, the igo-qc app should be available at `localhost:3000`
+
 ### Frontend
 ```
 cd static/seq-qc/
