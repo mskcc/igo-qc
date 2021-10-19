@@ -1,0 +1,8 @@
+username: 
+password: 
+port: 9003
+lims_end_point: https://igolims.mskcc.org:8443
+ngs_stats: https://delphi.mskcc.org:8443
+secret_key: 
+ldap_url: ldaps://ldapha.mskcc.root.mskcc.org/
+authorized_group: zzPDL_IGO_Staff

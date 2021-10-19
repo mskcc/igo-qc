@@ -15,8 +15,16 @@ npm install && npm run start
 ```
 
 ### Backend
+1. Update `username`, `password`, & `secret_key` with what is available on dev/prod
+* See `/srv/www/new-igo-qc/app/lims_user_config`
+
+2. Install Dependencies
 ```
-make run-prod
+# pip install virtualenv	# If not already installed
+$ virtualenv venv
+$ source venv/bin/activate
+(venv) $ pip install -r requirements.txt
+(venv) $ make run-prod
 ```
 
 ### Mongo

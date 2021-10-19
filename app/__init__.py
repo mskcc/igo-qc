@@ -24,7 +24,7 @@ from logging.config import dictConfig
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))
 config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
-config_options = yaml.load(open(config, "r"))
+config_options = yaml.safe_load(open(config, "r"))
 
 # Constants
 from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID, CACHE_PROJECT_PREFIX, CACHE_PICKLIST
