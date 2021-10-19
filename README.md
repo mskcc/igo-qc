@@ -16,7 +16,11 @@ npm install && npm run start
 
 ### Backend
 ```
-make run-prod
+# pip install virtualenv
+$ virtualenv venv
+$ source venv/bin/activate
+(venv) $ pip install -r requirements.txt
+(venv) $ make run-prod
 ```
 
 ### Mongo
