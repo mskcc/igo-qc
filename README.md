@@ -17,7 +17,11 @@ npm install && npm run start
 ```
 
 ### Backend
-1. Update `username`, `password`, & `secret_key` with what is available on dev/prod
+1. Update `lims_user_config_prod` with what is available on dev/prod
+* Fields: 
+  * `username`
+  * `password`
+  * `secret_key` 
 * See `/srv/www/new-igo-qc/app/lims_user_config`
 
 2. Install Dependencies
