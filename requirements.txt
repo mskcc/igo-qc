@@ -10,6 +10,7 @@ logger
 jsonify
 make_response
 mock
+mongoengine
 requests
 tests
 pyyaml
