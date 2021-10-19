@@ -18,7 +18,6 @@ npm install && npm run start
 
 ### Backend
 1. Update `lims_user_config_prod` with what is available on dev/prod
-* Fields: 
   * `username`
   * `password`
   * `secret_key` 
