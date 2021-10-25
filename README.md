@@ -44,8 +44,20 @@ $ source venv/bin/activate
 
 ### Mongo
 ```
-mognod
+WRITE_DATA_HERE=...
+mognod --dbpath=${WRITE_DATA_HERE}
 ```
 
 ### Troubleshooting
-* Is mongo running? i.e. The `mongo` command allows you to connect to your mongo instance
+#### Mongo
+* Is mongo running? i.e. The `mongo` command allows you to connect to your mongo instance. If mongo is running, you should see something like below -
+```
+$ ps -ef | grep mongo
+1774903000 39995 39879   0 12:40PM ttys001    0:00.75 /Users/streidd/data/mongodb-macos-x86_64-4.2.1/bin/mongod --dbpath=/Users/streidd/data/db
+```
+
+* Do you have write access to the directory specified in `--dbpath=`?
+```
+$ ls -ltr /Users/streidd/data | grep db
+drwxr-xr-x     73 streidd  MSKCC\Domain Users      2336 Oct 25 12:40 db
+```
