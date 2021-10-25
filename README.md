@@ -24,16 +24,16 @@ npm install && npm run start
 
 2. Install virtual environment
 
-**Python 2**
-```
-# pip install virtualenv	# If not already installed
-$ virtualenv venv
-```
-**Python 3**
-```
-# pip3 install virtualenv	# If not already installed
-python3 -m venv venv
-```
+    *Python 2*
+    ```
+    # pip install virtualenv	# If not already installed
+    $ virtualenv venv
+    ```
+    *Python 3*
+    ```
+    # pip3 install virtualenv	# If not already installed
+    python3 -m venv venv
+    ```
 
 3. Install Dependencies
 ```
