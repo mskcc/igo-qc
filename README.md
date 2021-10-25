@@ -13,12 +13,12 @@ Site displaying run statistics of sequencing projects (E.g. GATK Picard, Cell Ra
 * Allows users to reset qc-status of runs
 
 ## Development Notes
-After setting up `Frontend`, `Backend`, & `Mongo`, the igo-qc app should be available at `localhost:3000`
+After setting up `Mongo`, `Backend`, & `Frontend` (in that order), the igo-qc app should be available at `localhost:3000`
 
-### Frontend
+### Mongo
 ```
-cd static/seq-qc/
-npm install && npm run start
+WRITE_DATA_HERE=...
+mognod --dbpath=${WRITE_DATA_HERE}
 ```
 
 ### Backend
@@ -49,11 +49,11 @@ npm install && npm run start
     ```
 
     Note - `make run-prod` is a `Makefile` command. If there are issues w/ this step, please review the `run-prod` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile) 
-
-### Mongo
+    
+### Frontend
 ```
-WRITE_DATA_HERE=...
-mognod --dbpath=${WRITE_DATA_HERE}
+cd static/seq-qc/
+npm install && npm run start
 ```
 
 ### Troubleshooting
