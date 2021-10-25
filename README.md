@@ -37,13 +37,13 @@ npm install && npm run start
     ```
 
 3. Install Dependencies
-```
-$ source venv/bin/activate
-(venv) $ pip install -r requirements.txt
-(venv) $ make run-prod
-```
+    ```
+    $ source venv/bin/activate
+    (venv) $ pip install -r requirements.txt
+    (venv) $ make run-prod
+    ```
 
-Note - `make run-prod` is a `Makefile` command. If there are issues w/ this step, please review the `run-prod` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile) 
+    Note - `make run-prod` is a `Makefile` command. If there are issues w/ this step, please review the `run-prod` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile) 
 
 ### Mongo
 ```
