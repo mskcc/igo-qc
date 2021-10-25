@@ -72,7 +72,8 @@ drwxr-xr-x     73 streidd  MSKCC\Domain Users      2336 Oct 25 12:40 db
 
 ## Deployment Steps
 ```
-HOST=igo.mskcc.org      # for development, HOST=dlviigoweb1
+HOST=igo.mskcc.org  # Production
+# HOST=dlviigoweb1  # Development
 make HOST=${HOST} deploy
 ```
 
