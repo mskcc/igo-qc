@@ -7,6 +7,23 @@ Site displaying run statistics of sequencing projects (E.g. GATK Picard, Cell Ra
 * Pulls data from LIMS and ngs-stats to visualize in grid and graphs
 * Allows users to reset qc-status of runs
 
+## Deploy
+1. Deploy the packaged application
+    ```
+    make deploy
+    ```
+    Notes:
+    * This create and copy a `dist` directory to the `deployments` directory in your home on the production host. Make sure your `~/deployments` exists!
+    * `make deploy` is a `Makefile` command. If there are issues w/ this step, please review the `deploy` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile) 
+
+2. Install the new application
+    ```
+    ssh igo.mskcc.org 'dzdo -S rm -rf /srv/www/new-igo-qc && mv ~/deployments/new-igo-qc /srv/www && cd /srv/www/new-igo-qc && make init && dzdo -S systemctl restart uwsgi'
+    ```
+    Notes:
+    * This *DELETES* the existing application and copies the packaged application from step 1 into the old location
+    * `dzdo` allows for root access on our VM's and is needed so you can re-deploy if another user was the last to deploy
+
 ## Dev
 After setting up `Frontend`, `Backend`, & `Mongo`, the igo-qc app should be available at `localhost:3000`
 
