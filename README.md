@@ -43,6 +43,8 @@ $ source venv/bin/activate
 (venv) $ make run-prod
 ```
 
+Note - `make run-prod` is a `Makefile` command. If there are issues w/ this step, please review the `run-prod` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile) 
+
 ### Mongo
 ```
 WRITE_DATA_HERE=...
