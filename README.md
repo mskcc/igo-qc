@@ -71,13 +71,13 @@ drwxr-xr-x     73 streidd  MSKCC\Domain Users      2336 Oct 25 12:40 db
 ```
 
 ## Deployment Steps
-1. Deploy the packaged application
-    ```
-    HOST=igo.mskcc.org      # for development, HOST=dlviigoweb1
-    make HOST=${HOST} deploy
-    ```
-    Notes:
-    * This create and copy a `dist` directory to the `deployments` directory in your home on the production host. Make sure your `~/deployments` exists!
-    * `make deploy` is a `Makefile` command. If there are issues w/ this step, please review the `deploy` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile)
-    * This *DELETES* the existing application ON THE HOST SPECIFIED. It then copies the packaged application created locally to the new location.
-    * Expect to enter your password four times - once to `scp` the packaged application, once to remotely send the install command, and twice to run `dzdo` remotely (`dzdo` allows for root access on our VM's and is needed so you can re-deploy if another user was the last to deploy) 
+```
+HOST=igo.mskcc.org      # for development, HOST=dlviigoweb1
+make HOST=${HOST} deploy
+```
+
+Notes:
+* This creates and copies a `dist` directory to the `deployments` directory in your home on the `HOST` specified. Make sure your `~/deployments` exists on that `HOST`!
+* `make deploy` is a `Makefile` command. If there are issues w/ this step, please review the `deploy` step of the [Makefile](https://github.com/mskcc/igo-qc/blob/master/Makefile)
+* This *DELETES* the existing application ON THE HOST SPECIFIED. It then copies the packaged application created locally to the new location.
+* Expect to enter your password four times - once to `scp` the packaged application, once to remotely send the install command, and twice to run `dzdo` remotely (`dzdo` allows for root access on our VM's and is needed so you can re-deploy if another user was the last to deploy) 
