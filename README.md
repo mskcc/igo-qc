@@ -17,7 +17,11 @@ npm install && npm run start
 ```
 
 ### Backend
-1. Update `lims_user_config_prod` with what is available on dev/prod. This is copied into `lims_user_config` on `make run-prod`. On the host, see `/srv/www/new-igo-qc/app/lims_user_config`
+1. Update `lims_user_config_prod` with what is available on dev/prod. 
+```
+scp igo.mskcc.org:/srv/www/new-igo-qc/app/lims_user_config lims_user_config_prod
+```
+Note - This is copied into `lims_user_config` on `make run-prod`. On the host, see `/srv/www/new-igo-qc/app/lims_user_config`. We need the fields below -
   * `username`
   * `password`
   * `secret_key` 
