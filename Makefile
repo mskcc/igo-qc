@@ -42,7 +42,7 @@ clean:
 	rm -rf dist
 
 move:
-	scp -r dist igo:deployments/new-igo-qc
+	scp -r dist plviigoweb1:deployments/new-igo-qc
 
 move-dev:
 	scp -r dist dlviigoweb1:deployments/new-igo-qc
