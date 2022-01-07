@@ -350,9 +350,9 @@ def enrich_samples(samples):
     for sample in samples:
         if sample['qc']['qcStatus'] != "Failed" and sample['qc']['qcStatus'] != "Failed-Reprocess":
             if sample['qc']['readsExamined']>0:
-                sumReadDict[sample['cmoId']] += sample['qc']['readsExamined']
+                sumReadDict[sample['baseId']] += sample['qc']['readsExamined']
             else:
-                sumReadDict[sample['cmoId']] += sample['qc']['unpairedReadsExamined']
+                sumReadDict[sample['baseId']] += sample['qc']['unpairedReadsExamined']
 
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     sumMtcDict = defaultdict(float)
@@ -361,10 +361,10 @@ def enrich_samples(samples):
             col = 'meanTargetCoverage'
             if 'HumanWholeGenome' in sample['recipe']:
                 col = 'mean_COVERAGE'
-            sumMtcDict[sample['cmoId']] += sample['qc'][col]
+            sumMtcDict[sample['baseId']] += sample['qc'][col]
     for sample in samples:
-        sample['sumMtc'] = sumMtcDict[sample['cmoId']]
-        sample['sumReads'] = sumReadDict[sample['cmoId']]
+        sample['sumMtc'] = sumMtcDict[sample['baseId']]
+        sample['sumReads'] = sumReadDict[sample['baseId']]
 
     #format of 'run'
     for sample in samples:
