@@ -691,8 +691,8 @@ def get_feedback():
 def submit_feedback():
     msg = EmailMessage()
 
-    to = "streidd@mskcc.org"
-    frm = "streidd@mskcc.org"
+    to = "skigodata@mskcc.org"
+    frm = "skigodata@mskcc.org"
     msg['From'] = frm
     msg['To'] = to
 
