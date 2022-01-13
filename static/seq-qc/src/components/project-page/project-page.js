@@ -357,8 +357,8 @@ function ProjectPage(props){
     const renderWebSummaryContainer = () => {
         return <div>
             <div className={"pos-rel nav-container"} onClick={toggleGraph}>
-                <div className={"margin-left-10 inline-block"}>
-                    <p className={"text-align-center"}>WebSummary Downloads</p>
+                <div className={"width-200px pos-rel fill-height margin-left-10 inline-block"}>
+                    <p className={"center-v text-align-center"}>WebSummary Downloads</p>
                 </div>
                 <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                                  icon={showNgsGraphs ? faAngleDown : faAngleRight}/>

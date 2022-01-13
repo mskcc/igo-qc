@@ -56,12 +56,15 @@ const QualityChecksSection = ({project}) => {
         <div className={"pos-rel nav-container"} onClick={() => setShowChecks(!showChecks)}>
             <div className={"margin-left-10 height-inherit inline-block"}>
                 <div className={"width-100px height-inherit pos-rel inline-block"}>
+                    <p className={"center-v text-align-center inline-block"}>Fingerprinting</p>
+                </div>
+                <div className={"width-100px height-inherit pos-rel inline-block"}>
                     <div className={"width-100px height-inherit pos-rel inline-block"}>
                         <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                                          icon={getFlagIcon(projectData[CROSSCHECK_METRICS_FLAG])}/>
                     </div>
                 </div>
-                <p className={"vertical-align-top text-align-center inline-block"}>Quality Checks</p>
+
             </div>
             <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                              icon={showChecks ? faAngleDown : faAngleRight}/>
