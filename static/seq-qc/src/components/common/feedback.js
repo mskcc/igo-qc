@@ -36,7 +36,7 @@ const Feedback = (props) => {
                 props.closeFeedback();
             })
             .catch((err) => {
-                props.addModalUpdate(MODAL_ERROR, "Error submitting feedback. Email streidd@mskcc.org", 5000)
+                props.addModalUpdate(MODAL_ERROR, "Error submitting feedback. Email skigodata@mskcc.org", 5000)
                 props.closeFeedback();
             })
     };

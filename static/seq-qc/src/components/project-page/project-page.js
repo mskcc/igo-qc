@@ -337,7 +337,7 @@ function ProjectPage(props){
             sample = filtered[0];
         } else {
             return <div className={"text-align-center"}>
-                <p>Error showing graphs for {selectedSample}. Please email streidd@mskcc.org </p>
+                <p>Error showing graphs for {selectedSample}. Please email skigodata@mskcc.org </p>
             </div>
         }
         const graphs = sample.graphs || [];
