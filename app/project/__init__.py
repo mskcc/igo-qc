@@ -253,7 +253,7 @@ def get_grid(samples, project_type):
         grid.set_value("Sample", row, qc['sampleName'])
         grid.set_value("QC Record Id", row, qc['recordId'])
         grid.set_value("IGO Id", row, sample['baseId'])
-        grid.set_value("Recipe", row, qc['recipe'])
+        grid.set_value("Recipe", row, sample['recipe'])
         grid.set_value("Genome", row, get_sample_value(sample,'species'))
         grid.set_value("Tumor or Normal", row, 'Normal')
         grid.set_style("Tumor or Normal", row, "text-primary")
