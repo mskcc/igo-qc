@@ -1,6 +1,7 @@
 import os, sys
 import re
 from collections import defaultdict
+from urllib.request import Request
 from flask import session
 
 import logger
@@ -39,7 +40,7 @@ def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]
 
     requester = {}
-    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject']
+    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject', 'requestName']
     for label in value_labels:
         if label in project_qc_info:
             requester[label] = project_qc_info[label]
@@ -149,7 +150,7 @@ def get_project_type(samples):
     project_recipes = []
     [project_recipes.append(recipe) for recipe in all_recipes if recipe not in project_recipes]
     project_recipe = ','.join(project_recipes)
-
+    # request_name = get_requester_info['requestName']
     project_qc = common_sample['qc']
     project_type = {
         'recipe': project_recipe,

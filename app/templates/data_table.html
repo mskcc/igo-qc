@@ -155,12 +155,12 @@
                             Project Id <span class="pull-right"><bf class="text-info">{{ requester.requestId }}</bf></span><br>
                             Cmo Project <span class="pull-right"><bf class="text-info">{{ requester.cmoProject }}</bf></span><br>
                             <hr>
-                            Recipe <span class="pull-right"><bf class="text-info">{{ pType.recipe }}</bf></span><br>
+                            Request Name <span class="pull-right"><bf class="text-info">{{ requester.requestName }}</bf></span><br>
                             {% if pType['table'] == 'hs' %}
                             Bait Set <span class="pull-right"><bf class="text-info">{{ pType.baitSet }}</bf></span><br>
                             {% endif %}
                             <hr>
-                            Run Type <span class="pull-right"><bf class="text-info"> {{pType.runType }} </bf></span><br>
+                            <!-- Run Type <span class="pull-right"><bf class="text-info"> {{pType.runType }} </bf></span><br> -->
                             <hr>
                             Number of samples <span class="pull-right"><bf class="text-info">{{ n }}</bf></span><br>
                         </div>
@@ -248,7 +248,7 @@
                                         <th>{{ header_element }}</th>
                                     {% endfor %}
                                     </tr>
-                                    </ thead>
+                                    </thead>
 
                                     <tbody>
                                     {% for row in grid.grid %}
