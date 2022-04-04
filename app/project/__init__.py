@@ -150,7 +150,6 @@ def get_project_type(samples):
     project_recipes = []
     [project_recipes.append(recipe) for recipe in all_recipes if recipe not in project_recipes]
     project_recipe = ','.join(project_recipes)
-    # request_name = get_requester_info['requestName']
     project_qc = common_sample['qc']
     project_type = {
         'recipe': project_recipe,
