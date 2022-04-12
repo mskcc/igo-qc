@@ -573,6 +573,7 @@ def project_info(pId):
     project_key = '%s%s' % (CACHE_PROJECT_PREFIX, pId)
     get_project_qc_resp = get_cached_data(project_key)
     if not get_project_qc_resp:
+        app.logger.info('request info not cached, calling limsrest endpoint..')
         get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
         get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
