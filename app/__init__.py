@@ -20,6 +20,7 @@ import smtplib
 from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
+import pymongo
 
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))
@@ -813,6 +814,20 @@ def get_cached_data(key):
 def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
+
+def insert_comment(request_id, comment, commenter):
+    myclient = pymongo.MongoClient("localhost:27017")
+    mydb = myclient["run_qc"]
+    mycollection = mydb["qcComments"]
+    myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": commenter}
+    x = mycollection.insert()
+
+def get_comments(request_id):
+    myclient = pymongo.MongoClient("localhost:27017")
+    mydb = myclient["run_qc"]
+    mycollection = mydb["qcComments"]
+    myquery = {"requestId": request_id}
+    mydoc = mycollection.find(myquery)
 
 if __name__ == '__main__':
     app.run()
