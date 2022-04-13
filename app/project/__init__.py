@@ -1,6 +1,7 @@
 import os, sys
 import re
 from collections import defaultdict
+from urllib.request import Request
 from flask import session
 
 import logger
@@ -39,7 +40,7 @@ def get_requester_info(project_qc_info, samples):
     common_sample = samples[0]
 
     requester = {}
-    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject']
+    value_labels = ['requestId', 'investigator',  'pi', 'projectManager', 'cmoProject', 'requestName']
     for label in value_labels:
         if label in project_qc_info:
             requester[label] = project_qc_info[label]
@@ -149,7 +150,6 @@ def get_project_type(samples):
     project_recipes = []
     [project_recipes.append(recipe) for recipe in all_recipes if recipe not in project_recipes]
     project_recipe = ','.join(project_recipes)
-
     project_qc = common_sample['qc']
     project_type = {
         'recipe': project_recipe,
@@ -187,7 +187,7 @@ def get_sampleQcs_with_baitSet(samples):
     return list(filter(lambda qc_entry: 'baitSet' in qc_entry, sample_qc_list))
 
 def get_header(project_type):
-    header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+    header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
               "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
               "Unmapped", "Pct. Duplic."]
@@ -253,6 +253,7 @@ def get_grid(samples, project_type):
         grid.set_value("Sample", row, qc['sampleName'])
         grid.set_value("QC Record Id", row, qc['recordId'])
         grid.set_value("IGO Id", row, sample['baseId'])
+        grid.set_value("Recipe", row, sample['recipe'])
         grid.set_value("Genome", row, get_sample_value(sample,'species'))
         grid.set_value("Tumor or Normal", row, 'Normal')
         grid.set_style("Tumor or Normal", row, "text-primary")

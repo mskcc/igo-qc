@@ -52,17 +52,17 @@ const Summary = (props) => {
                     <p className={"float-right"}>{props.requester.cmoProject}</p>
                 </div>
                 <div className={"fill-width float-left"}>
-                    <p className={"float-left"}>Recipe</p>
-                    <p className={"float-right"}>{props.projectType.recipe}</p>
+                    <p className={"float-left"}>Request Name</p>
+                    <p className={"float-right"}>{props.requester.requestName}</p>
                 </div>
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Bait Set</p>
                     <p className={"float-right"}>{props.projectType.baitSet}</p>
                 </div>
-                <div className={"fill-width float-left"}>
+                {/*<div className={"fill-width float-left"}>
                     <p className={"float-left"}>Run Type</p>
                     <p className={"float-right"}>{props.requester.runType}</p>
-                </div>
+                </div> */}
                 <div className={"fill-width float-left"}>
                     <p className={"float-left"}>Number of Samples</p>
                     <p className={"float-right"}>{props.requester.numSamples}</p>
