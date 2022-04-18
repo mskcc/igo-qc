@@ -21,6 +21,7 @@ from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
 import pymongo
+import flask
 
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))
@@ -815,19 +816,24 @@ def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
 
-def insert_comment(request_id, comment, commenter):
+@app.route('/projects/<pId>')
+def insert_comment(request_id, comment):
     myclient = pymongo.MongoClient("localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": commenter}
+    username = ''
+    username = request.form.get("username")
+    myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": username}
     x = mycollection.insert()
 
-def get_comments(request_id):
-    myclient = pymongo.MongoClient("localhost:27017")
+@app.route('/projects/<pId>')
+def get_comments(pId):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    myquery = {"requestId": request_id}
+    myquery = {"requestId": pId}
     mydoc = mycollection.find(myquery)
+    return flask.jsonify(mydoc)
 
 if __name__ == '__main__':
     app.run()
