@@ -1,0 +1,42 @@
+.comment-container {
+    width: 450px;
+    max-height: 100vh;
+    overflow: auto;
+    position: fixed;
+    border-radius: 4px;
+    right: 0;
+    z-index: 200;
+    margin-top: -45px;
+}
+
+.comment-card {
+    margin-top: 10px;
+    border-left: #eceff1 1px solid;
+    border-top: #eceff1 1px solid;
+}
+
+.avatar {
+    background-color: #b1132d !important;
+}
+
+.add-comment-button {
+    margin: 5px !important;
+    background-color: #006c68 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    padding: 25px 25px 28px 26px !important;
+    height: 15px !important;
+    width: 15px !important;
+    min-width: 15px !important;
+    font-weight: 700 !important;
+    font-size: x-large !important;
+    right: -370px;
+}
+
+.show-comments-switch label {
+    color: #006098;
+}
+
+.comment-dialog {
+    width: 550px;
+}

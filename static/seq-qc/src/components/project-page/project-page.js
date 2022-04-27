@@ -10,6 +10,7 @@ import {
 import { getProjectInfo } from '../../services/igo-qc-service.js';
 import QcTable from './components/qc-table';
 import Summary from './components/summary';
+import CommentContainer from './components/comment-section/comment-container';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faAngleDown, faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -535,12 +536,17 @@ function ProjectPage(props){
             <p className={'text-align-center'}>No data is available - Picard stats need to be run</p>
         </div>
     };
-    return <div key={pId} className={"background-white"}>
-            {renderSummary(projectInfo)}
-            {(ngsStatsData === null || projectInfo === null) ? renderGraphContainer() : renderWebSummaryContainer()}
-            <QualityChecksSection project={pId}/>
-            {renderGrid(gridData,headers)}
-        </div>;
+    return (
+        <div>
+            <CommentContainer/>
+            <div key={pId} className={"background-white"}>
+                {renderSummary(projectInfo)}
+                {(ngsStatsData === null || projectInfo === null) ? renderGraphContainer() : renderWebSummaryContainer()}
+                <QualityChecksSection project={pId}/>
+                {renderGrid(gridData,headers)}
+            </div>
+        </div>
+        );
 }
 
 export default ProjectPage;
