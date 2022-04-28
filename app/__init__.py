@@ -292,7 +292,7 @@ def getSeqAnalysisProjects():
     cache_key = "seq-analysis-projects"
     content = get_cached_data(cache_key)
     if not content:
-        seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
+        seq_analysis_projects_url = "http://localhost:5007/LimsRest/getRecentDeliveries"
         app.logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
@@ -575,6 +575,7 @@ def project_info(pId):
     project_key = '%s%s' % (CACHE_PROJECT_PREFIX, pId)
     get_project_qc_resp = get_cached_data(project_key)
     if not get_project_qc_resp:
+        app.logger.info('request info not cached, calling limsrest endpoint..')
         get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
         get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
@@ -833,7 +834,7 @@ def get_comments(pId):
     mycollection = mydb["qcComments"]
     myquery = {"requestId": pId}
     mydoc = mycollection.find(myquery)
-    return flask.jsonify(mydoc)
+    return flask.jsonify(mydoc)    
 
 if __name__ == '__main__':
     app.run()
