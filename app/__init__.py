@@ -292,7 +292,7 @@ def getSeqAnalysisProjects():
     cache_key = "seq-analysis-projects"
     content = get_cached_data(cache_key)
     if not content:
-        seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
+        seq_analysis_projects_url = "http://localhost:5007/LimsRest/getRecentDeliveries"
         app.logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
@@ -575,6 +575,7 @@ def project_info(pId):
     project_key = '%s%s' % (CACHE_PROJECT_PREFIX, pId)
     get_project_qc_resp = get_cached_data(project_key)
     if not get_project_qc_resp:
+        app.logger.info('request info not cached, calling limsrest endpoint..')
         get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
         get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
@@ -816,8 +817,8 @@ def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
 
-@app.route('/projects/<pId>')
-def insert_comment(request_id, comment):
+@app.route('/addComment', methods=['POST'])
+def insert_comment(pId, comment):
     myclient = pymongo.MongoClient("localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
@@ -826,14 +827,14 @@ def insert_comment(request_id, comment):
     myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": username}
     x = mycollection.insert()
 
-@app.route('/projects/<pId>')
+@app.route('/projects/<pId>', methods=['GET'])
 def get_comments(pId):
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    myquery = {"requestId": pId}
+    myquery = ({}, {"requestId": pId})
     mydoc = mycollection.find(myquery)
-    return flask.jsonify(mydoc)
+    return flask.jsonify(mydoc)    
 
 if __name__ == '__main__':
     app.run()

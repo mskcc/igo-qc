@@ -18,13 +18,13 @@ const CommentSection = React.forwardRef((props, ref) => (
             +
         </Button>
         <Comment name='Steph' date='October 23, 2021' text=''/>
+        {/* <Comment name='Steph' date='October 23, 2021' text=''/>
         <Comment name='Steph' date='October 23, 2021' text=''/>
         <Comment name='Steph' date='October 23, 2021' text=''/>
         <Comment name='Steph' date='October 23, 2021' text=''/>
         <Comment name='Steph' date='October 23, 2021' text=''/>
         <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
+        <Comment name='Steph' date='October 23, 2021' text=''/> */}
     </Box>
   )
 );
