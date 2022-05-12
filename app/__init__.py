@@ -817,8 +817,8 @@ def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
 
-@app.route('/projects/<pId>')
-def insert_comment(request_id, comment):
+@app.route('/addComment', methods=['POST'])
+def insert_comment(pId, comment):
     myclient = pymongo.MongoClient("localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
@@ -827,12 +827,12 @@ def insert_comment(request_id, comment):
     myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": username}
     x = mycollection.insert()
 
-@app.route('/projects/<pId>')
+@app.route('/projects/<pId>', methods=['GET'])
 def get_comments(pId):
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    myquery = {"requestId": pId}
+    myquery = ({}, {"requestId": pId})
     mydoc = mycollection.find(myquery)
     return flask.jsonify(mydoc)    
 

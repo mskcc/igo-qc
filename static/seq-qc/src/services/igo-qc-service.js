@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import config from '../config.js';
 import { handleError, getData } from '../utils/service-utils';
+import CommentContainer from '../components/project-page/components/comment-section/comment-container.js';
 
 // TODO - remove
 const parseResp = (resp) => {
@@ -14,6 +15,7 @@ export function getFeedback() {
         .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Unable to get Feedback: ' + error) });
 }
+
 /**
 * Sends service call to retrieve most recent deliveries
 */
@@ -61,6 +63,12 @@ export const submitFeedback = (body, subject, type) => {
         .catch(handleError)
 };
 
+export const addComment = (projectId, commentText) => {
+    const commentData = { projectId, commentText };
+    return axios.post(config.IGO_QC + '/addComment', commentData)
+            .then(getData)
+            .catch(error => {throw new Error('Unable to add comment: ' + error) });
+};
 /**
  * Sends service call to retrieve chart data about most recent runs
  */
