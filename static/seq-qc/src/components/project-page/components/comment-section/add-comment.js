@@ -2,8 +2,17 @@ import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import { TextField } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import config from '../../../../config';
+import axios from 'axios';
+import {MODAL_ERROR, MODAL_UPDATE} from '../../../../resources/constants';
+import { addComment } from '../../../../services/igo-qc-service';
+import PropTypes from "prop-types";
 
-export default function AddComment(props) {
+const parseResp = (resp) => {
+    const payload = resp.data
+    return payload.data
+};
+const AddComment = (props) => {
     const [name, setName] = useState('');
     const [comment, setComment] = useState('');
     const [nameError, setNameError] = useState(false);
@@ -17,7 +26,18 @@ export default function AddComment(props) {
             setCommentError(true);
         }
         if ((!nameError && !commentError) && (name.length > 0 && comment.length > 0)) {
-            alert('submitted!');
+            
+            const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
+            const projectId = window.location.href.substring(urlIdIndex);
+            alert('project is: ' + projectId);
+            addComment(projectId, comment)
+                .then(() => {
+                    handleClose();
+                })
+                .catch((err) => {
+                    alert('Error submitting comment. Email skigodata@mskcc.org');
+                    handleClose();
+                })
         }
     }
 
@@ -81,3 +101,10 @@ export default function AddComment(props) {
         </div>
     )
 }
+
+export default AddComment;
+
+AddComment.propTypes = {
+    addModalUpdate: PropTypes.func,
+    handleClose: PropTypes.bool
+};

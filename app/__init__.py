@@ -38,7 +38,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}})
 
 # Models
 from mongoengine import connect
@@ -817,15 +817,19 @@ def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
 
-@app.route('/addComment', methods=['POST'])
+@app.route('/addComment/<pId>_<comment>', methods=['POST'])
 def insert_comment(pId, comment):
-    myclient = pymongo.MongoClient("localhost:27017")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
     username = ''
     username = request.form.get("username")
-    myquery = {"requestId": request_id, "comment": comment, "date": datetime.now(), "createdBy": username}
-    x = mycollection.insert()
+    app.logger.info("User commenting is: %s", username)
+    app.logger.info("User's comment is: %s", comment)
+    myquery = {"requestId": pId, "comment": comment, "date": datetime.datetime.now(), "createdBy": username}
+    x = mycollection.insert_one(myquery)
+    app.logger.info("Inserting comment into qcComments collection is completed.")
+    return create_resp(True, 'success', {})
 
 @app.route('/projects/<pId>', methods=['GET'])
 def get_comments(pId):
