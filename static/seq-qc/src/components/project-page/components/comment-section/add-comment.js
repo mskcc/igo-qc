@@ -35,6 +35,7 @@ const AddComment = (props) => {
                     handleClose();
                 })
                 .catch((err) => {
+                    console.log(err);
                     alert('Error submitting comment. Email skigodata@mskcc.org');
                     handleClose();
                 })
