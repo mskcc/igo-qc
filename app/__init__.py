@@ -38,7 +38,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}, r"/getComments": {"origins": "*"}})
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}, r"/getComments/*": {"origins": "*"}})
 
 # Models
 from mongoengine import connect
@@ -840,12 +840,22 @@ def get_comments(pId):
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    myquery = ({}, {"requestId": pId})
+    myquery = { "requestId" : pId }
+    #app.logger.info("get comment my query is: " + myquery)
     app.logger.info("get comment function is called.")
     mydoc = mycollection.find(myquery)
-    app.logger.info("get comment my query is: " + myquery)
-    # return flask.jsonify(mydoc) 
-    return create_resp(True, 'success', { 'comment': mydoc })   
+    print([document for document in mydoc])
+    comments_response = []
+    
+    comments_response.append(mydoc.next())
+    
+    # for document in mydoc:
+    #     comments_response.append(document["comment"])
+
+    print(comments_response)    
+    return create_resp(True, 'success', comments_response)
+    # else:
+    #     return create_resp(False, 'No cursor', {})   
 
 if __name__ == '__main__':
     app.run()
