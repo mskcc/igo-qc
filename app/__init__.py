@@ -38,7 +38,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}})
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}, r"/getComments": {"origins": "*"}})
 
 # Models
 from mongoengine import connect
@@ -817,8 +817,12 @@ def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
 
-@app.route('/addComment/<pId>_<comment>', methods=['POST'])
-def insert_comment(pId, comment):
+@app.route('/addComment', methods=['POST'])
+def insert_comment():
+
+    comment = request.json['commentText']
+    pId = request.json['projectId']
+    
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
@@ -831,14 +835,17 @@ def insert_comment(pId, comment):
     app.logger.info("Inserting comment into qcComments collection is completed.")
     return create_resp(True, 'success', {})
 
-@app.route('/projects/<pId>', methods=['GET'])
+@app.route('/getComments/<pId>', methods=['GET'])
 def get_comments(pId):
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
     myquery = ({}, {"requestId": pId})
+    app.logger.info("get comment function is called.")
     mydoc = mycollection.find(myquery)
-    return flask.jsonify(mydoc)    
+    app.logger.info("get comment my query is: " + myquery)
+    # return flask.jsonify(mydoc) 
+    return create_resp(True, 'success', { 'comment': mydoc })   
 
 if __name__ == '__main__':
     app.run()
