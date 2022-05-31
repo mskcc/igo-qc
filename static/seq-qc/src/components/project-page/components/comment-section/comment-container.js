@@ -18,14 +18,13 @@ const CommentSection = React.forwardRef((props, ref) => (
         >
             +
         </Button>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        {/* <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/>
-        <Comment name='Steph' date='October 23, 2021' text=''/> */}
+        {
+            props.commentsData.map((comment) => {
+                return (
+                    <Comment name={comment.createdBy} date={date} text={comment.comment}/>
+                )
+            })
+        }
     </Box>
   )
 );
@@ -33,20 +32,26 @@ const CommentSection = React.forwardRef((props, ref) => (
 function CommentContainer(props) {
     const [checked, setChecked] = React.useState(false);
     const [showDialog, setShowDialog] = React.useState(false);
+    const [comments, setComments] = React.useState({});
     // const currentUser = useSelector(state => state.user );
+
+    const fetchComments = async () => {
+        const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
+        const projectId = window.location.href.substring(urlIdIndex);
+        getComments(projectId)
+            .then((res) => {
+                const commentData = res.data;
+                setComments(commentData);
+            })
+            .catch((err) => {
+                alert('Error displaying comment(s). Email skigodata@mskcc.org');
+            })
+      };
+    
 
     const handleChange = () => {
         setChecked((prev) => !prev);
-        // const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
-        // const projectId = window.location.href.substring(urlIdIndex);
-        // getComments(projectId)
-        //     .then(() => {
-        //         handleAddComment();
-        //     })
-        //     .catch((err) => {
-        //         alert('Error displaying comment(s). Email skigodata@mskcc.org');
-        //     })
-        }
+    }
         
 
     const handleAddComment = () => {
@@ -57,6 +62,10 @@ function CommentContainer(props) {
         setShowDialog(false);
     }
 
+    useEffect(() => {
+        fetchComments();
+    }, []);
+
     return (
         <Box className='show-comments-switch'>
             { showDialog && <AddComment isOpen={showDialog} onHandleClose={handleCloseComment} />}
@@ -65,7 +74,7 @@ function CommentContainer(props) {
                 label="Show comments"
             />
             <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-                <CommentSection onAddComment={handleAddComment} />
+                <CommentSection commentsData={comments} onAddComment={handleAddComment} />
             </Slide>
         </Box>
     );
