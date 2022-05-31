@@ -6,6 +6,7 @@ import { FormControlLabel } from '@material-ui/core';
 import { Comment } from './comment';
 import './comment-section.css';
 import AddComment from './add-comment';
+import { getComments } from '../../../../services/igo-qc-service';
 
 const CommentSection = React.forwardRef((props, ref) => (
     <Box className='comment-container' ref={ref}>
@@ -36,7 +37,17 @@ function CommentContainer(props) {
 
     const handleChange = () => {
         setChecked((prev) => !prev);
-    };
+        // const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
+        // const projectId = window.location.href.substring(urlIdIndex);
+        // getComments(projectId)
+        //     .then(() => {
+        //         handleAddComment();
+        //     })
+        //     .catch((err) => {
+        //         alert('Error displaying comment(s). Email skigodata@mskcc.org');
+        //     })
+        }
+        
 
     const handleAddComment = () => {
         setShowDialog(true);

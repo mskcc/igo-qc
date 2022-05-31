@@ -64,10 +64,17 @@ export const submitFeedback = (body, subject, type) => {
 };
 
 export const addComment = (projectId, commentText) => {
-    return axios.post(`${config.IGO_QC}/addComment/${projectId}_${commentText}`)
+    const data = { projectId, commentText };
+    return axios.post(`${config.IGO_QC}/addComment`, data)
             .then(getData)
             .catch(error => {throw new Error('Unable to add comment: ' + error) });
 };
+
+export const getComments = (projectId) => {
+    return axios.get(`${config.IGO_QC}/getComments/${projectId}`)
+    .then(resp => { return parseResp(resp) })
+    .catch(error => {throw new Error('Unable to fetch comments: ' + error) });
+}
 /**
  * Sends service call to retrieve chart data about most recent runs
  */
