@@ -371,9 +371,9 @@ function ProjectPage(props){
                     </div>
                     { gridData.length > 0 ?
                         <div className={"padding-24"}>
-                            {gridData.map((row)=>{
+                            {gridData.map((row, idx)=>{
                                 const sample = `${row['Sample']}_IGO_${row['IGO Id']}`;
-                                return <div>
+                                return <div key={idx}>
                                     <p className={"inline-block"}>
                                         {sample}
                                     </p>
@@ -455,7 +455,7 @@ function ProjectPage(props){
                             </div>
                             <div>
                                 {chartNames.map((name)=>{
-                                    return<p>
+                                    return<p key={name}>
                                         <a href={chartsLinks[name]} target="_blank">{name}</a>
                                     </p>
                                 })}

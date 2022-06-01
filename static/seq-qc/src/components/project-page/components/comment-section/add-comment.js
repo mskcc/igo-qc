@@ -2,16 +2,9 @@ import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import { TextField } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
-import config from '../../../../config';
-import axios from 'axios';
-import {MODAL_ERROR, MODAL_UPDATE} from '../../../../resources/constants';
 import { addComment } from '../../../../services/igo-qc-service';
 import PropTypes from "prop-types";
 
-const parseResp = (resp) => {
-    const payload = resp.data
-    return payload.data
-};
 const AddComment = (props) => {
     const [name, setName] = useState('');
     const [comment, setComment] = useState('');
@@ -29,9 +22,8 @@ const AddComment = (props) => {
             
             const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
             const projectId = window.location.href.substring(urlIdIndex);
-            alert('project is: ' + projectId);
             addComment(projectId, comment)
-                .then(() => {
+                .then((res) => {
                     handleClose();
                 })
                 .catch((err) => {

@@ -72,7 +72,7 @@ export const addComment = (projectId, commentText) => {
 
 export const getComments = (projectId) => {
     return axios.get(`${config.IGO_QC}/getComments/${projectId}`)
-    .then(resp => { return parseResp(resp) })
+    .then(resp => { return JSON.parse(parseResp(resp)) })
     .catch(error => {throw new Error('Unable to fetch comments: ' + error) });
 }
 /**
