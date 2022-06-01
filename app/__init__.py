@@ -1,6 +1,7 @@
 # Version 1.0
 
 import sys
+from xml.dom.minidom import Document
 import uwsgi, pickle
 from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash, session
 from flask_login import login_user, login_required, LoginManager, UserMixin
@@ -22,6 +23,7 @@ import logging
 from logging.config import dictConfig
 import pymongo
 import flask
+from bson.json_util import dumps
 
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))
@@ -845,17 +847,17 @@ def get_comments(pId):
     app.logger.info("get comment function is called.")
     mydoc = mycollection.find(myquery)
     print([document for document in mydoc])
-    comments_response = []
+    my_list = []
+    i = 0
+    #mydb["qcComments"].find({ "requestId" : pId })
+    for document in mydoc:
+        print("document's comment is: " + document["comment"])
+        my_list.insert(i, document)
+        i += 1
     
-    comments_response.append(mydoc.next())
-    
-    # for document in mydoc:
-    #     comments_response.append(document["comment"])
-
-    print(comments_response)    
-    return create_resp(True, 'success', comments_response)
-    # else:
-    #     return create_resp(False, 'No cursor', {})   
+    if not mydoc:
+        return create_resp(False, 'No cursor', {})
+    return create_resp(True, 'success', json.dumps(my_list))     
 
 if __name__ == '__main__':
     app.run()
