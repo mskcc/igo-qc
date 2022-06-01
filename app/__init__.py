@@ -849,15 +849,15 @@ def get_comments(pId):
     print([document for document in mydoc])
     my_list = []
     i = 0
-    #mydb["qcComments"].find({ "requestId" : pId })
-    for document in mydoc:
+    
+    for document in mydb["qcComments"].find({ "requestId" : pId }):
         print("document's comment is: " + document["comment"])
         my_list.insert(i, document)
         i += 1
     
     if not mydoc:
         return create_resp(False, 'No cursor', {})
-    return create_resp(True, 'success', json.dumps(my_list))     
+    return create_resp(True, 'success', dumps(my_list))     
 
 if __name__ == '__main__':
     app.run()
