@@ -9,12 +9,16 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import './comment-section.css';
 
 export const Comment = ({name, date, text}) => {
+    if (name === null) {
+        name = 'Run-QC User';
+    }
+    const avatarLetter = name.charAt(0);
     return (
         <Card elevation={3} className='comment-card'>
             <CardHeader
                 avatar={
                     <Avatar className='avatar'>
-                        S
+                        {avatarLetter}
                     </Avatar>
                 }
                 // action={

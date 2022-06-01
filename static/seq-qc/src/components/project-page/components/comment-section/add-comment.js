@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { TextField } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
@@ -41,6 +41,13 @@ const AddComment = (props) => {
     const handleClose = () => {
         props.onHandleClose();
     };
+
+    useEffect(() => {
+        const nameFromSession = window.sessionStorage.getItem("runQCUsername");
+        if (nameFromSession && nameFromSession.length) {
+            setName(nameFromSession);
+        }
+    });
 
     return (
         <div>

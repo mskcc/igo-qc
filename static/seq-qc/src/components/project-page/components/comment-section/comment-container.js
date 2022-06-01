@@ -19,7 +19,7 @@ const CommentSection = React.forwardRef((props, ref) => {
             >
                 +
             </Button>
-            { props.commentsData.length &&
+            { props.commentsData.length > 0 &&
                 props.commentsData.map((comment) => {
                     const commentId = comment._id.$oid;
                     const date = new Date(comment.date.$date).toUTCString();
