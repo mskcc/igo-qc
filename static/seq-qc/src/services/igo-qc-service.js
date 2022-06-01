@@ -63,8 +63,8 @@ export const submitFeedback = (body, subject, type) => {
         .catch(handleError)
 };
 
-export const addComment = (projectId, commentText) => {
-    const data = { projectId, commentText };
+export const addComment = (projectId, commentText, username) => {
+    const data = { projectId, commentText, username };
     return axios.post(`${config.IGO_QC}/addComment`, data)
             .then(getData)
             .catch(error => {throw new Error('Unable to add comment: ' + error) });

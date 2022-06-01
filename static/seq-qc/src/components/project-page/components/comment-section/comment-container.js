@@ -9,7 +9,6 @@ import AddComment from './add-comment';
 import { getComments } from '../../../../services/igo-qc-service';
 
 const CommentSection = React.forwardRef((props, ref) => {
-    console.log(props.commentsData)
     return (
         <Box className='comment-container' ref={ref}>
             <Button
@@ -52,8 +51,8 @@ function CommentContainer(props) {
             })
       };
 
-    const updateComments = (commentText) => {
-
+    const updateComments = () => {
+        fetchComments();
     }
 
     const handleChange = () => {
@@ -74,7 +73,7 @@ function CommentContainer(props) {
 
     return (
         <Box className='show-comments-switch'>
-            { showDialog && <AddComment isOpen={showDialog} onHandleClose={handleCloseComment} />}
+            { showDialog && <AddComment isOpen={showDialog} onHandleClose={handleCloseComment} handleAddedComment={updateComments} />}
             <FormControlLabel
                 control={<Switch color='default' checked={checked} onChange={handleChange} />}
                 label="Show comments"

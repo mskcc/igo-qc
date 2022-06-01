@@ -1,6 +1,6 @@
 .comment-container {
     width: 450px;
-    max-height: 100vh;
+    max-height: calc(100vh - 90px);;
     overflow: auto;
     position: fixed;
     border-radius: 4px;
@@ -10,7 +10,7 @@
 }
 
 .comment-card {
-    margin-top: 10px;
+    margin: 10px;
     border-left: #eceff1 1px solid;
     border-top: #eceff1 1px solid;
 }
@@ -39,4 +39,14 @@
 
 .comment-dialog {
     width: 550px;
+}
+
+.comment-dialog-title {
+    margin-left: 24px;
+    margin-bottom: 15px;
+    color: #40b4e5;
+}
+
+.comment-username {
+    font-weight: 800;
 }

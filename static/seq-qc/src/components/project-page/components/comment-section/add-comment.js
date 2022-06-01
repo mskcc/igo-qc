@@ -3,27 +3,22 @@ import { Button } from '@material-ui/core';
 import { TextField } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { addComment } from '../../../../services/igo-qc-service';
-import PropTypes from "prop-types";
 
 const AddComment = (props) => {
-    const [name, setName] = useState('');
+    const [name, setName] = useState('Run-QC User');
     const [comment, setComment] = useState('');
-    const [nameError, setNameError] = useState(false);
     const [commentError, setCommentError] = useState(false);
 
     const onSubmit = () => {
-        if (!name.length > 0) {
-            setNameError(true);
-        }
         if (!comment.length > 0) {
             setCommentError(true);
         }
-        if ((!nameError && !commentError) && (name.length > 0 && comment.length > 0)) {
-            
+        if (!commentError && comment.length > 0) {
             const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
             const projectId = window.location.href.substring(urlIdIndex);
-            addComment(projectId, comment)
+            addComment(projectId, comment, name)
                 .then((res) => {
+                    props.handleAddedComment();
                     handleClose();
                 })
                 .catch((err) => {
@@ -31,15 +26,6 @@ const AddComment = (props) => {
                     alert('Error submitting comment. Email skigodata@mskcc.org');
                     handleClose();
                 })
-        }
-    }
-
-    const onNameChange = (event) => {
-        setName(event.target.value);
-        if (event.target.value === '') {
-            setNameError(true);
-        } else {
-            setNameError(false);
         }
     }
 
@@ -59,20 +45,9 @@ const AddComment = (props) => {
     return (
         <div>
             <Dialog open={props.isOpen} onClose={handleClose}>
-                <DialogTitle className='comment-dialog'>New Comment</DialogTitle>
+                <h3 className='comment-dialog comment-dialog-title'>New Comment</h3>
                 <DialogContent>
-                    <TextField
-                        error={nameError}
-                        required
-                        autoFocus
-                        margin="dense"
-                        id="nameField"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={onNameChange}
-                    />
+                    <p className='comment-username'>{name}</p>
                     <TextField
                         error={commentError}
                         id="commentField"
@@ -96,8 +71,3 @@ const AddComment = (props) => {
 }
 
 export default AddComment;
-
-AddComment.propTypes = {
-    addModalUpdate: PropTypes.func,
-    handleClose: PropTypes.bool
-};
