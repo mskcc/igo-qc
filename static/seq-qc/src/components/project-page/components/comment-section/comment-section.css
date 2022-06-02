@@ -13,10 +13,22 @@
     margin: 10px;
     border-left: #eceff1 1px solid;
     border-top: #eceff1 1px solid;
+    background-color: #f9f7ec !important;
 }
 
-.avatar {
-    background-color: #c24d00 !important;
+.comment-card .card-header {
+    padding: 16px;
+}
+
+.comment-card .username {
+    color: #c24d00 !important;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.comment-card .subheader {
+    font-size: 13px !important;
+    color: #9e9e98;
 }
 
 .add-comment-button {

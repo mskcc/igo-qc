@@ -294,7 +294,7 @@ def getSeqAnalysisProjects():
     cache_key = "seq-analysis-projects"
     content = get_cached_data(cache_key)
     if not content:
-        seq_analysis_projects_url = "http://localhost:5007/LimsRest/getRecentDeliveries"
+        seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
         app.logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
