@@ -827,8 +827,6 @@ def insert_comment():
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    # app.logger.info("User commenting is: %s", username)
-    # app.logger.info("User's comment is: %s", comment)
     myquery = {"requestId": pId, "comment": comment, "date": datetime.datetime.now(), "createdBy": username}
     x = mycollection.insert_one(myquery)
     app.logger.info("Inserting comment into qcComments collection is completed.")
@@ -840,7 +838,6 @@ def get_comments(pId):
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
     myquery = { "requestId" : pId }
-    #app.logger.info("get comment my query is: " + myquery)
     app.logger.info("get comment function is called.")
     mydoc = mycollection.find(myquery)
     print([document for document in mydoc])
@@ -848,7 +845,6 @@ def get_comments(pId):
     
     for document in mydb["qcComments"].find({ "requestId" : pId }):
         print("document's comment is: " + document["comment"])
-        # insert at beginning of list to order by reserve date
         my_list.insert(0, document)
     
     if not mydoc:
