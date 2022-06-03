@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { TextField } from '@material-ui/core';
-import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent } from '@material-ui/core';
 import { addComment } from '../../../../services/igo-qc-service';
 
 const AddComment = (props) => {
@@ -47,7 +47,7 @@ const AddComment = (props) => {
         if (nameFromSession && nameFromSession.length) {
             setName(nameFromSession);
         }
-    });
+    }, []);
 
     return (
         <div>

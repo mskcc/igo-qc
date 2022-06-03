@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import config from '../config.js';
 import { handleError, getData } from '../utils/service-utils';
-import CommentContainer from '../components/project-page/components/comment-section/comment-container.js';
 
 // TODO - remove
 const parseResp = (resp) => {
