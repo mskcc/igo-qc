@@ -36,7 +36,7 @@ function CommentContainer(props) {
     const [checked, setChecked] = React.useState(false);
     const [showDialog, setShowDialog] = React.useState(false);
     const [comments, setComments] = React.useState({});
-    // const currentUser = useSelector(state => state.user );
+    const [numComments, setNumComments] = React.useState(0);
 
     const fetchComments = async () => {
         const urlIdIndex = window.location.href.lastIndexOf('/') + 1;
@@ -44,6 +44,7 @@ function CommentContainer(props) {
         getComments(projectId)
             .then((res) => {
                 const commentData = res || [];
+                setNumComments(commentData.length);
                 setComments(commentData);
             })
             .catch((err) => {
@@ -76,7 +77,7 @@ function CommentContainer(props) {
             { showDialog && <AddComment isOpen={showDialog} onHandleClose={handleCloseComment} handleAddedComment={updateComments} />}
             <FormControlLabel
                 control={<Switch color='default' checked={checked} onChange={handleChange} />}
-                label="Show comments"
+                label={numComments > 0 ? `Show ${numComments} comment(s)` : 'Add a comment'}
             />
             <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
                 <CommentSection commentsData={comments} onAddComment={handleAddComment} />

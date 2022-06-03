@@ -8,7 +8,6 @@ export const Comment = ({name, date, text}) => {
     if (name === null) {
         name = 'Run-QC User';
     }
-    const avatarLetter = name.charAt(0);
     return (
         <Card elevation={3} className='comment-card'>
             <div className='card-header'>
