@@ -77,7 +77,7 @@ function CommentContainer(props) {
             { showDialog && <AddComment isOpen={showDialog} onHandleClose={handleCloseComment} handleAddedComment={updateComments} />}
             <FormControlLabel
                 control={<Switch color='default' checked={checked} onChange={handleChange} />}
-                label={numComments > 0 ? `Show ${numComments} comment(s)` : 'Add a comment'}
+                label={`Show ${numComments} comment(s)`}
             />
             <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
                 <CommentSection commentsData={comments} onAddComment={handleAddComment} />
