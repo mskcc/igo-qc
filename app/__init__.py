@@ -26,6 +26,9 @@ sys.path.insert(0, os.path.abspath("config"))
 config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lims_user_config")
 config_options = yaml.safe_load(open(config, "r"))
 
+# ldap config to allow communication between this app and MSK LDAP server
+ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+
 # Constants
 from .constants import LIMS_TASK_REPOOL, LIMS_TASK_SET_QC_STATUS, API_RECORD_ID, API_PROJECT, API_QC_STATUS, API_RECIPE, RECIPE_IMPACT, RECIPE_HEMEPACT, RECIPE_MSK_ACCESS, USER_ID, CACHE_PROJECT_PREFIX, CACHE_PICKLIST
 from .settings import FASTQ_PATH, URL_PREFIX, STATIC_FOLDER, TEMPLATE_FOLDER
