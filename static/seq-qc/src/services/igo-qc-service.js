@@ -14,6 +14,7 @@ export function getFeedback() {
         .then(resp => {return parseResp(resp) })
         .catch(error => {throw new Error('Unable to get Feedback: ' + error) });
 }
+
 /**
 * Sends service call to retrieve most recent deliveries
 */
@@ -61,6 +62,18 @@ export const submitFeedback = (body, subject, type) => {
         .catch(handleError)
 };
 
+export const addComment = (projectId, commentText, username) => {
+    const data = { projectId, commentText, username };
+    return axios.post(`${config.IGO_QC}/addComment`, data)
+            .then(getData)
+            .catch(error => {throw new Error('Unable to add comment: ' + error) });
+};
+
+export const getComments = (projectId) => {
+    return axios.get(`${config.IGO_QC}/getComments/${projectId}`)
+    .then(resp => { return JSON.parse(parseResp(resp)) })
+    .catch(error => {throw new Error('Unable to fetch comments: ' + error) });
+}
 /**
  * Sends service call to retrieve chart data about most recent runs
  */

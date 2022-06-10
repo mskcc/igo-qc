@@ -18,7 +18,7 @@ After setting up `Mongo`, `Backend`, & `Frontend` (in that order), the igo-qc ap
 ### Mongo
 ```
 WRITE_DATA_HERE=...
-mognod --dbpath=${WRITE_DATA_HERE}
+mongod --dbpath=${WRITE_DATA_HERE}
 ```
 
 ### Backend

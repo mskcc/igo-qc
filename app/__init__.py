@@ -1,6 +1,7 @@
 # Version 1.0
 
 import sys
+from xml.dom.minidom import Document
 import uwsgi, pickle
 from flask import Flask, render_template, url_for, request, redirect, make_response, jsonify, flash, session
 from flask_login import login_user, login_required, LoginManager, UserMixin
@@ -20,6 +21,9 @@ import smtplib
 from email.message import EmailMessage
 import logging
 from logging.config import dictConfig
+import pymongo
+import flask
+from bson.json_util import dumps
 
 # Configurations
 sys.path.insert(0, os.path.abspath("config"))
@@ -39,7 +43,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = config_options['secret_key']
 
 # Wrappers
-cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}})
+cors = CORS(app, resources={r"/saveConfig": {"origins": "*"}, r"/getCellRangerSample": {"origins": "*"}, r"/ngsStatsDownload": {"origins": "*"}, r"/getCrosscheckMetrics": {"origins": "*"}, r"/authenticate": {"origins": "*"}, r"/getRecentRuns": {"origins": "*"}, r"/getRequestProjects": {"origins": "*"}, r"/changeRunStatus": {"origins": "*"}, r"/getSeqAnalysisProjects": {"origins": "*"}, r"/projectInfo/*": {"origins": "*"}, r"/getFeedback": {"origins": "*"}, r"/submitFeedback": {"origins": "*"}, r"/addComment": {"origins": "*"}, r"/getComments/*": {"origins": "*"}})
 
 # Models
 from mongoengine import connect
@@ -817,6 +821,42 @@ def get_cached_data(key):
 def cache_data(key, content, time):
     app.logger.info("Caching %s for %d seconds" % (key, time))
     uwsgi.cache_update(key, content, time, CACHE_NAME)
+
+@app.route('/addComment', methods=['POST'])
+def insert_comment():
+    comment = request.json['commentText']
+    pId = request.json['projectId']
+    username = request.json['username']
+    myclient = pymongo.MongoClient("mongodb://localhost:27017")
+    mydb = myclient["run_qc"]
+    mycollection = mydb["qcComments"]
+    # app.logger.info("User commenting is: %s", username)
+    # app.logger.info("User's comment is: %s", comment)
+    myquery = {"requestId": pId, "comment": comment, "date": datetime.datetime.now(), "createdBy": username}
+    x = mycollection.insert_one(myquery)
+    app.logger.info("Inserting comment into qcComments collection is completed.")
+    return create_resp(True, 'success', {})
+
+@app.route('/getComments/<pId>', methods=['GET'])
+def get_comments(pId):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017")
+    mydb = myclient["run_qc"]
+    mycollection = mydb["qcComments"]
+    myquery = { "requestId" : pId }
+    #app.logger.info("get comment my query is: " + myquery)
+    app.logger.info("get comment function is called.")
+    mydoc = mycollection.find(myquery)
+    print([document for document in mydoc])
+    my_list = []
+    
+    for document in mydb["qcComments"].find({ "requestId" : pId }):
+        print("document's comment is: " + document["comment"])
+        # insert at beginning of list to order by reserve date
+        my_list.insert(0, document)
+    
+    if not mydoc:
+        return create_resp(False, 'No cursor', {})
+    return create_resp(True, 'success', dumps(my_list))     
 
 if __name__ == '__main__':
     app.run()
