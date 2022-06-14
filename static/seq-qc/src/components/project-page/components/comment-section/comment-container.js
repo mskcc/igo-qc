@@ -22,7 +22,8 @@ const CommentSection = React.forwardRef((props, ref) => {
             { props.commentsData.length > 0 &&
                 props.commentsData.map((comment) => {
                     const commentId = comment._id.$oid;
-                    const date = new Date(comment.date.$date).toUTCString();
+                    // .slice to remove 'GMT' from end of date
+                    const date = new Date(comment.date.$date).toUTCString().slice(0, -3);
                     return (
                         <Comment key={commentId} name={comment.createdBy} date={date} text={comment.comment}/>
                     )
