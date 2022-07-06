@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons'
 import config from '../../config.js';
-import { PROJECT_FLAGS,  LIMS_REQUEST_ID } from "../../resources/constants";
+import { PROJECT_FLAGS,  LIMS_REQUEST_ID, NUMBER_OF_COMMENTS } from "../../resources/constants";
 import {getFlagIcon} from "../project-page/components/quality-checks/quality-checks-utils";
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -15,7 +15,8 @@ const TEXT_FIELDS = {
     "requestType": "Type",
     [LIMS_REQUEST_ID]: "Request Id",
     "run": "Recent Runs",
-    "date": "Date of Latest Stats"
+    "date": "Date of Latest Stats",
+    "numComments": "Number of Comments"
 };
 const ICON_FIELDS = {
     [PROJECT_FLAGS]: "Quality Checks"
@@ -56,6 +57,7 @@ const ProjectRouter = ({name, tooltip, projects}) => {
             for(const project of projects){
                 if (project[field]) return true;
             }
+            console.log("returning false for " + field);
             return false;
         });
         return presentFields;
