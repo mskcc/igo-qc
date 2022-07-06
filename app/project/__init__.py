@@ -24,7 +24,6 @@ def get_project_info(pId, qc_status_label, get_project_qc):
     enriched_samples = enrich_samples(samples)
     project_type = get_project_type(enriched_samples)
     grid = get_grid(enriched_samples, project_type)
-    numOfComments = get_num_of_comments(pId)
 
     data = {
         'requester': requester,
@@ -33,8 +32,7 @@ def get_project_info(pId, qc_status_label, get_project_qc):
         'grid': grid,
         'chartsLinks': charts_links,
         'projectType': project_type,
-        'columnOrder': get_column_order(project_type['table']),
-        'numComments': numOfComments
+        'columnOrder': get_column_order(project_type['table'])
     }
 
     return data
@@ -424,21 +422,3 @@ def round_float(num, decimal_places = 2):
     except TypeError:
         logger.error('Could not round %s as float to %d decimal places' % (str(num), decimal_places))
         return num
-
-def get_num_of_comments(pId):
-    myclient = pymongo.MongoClient("mongodb://localhost:27017")
-    mydb = myclient["run_qc"]
-    mycollection = mydb["qcComments"]
-    myquery = { "requestId" : pId }
-    mydoc = mycollection.find(myquery)
-    print([document for document in mydoc])
-    my_list = []
-    
-    for document in mydb["qcComments"].find({ "requestId" : pId }):
-        print("document's comment is: " + document["comment"])
-        # insert at beginning of list to order by reserve date
-        my_list.insert(0, document)
-    
-    if not mydoc:
-        return 0
-    return len(my_list) 
