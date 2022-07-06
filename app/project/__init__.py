@@ -3,7 +3,6 @@ import re
 from collections import defaultdict
 from urllib.request import Request
 from flask import session
-import pymongo
 
 import logger
 from settings import APP_STATIC
