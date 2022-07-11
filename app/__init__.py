@@ -297,7 +297,7 @@ def getSeqAnalysisProjects():
     cache_key = "seq-analysis-projects"
     content = get_cached_data(cache_key)
     if not content:
-        seq_analysis_projects_url = "http://localhost:5007/LimsRest/getRecentDeliveries"
+        seq_analysis_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries"
         app.logger.info("Sending request to %s" % seq_analysis_projects_url)
         resp = s.get(seq_analysis_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
@@ -308,7 +308,7 @@ def getSeqAnalysisProjects():
     incomplete_requests_cache_key = "incomplete-requests"
     incomplete_requests_cached = get_cached_data(incomplete_requests_cache_key)
     if not incomplete_requests_cached:
-        request_statuses_url = "http://localhost:5007/LimsRest/getSequencingRequests?days=30&delivered=false"
+        request_statuses_url = LIMS_API_ROOT + "/LimsRest/getSequencingRequests?days=30&delivered=false"
         app.logger.info("Sending request to %s" % request_statuses_url)
         resp = s.get(request_statuses_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         incomplete_requests_cached = resp.content
@@ -361,7 +361,7 @@ def getRequestProjects():
     cache_key = "request-projects"
     content = get_cached_data(cache_key)
     if not content:
-        req_projects_url = "http://localhost:5007/LimsRest/getRecentDeliveries?time=2&units=d"
+        req_projects_url = LIMS_API_ROOT + "/LimsRest/getRecentDeliveries?time=2&units=d"
         app.logger.info("Sending request to %s" % req_projects_url)
         resp = s.get(req_projects_url, auth=(USER, PASSW), verify=False) # , timeout=10)
         content = resp.content
@@ -436,7 +436,7 @@ def get_recent_runs():
 #route for display the JSON
 @app.route('/JSON_<pId>')
 def displayJSON(pId):
-    r = s.get("http://localhost:5007/LimsRest/getProjectQc?project="+pId,  auth=(USER, PASSW), verify=False)
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId,  auth=(USER, PASSW), verify=False)
     data = json.loads(r.content)
     return render_template('json.html', **locals())
 
@@ -472,7 +472,7 @@ def change_run_status():
 
     # Update the cache for this project to reflect the new run status
     project_key = '%s%s' % (CACHE_PROJECT_PREFIX, project)
-    get_project_qc_url =  "http://localhost:5007/LimsRest/getProjectQc?project="+project
+    get_project_qc_url =  LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+project
     get_and_cache_project_info(get_project_qc_url, project_key)
 
     success = len(failed_requests) == 0
@@ -494,7 +494,7 @@ def should_repool_sample(recipe, status):
 
 def request_qc_status_change(id, qc_status, project, recipe):
     set_qc_payload = { 'record': id, 'status': qc_status, 'project': project, 'recipe': recipe }
-    set_qc_url = "http://localhost:5007/LimsRest/setQcStatus"
+    set_qc_url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
 
     resp = s.post(set_qc_url, params=set_qc_payload,  auth=(USER, PASSW), verify=False)
     return 'NewStatus' in resp.text and resp.status_code == 200
@@ -502,7 +502,7 @@ def request_qc_status_change(id, qc_status, project, recipe):
 def request_repool(id, recipe, qc_status):
     app.logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
 
-    set_pooled_url = "http://localhost:5007/LimsRest/setPooledSampleStatus"
+    set_pooled_url = LIMS_API_ROOT + "/LimsRest/setPooledSampleStatus"
     # Status should be that expected by LIMS for SAMPLES, not the QC site
     set_pooled_payload = {'record': id, 'status': "Ready for - Pooling of Sample Libraries for Sequencing"}
     set_pooled_resp = s.post(set_pooled_url, params=set_pooled_payload,  auth=(USER, PASSW), verify=False)
@@ -516,7 +516,7 @@ def postall_qcStatus(qcStatus, pId):
     recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
         payload = {'record': recordId, 'status': qcStatus}
-        url = "http://localhost:5007/LimsRest/setQcStatus"
+        url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
 
@@ -530,7 +530,7 @@ def add_note():
     """
 
     payload = {'request' : request.form['request'], 'user' : 'qc_review', 'igoUser' : 'gabow', 'readMe' : request.form['readMe']}
-    url = "http://localhost:5007/LimsRest/limsRequest"
+    url = LIMS_API_ROOT + "/LimsRest/limsRequest"
     r =  s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return redirect(url_for('index'))
 
@@ -540,7 +540,7 @@ def project_qc(pId):
     if pId == 'undefined' or not is_project_id_valid(pId):
         return create_resp(False, 'Invalid pId', {})
 
-    get_project_qc_resp = s.get( "http://localhost:5007/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
+    get_project_qc_resp = s.get(LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId, auth=(USER, PASSW), verify=False)
     try:
         get_project_qc = json.loads(get_project_qc_resp.content)
     except TypeError:
@@ -584,13 +584,13 @@ def project_info(pId):
     get_project_qc_resp = get_cached_data(project_key)
     if not get_project_qc_resp:
         app.logger.info('request info not cached, calling limsrest endpoint..')
-        get_project_qc_url = "http://localhost:5007/LimsRest/getProjectQc?project="+pId
+        get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+pId
         get_project_qc_resp = get_and_cache_project_info(get_project_qc_url, project_key)
 
     # TODO - picklist constant
     qc_status_label_content = get_cached_data(CACHE_PICKLIST)
     if not qc_status_label_content:
-        qc_status_label_url = "http://localhost:5007/LimsRest/getPickListValues?list=Sequencing+QC+Status"
+        qc_status_label_url = LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Sequencing+QC+Status"
         app.logger.info('Submitting request to %s' % qc_status_label_url)
         qc_status_label_resp = s.get(qc_status_label_url, auth=(USER, PASSW), verify=False)
         qc_status_label_content = qc_status_label_resp.content
@@ -806,7 +806,7 @@ def get_interops_data():
             cache_data(cache_key, run_summary, CACHE_TIME_LONG)
         return render_template('run_summary.html', run_summary=json.loads(run_summary))
 
-    interops_data_url = "http://localhost:5007/LimsRest/getInterOpsData?runId="+runName
+    interops_data_url = LIMS_API_ROOT + "/LimsRest/getInterOpsData?runId="+runName
     app.logger.info("Sending %s" % interops_data_url)
     r = s.get(interops_data_url, auth=(USER, PASSW), verify=False)
     run_summary = r.content
