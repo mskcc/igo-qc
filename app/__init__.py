@@ -472,7 +472,7 @@ def change_run_status():
 
     # Update the cache for this project to reflect the new run status
     project_key = '%s%s' % (CACHE_PROJECT_PREFIX, project)
-    get_project_qc_url =  LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+project
+    get_project_qc_url = LIMS_API_ROOT + "/LimsRest/getProjectQc?project="+project
     get_and_cache_project_info(get_project_qc_url, project_key)
 
     success = len(failed_requests) == 0
