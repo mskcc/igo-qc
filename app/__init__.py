@@ -335,7 +335,7 @@ def getSeqAnalysisProjects():
         project['run'] = ', '.join(runs)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-        project['numComments'] = str(get_num_of_comments(project['requestId']))
+        project['numComments'] = num_of_comments
 
         if isUnreviewed(project):
             projectsToReview.append(project)
@@ -376,7 +376,7 @@ def getRequestProjects():
         [ignore, recentDate] = getRecentDateAndRuns(project)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-        project['numComments'] = str(get_num_of_comments(project['requestId']))
+        project['numComments'] = num_of_comments
     projects.sort(key=itemgetter('ordering'))
 
     data = {
@@ -423,7 +423,7 @@ def get_recent_runs():
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
-            project['numComments'] = str(get_num_of_comments(project['requestId']))
+            project['numComments'] = num_of_comments
             head, tail = os.path.split(eachfile)
             project['path'] = "static/html/FASTQ/" + tail
             project['runName'] = tail
@@ -876,5 +876,6 @@ def get_num_of_comments(pId):
         return 0
     return len(my_list)          
 
+num_of_comments = str(get_num_of_comments(project['requestId']))
 if __name__ == '__main__':
     app.run()
