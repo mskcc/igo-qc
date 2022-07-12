@@ -335,7 +335,7 @@ def getSeqAnalysisProjects():
         project['run'] = ', '.join(runs)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-        project['numComments'] = num_of_comments
+        project['numComments'] = str(get_num_of_comments(project['requestId']))
 
         if isUnreviewed(project):
             projectsToReview.append(project)
@@ -376,7 +376,7 @@ def getRequestProjects():
         [ignore, recentDate] = getRecentDateAndRuns(project)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
-        project['numComments'] = num_of_comments
+        project['numComments'] = str(get_num_of_comments(project['requestId']))
     projects.sort(key=itemgetter('ordering'))
 
     data = {
@@ -423,7 +423,7 @@ def get_recent_runs():
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
-            project['numComments'] = num_of_comments
+            project['numComments'] = str(get_num_of_comments(project['requestId']))
             head, tail = os.path.split(eachfile)
             project['path'] = "static/html/FASTQ/" + tail
             project['runName'] = tail
@@ -856,8 +856,7 @@ def get_comments(pId):
     
     if not mydoc:
         return create_resp(False, 'No cursor', {})
-    return create_resp(True, 'success', dumps(my_list))
-
+    return create_resp(True, 'success', dumps(my_list))         
 def get_num_of_comments(pId):
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
@@ -874,8 +873,7 @@ def get_num_of_comments(pId):
     
     if not mydoc:
         return 0
-    return len(my_list)          
-
-num_of_comments = str(get_num_of_comments(project['requestId']))
+    return len(my_list)
+    
 if __name__ == '__main__':
     app.run()
