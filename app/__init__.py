@@ -335,6 +335,7 @@ def getSeqAnalysisProjects():
         project['run'] = ', '.join(runs)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+        project['numComments'] = str(get_num_of_comments(project['requestId']))
 
         if isUnreviewed(project):
             projectsToReview.append(project)
@@ -375,6 +376,7 @@ def getRequestProjects():
         [ignore, recentDate] = getRecentDateAndRuns(project)
         project['ordering'] = recentDate
         project['date'] = time.strftime('%Y-%m-%d %H:%M', time.localtime((recentDate/1000)))
+        project['numComments'] = str(get_num_of_comments(project['requestId']))
     projects.sort(key=itemgetter('ordering'))
 
     data = {
@@ -421,6 +423,7 @@ def get_recent_runs():
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
+            project['numComments'] = str(get_num_of_comments(project['requestId']))
             head, tail = os.path.split(eachfile)
             project['path'] = "static/html/FASTQ/" + tail
             project['runName'] = tail
@@ -491,7 +494,7 @@ def should_repool_sample(recipe, status):
 
 def request_qc_status_change(id, qc_status, project, recipe):
     set_qc_payload = { 'record': id, 'status': qc_status, 'project': project, 'recipe': recipe }
-    set_qc_url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+    set_qc_url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
 
     resp = s.post(set_qc_url, params=set_qc_payload,  auth=(USER, PASSW), verify=False)
     return 'NewStatus' in resp.text and resp.status_code == 200
@@ -499,7 +502,7 @@ def request_qc_status_change(id, qc_status, project, recipe):
 def request_repool(id, recipe, qc_status):
     app.logger.info("Sending repool request for recipe: %s and status: %s" % (recipe, qc_status))
 
-    set_pooled_url = LIMS_API_ROOT  + "/LimsRest/setPooledSampleStatus"
+    set_pooled_url = LIMS_API_ROOT + "/LimsRest/setPooledSampleStatus"
     # Status should be that expected by LIMS for SAMPLES, not the QC site
     set_pooled_payload = {'record': id, 'status': "Ready for - Pooling of Sample Libraries for Sequencing"}
     set_pooled_resp = s.post(set_pooled_url, params=set_pooled_payload,  auth=(USER, PASSW), verify=False)
@@ -513,7 +516,7 @@ def postall_qcStatus(qcStatus, pId):
     recordIds = request.args.getlist('recordIds')
     for recordId in recordIds:
         payload = {'record': recordId, 'status': qcStatus}
-        url = LIMS_API_ROOT  + "/LimsRest/setQcStatus"
+        url = LIMS_API_ROOT + "/LimsRest/setQcStatus"
         r = s.post(url, params=payload,  auth=(USER, PASSW), verify=False)
     return make_response(r.text, 200, None)
 
@@ -830,8 +833,6 @@ def insert_comment():
     myclient = pymongo.MongoClient("mongodb://localhost:27017")
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
-    # app.logger.info("User commenting is: %s", username)
-    # app.logger.info("User's comment is: %s", comment)
     myquery = {"requestId": pId, "comment": comment, "date": datetime.datetime.now(), "createdBy": username}
     x = mycollection.insert_one(myquery)
     app.logger.info("Inserting comment into qcComments collection is completed.")
@@ -843,7 +844,6 @@ def get_comments(pId):
     mydb = myclient["run_qc"]
     mycollection = mydb["qcComments"]
     myquery = { "requestId" : pId }
-    #app.logger.info("get comment my query is: " + myquery)
     app.logger.info("get comment function is called.")
     mydoc = mycollection.find(myquery)
     print([document for document in mydoc])
@@ -856,7 +856,24 @@ def get_comments(pId):
     
     if not mydoc:
         return create_resp(False, 'No cursor', {})
-    return create_resp(True, 'success', dumps(my_list))     
-
+    return create_resp(True, 'success', dumps(my_list))         
+def get_num_of_comments(pId):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017")
+    mydb = myclient["run_qc"]
+    mycollection = mydb["qcComments"]
+    myquery = { "requestId" : pId }
+    mydoc = mycollection.find(myquery)
+    print([document for document in mydoc])
+    my_list = []
+    
+    for document in mydb["qcComments"].find({ "requestId" : pId }):
+        print("document's comment is: " + document["comment"])
+        # insert at beginning of list to order by reserve date
+        my_list.insert(0, document)
+    
+    if not mydoc:
+        return 0
+    return len(my_list)
+    
 if __name__ == '__main__':
     app.run()

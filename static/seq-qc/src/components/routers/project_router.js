@@ -15,7 +15,8 @@ const TEXT_FIELDS = {
     "requestType": "Type",
     [LIMS_REQUEST_ID]: "Request Id",
     "run": "Recent Runs",
-    "date": "Date of Latest Stats"
+    "date": "Date of Latest Stats",
+    "numComments": "Number of Comments"
 };
 const ICON_FIELDS = {
     [PROJECT_FLAGS]: "Quality Checks"
