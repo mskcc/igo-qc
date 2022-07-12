@@ -187,6 +187,12 @@ def get_sampleQcs_with_baitSet(samples):
     return list(filter(lambda qc_entry: 'baitSet' in qc_entry, sample_qc_list))
 
 def get_header(project_type):
+    # all_samples = ["Run", "Sample", "IGO Id",]
+    # Standard_Dragen_stats = ["Reads Examined", "Unmapped", "Pct. Adapters", "Pct. Duplic."]
+    # Capture_stats = []
+    # WGS_stats = []
+    # RNA_stats = []
+    # 10x_stats = []
     header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
               "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
@@ -205,7 +211,7 @@ def get_header(project_type):
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
-    all_headers = header
+    all_headers = header #all_samples
     if 'hs' in project_type['table']:
         all_headers += hs_header
     if 'rna' in project_type['table']:
