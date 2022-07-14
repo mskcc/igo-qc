@@ -423,7 +423,7 @@ def get_recent_runs():
             project = {}
             mod_timestamp = mtime.strftime("%Y-%m-%d %H:%M")
             project['date'] = mod_timestamp
-            project['numComments'] = str(get_num_of_comments(project['requestId']))
+            # project['numComments'] = str(get_num_of_comments(project['requestId']))
             head, tail = os.path.split(eachfile)
             project['path'] = "static/html/FASTQ/" + tail
             project['runName'] = tail
