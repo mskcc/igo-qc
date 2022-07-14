@@ -187,12 +187,12 @@ def get_sampleQcs_with_baitSet(samples):
     return list(filter(lambda qc_entry: 'baitSet' in qc_entry, sample_qc_list))
 
 def get_header(project_type):
-    # all_samples = ["Run", "Sample", "IGO Id",]
-    # Standard_Dragen_stats = ["Reads Examined", "Unmapped", "Pct. Adapters", "Pct. Duplic."]
-    # Capture_stats = []
+    all_samples = ["Run", "Sample", "IGO Id", "Initial Pool", "Total Reads"]
+    # Standard_Dragen_stats = ["Reads Examined", "Unmapped", "Pct. Adapters", "Pct. Duplic."]     USELESS
+    # Capture_stats = ["PCT_100X", "PCT_30X", "Mean Tgt Cvg", "Pct. Off Bait"]    OK
     # WGS_stats = []
-    # RNA_stats = []
-    # 10x_stats = []
+    # RNA_stats = ["Pct. Mrna" , "Pct. Ribos."]    OK
+    # 10x_stats = ["EstimatedNumberOfCells", "FractionReadsInCells", "MeanReadsPerCell", "NumberOfReads", "ReadsMappedToGenome", "ReadsMappedToTranscriptome", "SequencingSaturation", "TotalGenesDetected"]
     header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
               "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
@@ -211,7 +211,7 @@ def get_header(project_type):
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
-    all_headers = header #all_samples
+    all_headers = all_samples
     if 'hs' in project_type['table']:
         all_headers += hs_header
     if 'rna' in project_type['table']:
@@ -232,7 +232,7 @@ def get_header(project_type):
 
     return project_headers
 
-def get_grid(samples, project_type):
+def get_grid(samples, project_type): #recipe replacing type
     header = get_header(project_type)
 
     grid = Grid.Grid()
