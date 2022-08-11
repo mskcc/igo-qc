@@ -850,7 +850,7 @@ def get_comments(pId):
     my_list = []
     
     for document in mydb["qcComments"].find({ "requestId" : pId }):
-        print("document's comment is: " + document["comment"])
+        #print("document's comment is: " + document["comment"])
         # insert at beginning of list to order by reserve date
         my_list.insert(0, document)
     
@@ -867,7 +867,7 @@ def get_num_of_comments(pId):
     my_list = []
     
     for document in mydb["qcComments"].find({ "requestId" : pId }):
-        print("document's comment is: " + document["comment"])
+        #print("document's comment is: " + document["comment"])
         # insert at beginning of list to order by reserve date
         my_list.insert(0, document)
     

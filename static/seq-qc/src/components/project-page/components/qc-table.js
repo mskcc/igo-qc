@@ -355,7 +355,7 @@ class QcTable extends React.Component {
                                 </div>
                                 <a href={`${config.NGS_STATS}/ngs-stats/get-picard-project-excel/${this.props.project}`} target="_blank">
                                     <div className={"xlsx-type-selector hover"}>
-                                        <p className={"font-bold"}>Picard Excel</p>
+                                        <p className={"font-bold"}>Full Stats</p>
                                     </div>
                                 </a>
                             </div>
