@@ -157,8 +157,8 @@ def get_project_type(samples):
         'quanted': any('quantIt' in sample['qc'] for sample in samples),
         'qcControlled': any('qcControl' in sample['qc'] for sample in samples)
     }
-    if 'runType' in common_sample:
-        project_type['runType'] = common_sample['runType']
+    # if 'runType' in common_sample:
+    #     project_type['runType'] = common_sample['runType']
 
     project_type['table'] = []
 
@@ -188,47 +188,126 @@ def get_sampleQcs_with_baitSet(samples):
 
 def get_header(project_type):
     all_samples = ["Run", "Sample", "IGO Id", "Initial Pool", "Total Reads"]
-    # Standard_Dragen_stats = ["Reads Examined", "Unmapped", "Pct. Adapters", "Pct. Duplic."]     USELESS
-    # Capture_stats = ["PCT_100X", "PCT_30X", "Mean Tgt Cvg", "Pct. Off Bait"]    OK
-    # WGS_stats = []
-    # RNA_stats = ["Pct. Mrna" , "Pct. Ribos."]    OK
-    # 10x_stats = ["EstimatedNumberOfCells", "FractionReadsInCells", "MeanReadsPerCell", "NumberOfReads", "ReadsMappedToGenome", "ReadsMappedToTranscriptome", "SequencingSaturation", "TotalGenesDetected"]
-    header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
-              "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
-              "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
-              "Unmapped", "Pct. Duplic."]
-    hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
-                 "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
-                 "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
-                 "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
-    rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                   "Concentr.  (nM)", "Final Library Yield (fmol)", "Requested Reads (Millions)", "Initial Pool",
-                   "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
-                   "Unmapped", "Pct. Duplic.",
-                   "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
-    wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
-                  "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Initial Pool",
-                  "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
-                  "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
+    Standard_Dragen_stats = ["Reads Examined", "Unmapped", "Pct. Adapters", "Pct. Duplic."]
+    Capture_stats = ["PCT_100X", "PCT_30X", "Mean Tgt Cvg", "Pct. Off Bait"]
+    WGS_stats = ["Mean Cvg", "GRefOxoQ"]
+    RNA_stats = ["Pct. Mrna" , "Pct. Ribos."]
+    TenX_stats = ["EstimatedNumberOfCells", "FractionReadsInCells", "MeanReadsPerCell", "NumberOfReads", "ReadsMappedToGenome", "ReadsMappedToTranscriptome", "SequencingSaturation", "TotalGenesDetected"]
+    # header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
+    #           "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
+    #           "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
+    #           "Unmapped", "Pct. Duplic."]
+    # hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
+    #              "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
+    #              "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
+    #              "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
+    # rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+    #                "Concentr.  (nM)", "Final Library Yield (fmol)", "Requested Reads (Millions)", "Initial Pool",
+    #                "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
+    #                "Unmapped", "Pct. Duplic.",
+    #                "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
+    # wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
+    #               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Initial Pool",
+    #               "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
+    #               "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
 
     all_headers = all_samples
-    if 'hs' in project_type['table']:
-        all_headers += hs_header
-    if 'rna' in project_type['table']:
-        all_headers += rna_header
-    if 'wgs' in project_type['table']:
-        all_headers += wgs_header
+    # if 'hs' in project_type['table']:
+    #     all_headers += hs_header
+    # if 'rna' in project_type['table']:
+    #     all_headers += rna_header
+    # if 'wgs' in project_type['table']:
+    #     all_headers += wgs_header
 
     project_headers = []
     [project_headers.append(h) for h in all_headers if h not in project_headers]
 
-    genome_index = project_headers.index("Genome")
-    if "startable" in project_type and project_type["startable"]:
-        project_headers.insert(genome_index + 1, "Starting Amount")
-    if "qcControlled" in project_type and project_type["qcControlled"]:
-        project_headers.insert(genome_index + 1, "Library Quality Control")
-    if "quanted" in project_type and project_type["quanted"]:
-        project_headers.insert(genome_index + 1, "Quant-it")
+    # Recipe based comparision
+    last_index = project_headers.index("Total Reads")
+    if "10X" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, TenX_stats)
+
+    if "IGO-Test" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, Capture_stats)
+        last_index = project_headers.index(Capture_stats.index(len(Capture_stats) - 1))
+        project_headers.insert(last_index + 1, WGS_stats)
+        last_index = project_headers.index(WGS_stats.index(len(WGS_stats) - 1))
+        project_headers.insert(last_index + 1, RNA_stats)
+        
+    if "CustomCapture" in project_type["recipe"] or "HemePACT_v4" in project_type["recipe"] or "IMPACT505" in project_type["recipe"] or "M-IMPACT" in project_type["recipe"] or "WholeExome-KAPALib" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, Capture_stats)
+        # last_index = project_headers.index(Capture_stats.index(len(Capture_stats) - 1))
+
+    if "MSK-ACCESS_v1" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, Capture_stats)
+        # last_index = project_headers.index(Capture_stats.index(len(Capture_stats) - 1))
+        # TO REMOVE some columns
+    if "HumanWholeGenome" in project_type["recipe"] or "MouseWholeGenome" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, WGS_stats)
+        # last_index = project_headers.index(WGS_stats.index(len(WGS_stats) - 1))
+        # TO REMOVE some columns
+
+    if "Rapid-RCC" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, WGS_stats)
+        last_index = project_headers.index(WGS_stats.index(len(WGS_stats) - 1))
+        project_headers.insert(last_index + 1, RNA_stats)
+    
+    if "PED-PEG" in project_type["recipe"]:    
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, RNA_stats)
+
+    if "sWGS" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, WGS_stats)
+        # TO REMOVE some columns
+
+    if "WholeGenome" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+
+    if (
+        "RNASeq-SMARTerAmp" in project_type["recipe"] or "RNASeq-TruSeqPolyA" in project_type["recipe"] or 
+        "RNASeq-TruSeqRiboDeplete" in project_type["recipe"]):
+
+    if (
+        "AmpliconSeq" in project_type["recipe"] or "ATACSeq" in project_type["recipe"] or "ChIPSeq" in project_type["recipe"] or 
+        "CRISPRSeq" in project_type["recipe"] or "Investigator Prepared Libraries" in project_type["recipe"] or "Investigator Prepared Pools" in project_type["recipe"] or "SingleCellCNV" in project_type["recipe"]):
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        last_index = project_headers.index(Standard_Dragen_stats.index(len(Standard_Dragen_stats) - 1))
+        project_headers.insert(last_index + 1, RNA_stats)
+
+        # % Duplication should be removed!
+        
+
+    if "MethylSeq" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        # Only 2 columns from Dragen is required!
+    if "SCRI Transfer" in project_type["recipe"]:
+        project_headers.insert(last_index + 1, Standard_Dragen_stats)
+        # Only 1 column from Dragen is required!
+
+    # if "Archer" "MissionBio" in project_type["recipe"]: ONLY DEFAULT COLUMNS
+
+
+
+    # genome_index = project_headers.index("Genome")
+    # if "startable" in project_type and project_type["startable"]:
+    #     project_headers.insert(genome_index + 1, "Starting Amount")
+    # if "qcControlled" in project_type and project_type["qcControlled"]:
+    #     project_headers.insert(genome_index + 1, "Library Quality Control")
+    # if "quanted" in project_type and project_type["quanted"]:
+    #     project_headers.insert(genome_index + 1, "Quant-it")
 
     return project_headers
 
