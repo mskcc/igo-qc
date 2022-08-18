@@ -1,7 +1,7 @@
 order = {
     # MANADTORY COLUMNS WILL ALWAYS BE FIRST
     'MANDATORY': [
-        "QC Status", "Sample Name", "QC Record Id", "Recipe"
+        "QC Status", "Sample", "QC Record Id", "Recipe"
     ],
     'hs': [
         "Mean Tgt Cvg", "Coverage Target", "Sum MTC",
@@ -30,7 +30,7 @@ order = {
         "Pct. Adapters", "Pct. Duplic."
     ],
     'default': [
-        "QC Status", "Sample Name",
+        "QC Status", "Sample",
         "Coverage Target",
         "Concentr.  (nM)", "Final Library Yield (fmol)",
         "Requested Reads (Millions)", "Reads Examined", "Unpaired Reads", "Sum Reads", "Unmapped",

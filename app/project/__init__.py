@@ -187,20 +187,20 @@ def get_sampleQcs_with_baitSet(samples):
     return list(filter(lambda qc_entry: 'baitSet' in qc_entry, sample_qc_list))
 
 def get_header(project_type):
-    header = ["Run", "Sample Name", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
+    header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
               "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
               "Unmapped", "Pct. Duplic."]
-    hs_header = ["Run", "Sample Name", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
+    hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
                  "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
                  "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
                  "Pct. Zero Cvg", "Pct. 10x", "Pct. 30x", "Pct. 100x", "Genome"]
-    rna_header =  ["Run", "Sample Name", "IGO Id", "Genome", "Tumor or Normal",
+    rna_header =  ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
                    "Concentr.  (nM)", "Final Library Yield (fmol)", "Requested Reads (Millions)", "Initial Pool",
                    "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
                    "Unmapped", "Pct. Duplic.",
                    "Pct. Ribos.", "Pct. Coding", "Pct. Utr", "Pct. Intron.", "Pct. Intergenic", "Pct. Mrna"]
-    wgs_header = ["Run", "Sample Name", "IGO Id", "Genome", "Tumor or Normal",
+    wgs_header = ["Run", "Sample", "IGO Id", "Genome", "Tumor or Normal",
                   "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Initial Pool",
                   "QC Status", "Mean Tgt Cvg", "Pct. Duplic.", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads","Unmapped",
                   "PCT_EXC_MAPQ", "PCT_EXC_DUPE", "PCT_EXC_BASEQ", "PCT_EXC_TOTAL", "PCT_10X", "PCT_30X", "PCT_40X", "PCT_80X", "PCT_100X"]
@@ -250,7 +250,7 @@ def get_grid(samples, project_type):
         qc = sample['qc']
         grid.set_value("Run", row, qc['run'])
         grid.set_value("QC Status", row, qc['qcStatus'])
-        grid.set_value("Sample Name", row, qc['sampleName'])
+        grid.set_value("Sample", row, qc['sampleName'])
         grid.set_value("QC Record Id", row, qc['recordId'])
         grid.set_value("IGO Id", row, sample['baseId'])
         grid.set_value("Recipe", row, sample['recipe'])
