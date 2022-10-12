@@ -356,12 +356,24 @@ def enrich_samples(samples):
                     sumReadDict[sample['baseId']] += sample['qc']['readsExamined']
                 else:
                     sumReadDict[sample['baseId']] += sample['qc']['unpairedReadsExamined']
-            else:
-                print("unique id is: " + sample['uniqueIdentifier'])
+            else: #TCRSeq and Mission Bio
+                # Handeling top-up situations
+                print("sample['uniqueIdentifier'] =  " + sample['uniqueIdentifier'])
                 if sample['qc']['readsExamined']>0:
-                    sumReadDict[sample['uniqueIdentifier']] = sample['qc']['readsExamined']
+                    sumReadDict[sample['uniqueIdentifier']] += sample['qc']['readsExamined']
                 else:
-                    sumReadDict[sample['uniqueIdentifier']] = sample['qc']['unpairedReadsExamined']
+                    sumReadDict[sample['uniqueIdentifier']] += sample['qc']['unpairedReadsExamined']
+
+                # if sumReadDict[sample['uniqueIdentifier']] == 0:
+                #     if sample['qc']['readsExamined']>0:
+                #         print("Sample was only in 1 run with readsExamined > 0, sample['qc']['readsExamined'] = " + str(sample['qc']['readsExamined']))
+                #         sumReadDict[sample['uniqueIdentifier']] = sample['qc']['readsExamined']
+                #         print("sumReadDict[sample['uniqueIdentifier']] = " + str(sumReadDict[sample['uniqueIdentifier']]))
+                #     else:
+                #         print("Sample was only in 1 run with readsExamined <= 0")
+                #         sumReadDict[sample['uniqueIdentifier']] = sample['qc']['unpairedReadsExamined']
+                
+
     #compute the sum of the 'meanTargetCoverage' by 'sampleName'
     sumMtcDict = defaultdict(float)
     for sample in samples:
@@ -373,7 +385,7 @@ def enrich_samples(samples):
     for sample in samples:
         sample['sumMtc'] = sumMtcDict[sample['baseId']]
         sample['sumReads'] = sumReadDict[sample['baseId']]
-        if 'TCRSeq-IGO' in sample['recipe'] or 'TCRseq-IGO' in sample['recipe'] or 'MissionBio' in sample['recipe']:
+        if 'TCRseq-IGO' in sample['recipe'] or 'MissionBio' in sample['recipe']:
             print("Here!")
             sample['sumReads'] = sumReadDict[sample['uniqueIdentifier']]
 
