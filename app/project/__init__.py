@@ -190,7 +190,7 @@ def get_header(project_type):
     header = ["Run", "Sample", "IGO Id", "Recipe", "Genome", "Tumor or Normal",
               "Concentr.  (nM)", "Final Library Yield (fmol)", "Coverage Target", "Requested Reads (Millions)", "Initial Pool",
               "QC Status", "Pct. Adapters", "Reads Examined", "Unpaired Reads", "Sum Reads",
-              "Unmapped", "Pct. Duplic."]
+              "Unmapped", "Pct. Duplic.", "Stats Version"]
     hs_header = ["Run", "Sample", "IGO Id", "Initial Pool", "QC Status", "Tumor or Normal",
                  "Coverage Target", "Requested Reads (Millions)", "Sum MTC", "Sum Reads", "Pct. Duplic.", "Pct. Off Bait",
                  "Mean Tgt Cvg", "Reads Examined", "Unmapped", "Unpaired Reads", "Pct. Adapters",
@@ -279,6 +279,10 @@ def get_grid(samples, project_type):
             grid.set_value("Initial Pool", row, sample["initialPool"])
         grid.set_value("Unmapped", row, qc['unmapped'])
         grid.set_value("Pct. Duplic.", row, round_float(qc['percentDuplication']* 100))
+        if "statsVersion" in qc:
+            grid.set_value("Stats Version", row, qc["statsVersion"])
+        else:
+            grid.set_value("Stats Version", row, "")
         if project_type["startable"]:
             grid.set_value("Starting Amount", row, qc["startingAmount"])
         if project_type["qcControlled"]:
