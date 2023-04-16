@@ -17,7 +17,7 @@
     "handsontable": "^7.1.1",
     "lz-string": "^1.4.4",
     "mui-downshift": "^1.4.1",
-    "plotly.js": "^1.49.5",
+    "plotly.js": "^1.58.5",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.15",
