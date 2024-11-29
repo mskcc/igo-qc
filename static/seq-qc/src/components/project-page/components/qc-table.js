@@ -345,7 +345,7 @@ class QcTable extends React.Component {
                             <FontAwesomeIcon className={"dropdown-nav center-v inline-block"}
                                              icon={this.state.showCustomizeColumns ? faAngleDown : faAngleRight}/>
                         </div>
-                        <p className={"inline-block vertical-align-top"}>Customize View</p>
+                        <p className={"inline-block center-v"}>Customize View</p>
                     </div>
                     <div className={"xlsx-container"}>
                         <div className={"xlsx-selector"}>

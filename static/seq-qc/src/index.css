@@ -23,6 +23,9 @@ h3 {
 .font-size-12 {
     font-size: 12px;
 }
+.fill-height {
+    height: 100%;
+}
 .fill-width {
     width: 100%;
 }
@@ -46,6 +49,9 @@ h3 {
 }
 .width-100px {
     width: 100px;
+}
+.width-200px {
+    width: 200px;
 }
 .width-300px {
     width: 300px
@@ -103,6 +109,9 @@ h3 {
 }
 .table-cell {
     display: table-cell;
+}
+table p {
+    margin: 10px;
 }
 .text-align-center {
     text-align: center;
