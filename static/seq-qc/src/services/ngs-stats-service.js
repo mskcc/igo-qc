@@ -42,17 +42,14 @@ export const getPicardRunExcel = (run) => {
  * @param recipe
  * return Object[]
  */
-export const getNgsStatsData = (recipe, projectId) => {
+export const getNgsStatsData = (projectId) => {
     /* MOCK DATA - TODO: REMOVE */
     /*
     return new Promise((resolve) => resolve(cellRangerResp))
         .then(processCellRangerResponse)
         .catch(handleError)
     */
-    const mappedType = mapCellRangerRecipe(recipe);
-    if(mappedType){
-        return getCellRangerData(projectId, mappedType);       // "count" maps to an ngs-stats endpoint
-    }
+    return getCellRangerData(projectId);       // "count" maps to an ngs-stats endpoint
     return new Promise((resolve) => resolve([]));
 };
 
@@ -103,7 +100,7 @@ export const mapCellRangerRecipe = (recipe) => {
  * @returns {Promise<AxiosResponse<T>>}
  */
 const getCellRangerData = (projectId, type) => {
-    return axios.get(`${config.IGO_QC}/getCellRangerSample?project=${projectId}&type=${type}`)
+    return axios.get(`${config.IGO_QC}/getCellRangerSample?project=${projectId}`)
         .then(processCellRangerResponse)
         .catch(handleError)
 };
